@@ -112,6 +112,13 @@ Exit codes:
 	}
 	pattern := flag.Arg(0)
 
+	// Warn about extra positional args (agents try grep-style "pattern path")
+	if flag.NArg() > 1 {
+		fmt.Fprintf(os.Stderr, "warning: extra arguments ignored: %s\n", strings.Join(flag.Args()[1:], " "))
+		fmt.Fprintf(os.Stderr, "  claude-grep searches ~/.claude/projects/ automatically\n")
+		fmt.Fprintf(os.Stderr, "  use -a for all projects, -d N for age range\n")
+	}
+
 	// Resolve search path
 	searchPath, err := resolveSearchPath(*allProjects)
 	if err != nil {
@@ -135,6 +142,7 @@ Exit codes:
 			os.Exit(2)
 		}
 		if len(matches) == 0 {
+			printNoMatchHint(pattern, searchPath, opts, true)
 			os.Exit(1)
 		}
 		if *jsonOut {
@@ -145,8 +153,8 @@ Exit codes:
 		return
 	}
 
-	// Normalize BRE syntax to ERE (agents write \| instead of |)
-	pattern = strings.ReplaceAll(pattern, `\|`, "|")
+	// Normalize BRE syntax to ERE (agents write \| \( \) \+ \? instead of | ( ) + ?)
+	pattern = normalizeBRE(pattern)
 
 	// Regex search
 	matches, err := regexSearch(pattern, searchPath, opts)
@@ -155,6 +163,7 @@ Exit codes:
 		os.Exit(2)
 	}
 	if len(matches) == 0 {
+		printNoMatchHint(pattern, searchPath, opts, false)
 		os.Exit(1)
 	}
 
@@ -191,8 +200,53 @@ func resolveSearchPath(allProjects bool) (string, error) {
 	return path, nil
 }
 
+func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bool) {
+	// Count files in scope for context
+	files, _ := findSessionFiles(searchPath, opts.MaxDays)
+	nFiles := len(files)
+
+	scope := "current project"
+	if strings.HasSuffix(searchPath, filepath.Join(".claude", "projects")) {
+		scope = "all projects"
+	}
+
+	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n", pattern, nFiles, opts.MaxDays, scope)
+
+	// Suggest broadening
+	var hints []string
+	if opts.MaxDays <= 7 {
+		hints = append(hints, "-d 30 (broader time range)")
+	}
+	if scope == "current project" {
+		hints = append(hints, "-a (all projects)")
+	}
+	if !isSemantic {
+		hints = append(hints, "-s (semantic search by meaning)")
+	}
+	if len(hints) > 0 {
+		fmt.Fprintf(os.Stderr, "try: %s\n", strings.Join(hints, ", "))
+	}
+}
+
 func encodePath(path string) string {
 	// Strip leading /, replace / with -
 	path = strings.TrimPrefix(path, "/")
 	return "-" + strings.ReplaceAll(path, "/", "-")
+}
+
+// normalizeBRE converts common BRE escape sequences to ERE equivalents.
+// Agents often write grep BRE syntax (\|, \(, \), \+, \?) which silently
+// fails in Go's ERE-style regexp.
+func normalizeBRE(pattern string) string {
+	// Only normalize sequences that are BRE-specific escapes.
+	// \| → |  (alternation)
+	// \( → (  (group open)
+	// \) → )  (group close)
+	// \+ → +  (one or more)
+	// \? → ?  (zero or one)
+	// Note: \. \* \[ \] \^ \$ are the SAME in both BRE and ERE, so don't touch them.
+	for _, c := range []string{"|", "(", ")", "+", "?"} {
+		pattern = strings.ReplaceAll(pattern, `\`+c, c)
+	}
+	return pattern
 }
