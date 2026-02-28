@@ -145,6 +145,9 @@ Exit codes:
 		return
 	}
 
+	// Normalize BRE syntax to ERE (agents write \| instead of |)
+	pattern = strings.ReplaceAll(pattern, `\|`, "|")
+
 	// Regex search
 	matches, err := regexSearch(pattern, searchPath, opts)
 	if err != nil {
