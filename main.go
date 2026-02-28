@@ -13,6 +13,9 @@ import (
 var version = "1.0.0"
 
 func main() {
+	// Reorder args: allow flags after pattern (agents write "pattern -n 5" not "-n 5 pattern")
+	reorderArgs()
+
 	// Flags
 	prompts := flag.Bool("p", false, "search only user prompts")
 	responses := flag.Bool("r", false, "search only assistant responses")
@@ -130,6 +133,8 @@ Exit codes:
 		fmt.Fprintf(os.Stderr, "  claude-grep searches ~/.claude/projects/ automatically\n")
 		fmt.Fprintf(os.Stderr, "  use -a for all projects, -d N for age range\n")
 	}
+	// NOTE: with reorderArgs(), flags after the pattern are handled correctly.
+	// Extra args only trigger for truly unknown positional args (e.g. file paths).
 
 	// Resolve search path
 	searchPath, err := resolveSearchPath(*allProjects)
@@ -151,10 +156,10 @@ Exit codes:
 	if *listOnly { flagList = append(flagList, "-l") }
 	if *semantic { flagList = append(flagList, "-s") }
 	if *jsonOut { flagList = append(flagList, "--json") }
-	if *maxDays != 7 { flagList = append(flagList, fmt.Sprintf("-d %d", *maxDays)) }
-	if *maxResults != 20 { flagList = append(flagList, fmt.Sprintf("-n %d", *maxResults)) }
+	if *maxDays != 7 { flagList = append(flagList, "-d") }
+	if *maxResults != 20 { flagList = append(flagList, "-n") }
 	if *ctxBefore > 0 || *ctxAfter > 0 || *ctxBoth > 0 {
-		flagList = append(flagList, fmt.Sprintf("-C %d", *ctxBoth))
+		flagList = append(flagList, "-C")
 	}
 
 	opts := SearchOpts{
@@ -221,6 +226,44 @@ Exit codes:
 		re, _ := regexp.Compile("(?i)" + pattern)
 		formatTerminal(matches, opts, re)
 	}
+}
+
+// reorderArgs moves flags after the pattern to before it.
+// Go's flag.Parse() stops at the first non-flag arg, so
+// "claude-grep pattern -n 5" fails. This reorders to "-n 5 pattern".
+func reorderArgs() {
+	args := os.Args[1:]
+	if len(args) == 0 {
+		return
+	}
+
+	// Flags that consume the next arg as a value
+	valueTakers := map[string]bool{
+		"-n": true, "-d": true, "-C": true, "-B": true, "-A": true,
+	}
+
+	var flags, positional []string
+	i := 0
+	for i < len(args) {
+		arg := args[i]
+		if arg == "--" {
+			// Everything after -- is positional
+			positional = append(positional, args[i+1:]...)
+			break
+		}
+		if strings.HasPrefix(arg, "-") {
+			flags = append(flags, arg)
+			if valueTakers[arg] && i+1 < len(args) {
+				i++
+				flags = append(flags, args[i])
+			}
+		} else {
+			positional = append(positional, arg)
+		}
+		i++
+	}
+
+	os.Args = append([]string{os.Args[0]}, append(flags, positional...)...)
 }
 
 func resolveSearchPath(allProjects bool) (string, error) {
