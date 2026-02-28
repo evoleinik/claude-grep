@@ -104,14 +104,32 @@ SESSION HISTORY:
 - `claude-grep --json "pattern" | jq .` — structured output
 ```
 
-## Automatic indexing
+## Indexing
 
-Set up cron to keep the index fresh:
+### First run
+
+The initial index builds embeddings for all session history. This is slow on CPU (~0.5-1s per message via ollama). A session with 2000 messages takes ~30 minutes on CPU. After the first run, incremental updates only process new/changed files.
 
 ```bash
-# Every 30 minutes
+claude-grep --index              # incremental (skips unchanged files)
+claude-grep --index --all        # full reindex
+claude-grep --index --status     # check progress and stats
+```
+
+### Automatic indexing
+
+Set up cron to keep the index fresh. A lockfile prevents concurrent runs — if the previous indexing is still going, the new cron invocation exits immediately.
+
+```bash
 (crontab -l; echo '*/30 * * * * $HOME/go/bin/claude-grep --index 2>&1 | logger -t claude-grep') | crontab -
 ```
+
+### Caveats
+
+- **CPU-only**: No GPU required, but initial indexing is slow. Budget 1-2 hours for a large history. Subsequent runs are fast (seconds).
+- **Active sessions**: A session's JSONL file is modified on every message, so active sessions get re-indexed on each cron run. This re-embeds the entire file, not just the new messages.
+- **Disk usage**: ~4.5 KB per message (768 float32 dims). 4000 vectors ≈ 17 MB.
+- **ollama must be running**: Indexing and semantic search both call ollama's HTTP API. If ollama is stopped, indexing exits with a clear error.
 
 ## License
 

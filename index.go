@@ -170,6 +170,17 @@ func runIndex(reindexAll bool) {
 }
 
 func printIndexStatus(allProjects bool) {
+	// Check if indexing is running
+	if info, err := os.Stat(lockPath()); err == nil {
+		pid := ""
+		if data, err := os.ReadFile(lockPath()); err == nil {
+			pid = string(data)
+		}
+		fmt.Printf("status:   indexing (pid %s, started %s ago)\n", pid, time.Since(info.ModTime()).Truncate(time.Second))
+	} else {
+		fmt.Printf("status:   idle\n")
+	}
+
 	stats := getIndexStats()
 	if stats.Projects == 0 {
 		fmt.Println("no index — run: claude-grep --index")
