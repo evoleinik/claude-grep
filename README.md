@@ -58,6 +58,9 @@ claude-grep -l "error"                 # list sessions, not content
 claude-grep --index                    # index new/changed files
 claude-grep --index --all              # reindex everything
 claude-grep --index --status           # show index stats
+
+# Usage telemetry
+claude-grep --usage                    # see how agents use the tool
 ```
 
 ## Flags
@@ -78,6 +81,7 @@ claude-grep --index --status           # show index stats
 | `--index` | Build/update vector index | - |
 | `--status` | Show index stats | - |
 | `--all` | Reindex everything | incremental |
+| `--usage` | Show usage stats (agent telemetry) | - |
 
 ## Exit codes
 

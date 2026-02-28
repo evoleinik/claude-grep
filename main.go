@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var version = "1.0.0"
@@ -28,6 +29,7 @@ func main() {
 	indexStatus := flag.Bool("status", false, "show index status (use with --index)")
 	indexAll := flag.Bool("all", false, "reindex everything (use with --index)")
 	showVersion := flag.Bool("version", false, "show version")
+	showUsage := flag.Bool("usage", false, "show usage stats")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `claude-grep — search Claude Code session history
@@ -37,6 +39,7 @@ Usage:
   claude-grep -s [flags] <query>    semantic search
   claude-grep --index [--all]       build/update search index
   claude-grep --index --status      show index stats
+  claude-grep --usage               show usage stats
 
 Flags:
   -p            search only user prompts
@@ -53,6 +56,7 @@ Flags:
   --index       build/update vector index
   --status      show index stats (with --index)
   --all         reindex everything (with --index)
+  --usage       show usage stats (agent telemetry)
   --version     show version
 
 Examples:
@@ -75,6 +79,11 @@ Exit codes:
 	if *showVersion {
 		fmt.Println("claude-grep", version)
 		os.Exit(0)
+	}
+
+	if *showUsage {
+		printUsageStats()
+		return
 	}
 
 	// Context: -C sets both if not individually set
@@ -111,9 +120,12 @@ Exit codes:
 		os.Exit(2)
 	}
 	pattern := flag.Arg(0)
+	origPattern := pattern
+	startTime := time.Now()
 
 	// Warn about extra positional args (agents try grep-style "pattern path")
-	if flag.NArg() > 1 {
+	hasExtraArgs := flag.NArg() > 1
+	if hasExtraArgs {
 		fmt.Fprintf(os.Stderr, "warning: extra arguments ignored: %s\n", strings.Join(flag.Args()[1:], " "))
 		fmt.Fprintf(os.Stderr, "  claude-grep searches ~/.claude/projects/ automatically\n")
 		fmt.Fprintf(os.Stderr, "  use -a for all projects, -d N for age range\n")
@@ -124,6 +136,25 @@ Exit codes:
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		os.Exit(2)
+	}
+
+	scope := "project"
+	if *allProjects {
+		scope = "all"
+	}
+
+	// Build flags string for telemetry
+	var flagList []string
+	if *prompts { flagList = append(flagList, "-p") }
+	if *responses { flagList = append(flagList, "-r") }
+	if *allProjects { flagList = append(flagList, "-a") }
+	if *listOnly { flagList = append(flagList, "-l") }
+	if *semantic { flagList = append(flagList, "-s") }
+	if *jsonOut { flagList = append(flagList, "--json") }
+	if *maxDays != 7 { flagList = append(flagList, fmt.Sprintf("-d %d", *maxDays)) }
+	if *maxResults != 20 { flagList = append(flagList, fmt.Sprintf("-n %d", *maxResults)) }
+	if *ctxBefore > 0 || *ctxAfter > 0 || *ctxBoth > 0 {
+		flagList = append(flagList, fmt.Sprintf("-C %d", *ctxBoth))
 	}
 
 	opts := SearchOpts{
@@ -141,6 +172,13 @@ Exit codes:
 			fmt.Fprintf(os.Stderr, "error: %s\n", err)
 			os.Exit(2)
 		}
+		files, _ := findSessionFiles(searchPath, opts.MaxDays)
+		logUsage(UsageEvent{
+			Pattern: pattern, Mode: "semantic", Flags: strings.Join(flagList, " "),
+			Results: len(matches), Files: len(files), Days: *maxDays,
+			Scope: scope, ExtraArgs: hasExtraArgs,
+			DurationMs: time.Since(startTime).Milliseconds(),
+		})
 		if len(matches) == 0 {
 			printNoMatchHint(pattern, searchPath, opts, true)
 			os.Exit(1)
@@ -154,6 +192,7 @@ Exit codes:
 	}
 
 	// Normalize BRE syntax to ERE (agents write \| \( \) \+ \? instead of | ( ) + ?)
+	hasBRE := pattern != normalizeBRE(pattern)
 	pattern = normalizeBRE(pattern)
 
 	// Regex search
@@ -162,6 +201,15 @@ Exit codes:
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		os.Exit(2)
 	}
+
+	files, _ := findSessionFiles(searchPath, opts.MaxDays)
+	logUsage(UsageEvent{
+		Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
+		Results: len(matches), Files: len(files), Days: *maxDays,
+		Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs,
+		DurationMs: time.Since(startTime).Milliseconds(),
+	})
+
 	if len(matches) == 0 {
 		printNoMatchHint(pattern, searchPath, opts, false)
 		os.Exit(1)

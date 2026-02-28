@@ -40,3 +40,14 @@ go vet ./...
 - Gob encoding for index (fast serialize/deserialize in Go)
 - Concurrent file search with fan-out/fan-in pattern
 - Semantic search threshold: cosine similarity > 0.3
+
+### Agent telemetry
+
+Usage is logged to `~/.claude/search-index/usage.jsonl` (one JSONL line per search).
+Run `claude-grep --usage` to see stats: hit rate, empty patterns, BRE usage, retry chains.
+
+Use this data to improve the tool:
+- Empty patterns → add hints or new features
+- BRE patterns still appearing → CLAUDE.md needs stronger wording
+- Retry chains → default scope may be too narrow
+- Flag frequency → understand agent vs human usage patterns
