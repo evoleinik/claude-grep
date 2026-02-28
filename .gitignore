@@ -1,0 +1,9 @@
+# Binary
+claude-grep
+
+# Index files
+*.gob
+
+# IDE
+.idea/
+.vscode/
