@@ -19,7 +19,43 @@ const (
 	previewLen    = 200
 )
 
+func lockPath() string {
+	return filepath.Join(indexDir(), "index.lock")
+}
+
+func acquireLock() bool {
+	path := lockPath()
+	os.MkdirAll(filepath.Dir(path), 0755)
+
+	// Check for stale lock (older than 2 hours)
+	if info, err := os.Stat(path); err == nil {
+		if time.Since(info.ModTime()) > 2*time.Hour {
+			os.Remove(path)
+		} else {
+			return false
+		}
+	}
+
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
+	if err != nil {
+		return false
+	}
+	fmt.Fprintf(f, "%d", os.Getpid())
+	f.Close()
+	return true
+}
+
+func releaseLock() {
+	os.Remove(lockPath())
+}
+
 func runIndex(reindexAll bool) {
+	if !acquireLock() {
+		fmt.Fprintln(os.Stderr, "indexing already in progress")
+		return
+	}
+	defer releaseLock()
+
 	// Check ollama is running
 	if !ollamaReachable() {
 		fmt.Fprintln(os.Stderr, "error: ollama not running — start with: ollama serve")
