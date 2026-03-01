@@ -93,9 +93,33 @@ claude-grep --usage                    # see how agents use the tool
 
 ## How it works
 
-**Regex mode**: Walks `~/.claude/projects/`, parses JSONL session files, matches text with Go regexp. Pre-filters files with `bytes.Contains` for speed. Concurrent file processing.
+**Regex mode**: Walks `~/.claude/projects/`, parses JSONL session files, matches text with Go regexp. Pre-filters files with literal substring matching for speed — alternation patterns like `(a|b|c)` are decomposed into individual literals and checked with OR semantics. Concurrent file processing (8 goroutines).
 
 **Semantic mode**: Embeds query via ollama (`nomic-embed-text`, 768 dims), computes cosine similarity against pre-built index. Index stored as gob files in `~/.claude/search-index/`.
+
+**Regex syntax**: Uses Go regexp (ERE-style), not grep BRE. Use `|` not `\|`, `(` not `\(`. BRE escapes are auto-normalized but should be avoided.
+
+## Observability
+
+Every search emits a structured event to `~/.claude/search-index/usage.jsonl`:
+
+```json
+{"ts":"...","pattern":"(a|b)","mode":"regex","results":5,"files":500,"ms":1200,"pf_skip":393,"pf_pass":107}
+```
+
+| Field | Description |
+|-------|-------------|
+| `pf_skip` | Files rejected by pre-filter (didn't contain any literal) |
+| `pf_pass` | Files that passed pre-filter and were regex-searched |
+| `results` | Final match count |
+| `files` | Total files in scope |
+
+Run `claude-grep --usage` for a 30-day summary including:
+- Hit rate and latency
+- Empty patterns (improvement candidates)
+- **Prefilter diagnostics** — flags searches where the pre-filter rejected ALL files (likely bug)
+- Retry chains (consecutive empty→found within 2 minutes)
+- BRE misuse and extra arg warnings
 
 ## Use with AI agents
 
@@ -106,6 +130,7 @@ SESSION HISTORY:
 - `claude-grep "pattern"` — regex search session history
 - `claude-grep -s "query"` — semantic search by meaning
 - `claude-grep --json "pattern" | jq .` — structured output
+- `claude-grep --usage` — check search health and hit rate
 ```
 
 ## Indexing
