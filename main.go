@@ -201,18 +201,19 @@ Exit codes:
 	pattern = normalizeBRE(pattern)
 
 	// Regex search
-	matches, err := regexSearch(pattern, searchPath, opts)
+	matches, searchStats, err := regexSearch(pattern, searchPath, opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		os.Exit(2)
 	}
 
-	files, _ := findSessionFiles(searchPath, opts.MaxDays)
 	logUsage(UsageEvent{
 		Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
-		Results: len(matches), Files: len(files), Days: *maxDays,
+		Results: len(matches), Files: searchStats.FilesTotal, Days: *maxDays,
 		Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs,
 		DurationMs: time.Since(startTime).Milliseconds(),
+		PrefilterSkip: searchStats.PrefilterSkipped,
+		RegexSearched: searchStats.RegexSearched,
 	})
 
 	if len(matches) == 0 {

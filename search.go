@@ -9,8 +9,16 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
+
+// SearchStats tracks pre-filter and regex search behavior for diagnostics.
+type SearchStats struct {
+	FilesTotal       int
+	PrefilterSkipped int
+	RegexSearched    int
+}
 
 // Message represents a parsed chat message from a JSONL session file.
 type Message struct {
@@ -43,15 +51,15 @@ type SearchOpts struct {
 }
 
 // regexSearch finds matches across session files using regex.
-func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, error) {
+func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchStats, error) {
 	re, err := regexp.Compile("(?i)" + pattern)
 	if err != nil {
-		return nil, err
+		return nil, SearchStats{}, err
 	}
 
 	files, err := findSessionFiles(searchPath, opts.MaxDays)
 	if err != nil {
-		return nil, err
+		return nil, SearchStats{}, err
 	}
 
 	// Concurrent search with fan-in
@@ -66,6 +74,7 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, error) {
 	sem := make(chan struct{}, 8)
 
 	prefilterLiterals := extractPrefilterLiterals(pattern)
+	var pfSkipped int32
 
 	for _, f := range files {
 		wg.Add(1)
@@ -74,7 +83,10 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, error) {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			matches := searchFile(fp, re, prefilterLiterals, opts)
+			matches, skipped := searchFileTracked(fp, re, prefilterLiterals, opts)
+			if skipped {
+				atomic.AddInt32(&pfSkipped, 1)
+			}
 			if len(matches) > 0 {
 				results <- fileResult{matches: matches}
 			}
@@ -101,7 +113,13 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, error) {
 		allMatches = allMatches[:opts.MaxResults]
 	}
 
-	return allMatches, nil
+	stats := SearchStats{
+		FilesTotal:       len(files),
+		PrefilterSkipped: int(pfSkipped),
+		RegexSearched:    len(files) - int(pfSkipped),
+	}
+
+	return allMatches, stats, nil
 }
 
 // findSessionFiles finds JSONL files modified within maxDays.
@@ -129,24 +147,23 @@ func findSessionFiles(searchPath string, maxDays int) ([]string, error) {
 	return files, err
 }
 
-// searchFile searches a single JSONL file for regex matches.
-func searchFile(filepath string, re *regexp.Regexp, prefilter [][]byte, opts SearchOpts) []Match {
+// searchFileTracked searches a single JSONL file and reports whether the prefilter skipped it.
+func searchFileTracked(filepath string, re *regexp.Regexp, prefilter [][]byte, opts SearchOpts) (matches []Match, prefilterSkipped bool) {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
-		return nil
+		return nil, false
 	}
 
 	// Quick check: does the file even contain any prefilter literal?
 	if !prefilterMatch(data, prefilter) {
-		return nil
+		return nil, true
 	}
 
 	messages := parseJSONL(filepath, data)
 	if len(messages) == 0 {
-		return nil
+		return nil, false
 	}
 
-	var matches []Match
 	for i, msg := range messages {
 		if opts.Role != "both" && msg.Type != opts.Role {
 			continue
@@ -182,7 +199,7 @@ func searchFile(filepath string, re *regexp.Regexp, prefilter [][]byte, opts Sea
 		matches = append(matches, m)
 	}
 
-	return matches
+	return matches, false
 }
 
 // parseJSONL parses a JSONL file into messages.

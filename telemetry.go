@@ -13,17 +13,19 @@ import (
 
 // UsageEvent is one line in the usage log.
 type UsageEvent struct {
-	Timestamp string `json:"ts"`
-	Pattern   string `json:"pattern"`
-	Mode      string `json:"mode"` // "regex" or "semantic"
-	Flags     string `json:"flags"`
-	Results   int    `json:"results"`
-	Files     int    `json:"files"`
-	Days      int    `json:"days"`
-	Scope     string `json:"scope"` // "project" or "all"
-	BRE       bool   `json:"bre,omitempty"`
-	ExtraArgs bool   `json:"extra_args,omitempty"`
-	DurationMs int64 `json:"ms"`
+	Timestamp      string `json:"ts"`
+	Pattern        string `json:"pattern"`
+	Mode           string `json:"mode"` // "regex" or "semantic"
+	Flags          string `json:"flags"`
+	Results        int    `json:"results"`
+	Files          int    `json:"files"`
+	Days           int    `json:"days"`
+	Scope          string `json:"scope"` // "project" or "all"
+	BRE            bool   `json:"bre,omitempty"`
+	ExtraArgs      bool   `json:"extra_args,omitempty"`
+	DurationMs     int64  `json:"ms"`
+	PrefilterSkip  int    `json:"pf_skip,omitempty"`
+	RegexSearched  int    `json:"pf_pass,omitempty"`
 }
 
 func usageLogPath() string {
@@ -139,6 +141,26 @@ func printUsageStats() {
 		if extraArgCount > 0 {
 			fmt.Printf("  Extra positional args (ignored): %d\n", extraArgCount)
 		}
+	}
+
+	// Prefilter diagnostics: detect searches where prefilter killed all files
+	var pfFalseNeg []string
+	for _, ev := range recent {
+		if ev.Results == 0 && ev.PrefilterSkip > 0 && ev.PrefilterSkip == ev.Files {
+			pfFalseNeg = append(pfFalseNeg, ev.Pattern)
+		}
+	}
+	if len(pfFalseNeg) > 0 {
+		fmt.Println()
+		fmt.Printf("Prefilter rejected ALL files (%d searches):\n", len(pfFalseNeg))
+		seen := make(map[string]bool)
+		for _, p := range pfFalseNeg {
+			if !seen[p] {
+				fmt.Printf("  %q\n", p)
+				seen[p] = true
+			}
+		}
+		fmt.Println("  ^ likely prefilter bug — pattern has no extractable literal")
 	}
 
 	// Empty patterns (deduped, top 10)
