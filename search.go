@@ -65,7 +65,7 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, error) {
 	// Limit concurrency
 	sem := make(chan struct{}, 8)
 
-	patternBytes := []byte(strings.ToLower(pattern))
+	prefilterLiterals := extractPrefilterLiterals(pattern)
 
 	for _, f := range files {
 		wg.Add(1)
@@ -74,7 +74,7 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, error) {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			matches := searchFile(fp, re, patternBytes, opts)
+			matches := searchFile(fp, re, prefilterLiterals, opts)
 			if len(matches) > 0 {
 				results <- fileResult{matches: matches}
 			}
@@ -130,14 +130,14 @@ func findSessionFiles(searchPath string, maxDays int) ([]string, error) {
 }
 
 // searchFile searches a single JSONL file for regex matches.
-func searchFile(filepath string, re *regexp.Regexp, patternLower []byte, opts SearchOpts) []Match {
+func searchFile(filepath string, re *regexp.Regexp, prefilter [][]byte, opts SearchOpts) []Match {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil
 	}
 
-	// Quick check: does the file even contain the pattern?
-	if !bytes.Contains(bytes.ToLower(data), patternLower) {
+	// Quick check: does the file even contain any prefilter literal?
+	if !prefilterMatch(data, prefilter) {
 		return nil
 	}
 
@@ -330,4 +330,125 @@ func extractSessionID(fpath string) string {
 
 func extractProject(fpath string) string {
 	return filepath.Base(filepath.Dir(fpath))
+}
+
+// extractPrefilterLiterals extracts literal byte strings from a regex pattern
+// for fast file-level pre-filtering with bytes.Contains. For alternation
+// patterns like (a|b|c), returns each branch's longest literal. Returns nil
+// if no useful literals can be extracted (pre-filter is skipped).
+func extractPrefilterLiterals(pattern string) [][]byte {
+	p := stripOuterGroup(pattern)
+	parts := splitTopLevelPipe(p)
+
+	var literals [][]byte
+	for _, part := range parts {
+		lit := longestLiteral(strings.Trim(part, "()"))
+		if lit == "" {
+			return nil // can't pre-filter this branch
+		}
+		literals = append(literals, []byte(strings.ToLower(lit)))
+	}
+	if len(literals) == 0 {
+		return nil
+	}
+	return literals
+}
+
+// stripOuterGroup removes a single matching outer group from a pattern.
+// (a|b) → a|b, (?:a|b) → a|b, (?i:a|b) → a|b
+func stripOuterGroup(s string) string {
+	if len(s) < 2 || s[0] != '(' || s[len(s)-1] != ')' {
+		return s
+	}
+	depth := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == '(' {
+			depth++
+		} else if s[i] == ')' {
+			depth--
+		}
+		if depth == 0 && i < len(s)-1 {
+			return s // outer parens don't match each other
+		}
+	}
+	inner := s[1 : len(s)-1]
+	for _, prefix := range []string{"?:", "?i:", "?i"} {
+		if strings.HasPrefix(inner, prefix) {
+			return inner[len(prefix):]
+		}
+	}
+	return inner
+}
+
+// splitTopLevelPipe splits a pattern on | that aren't inside parentheses.
+func splitTopLevelPipe(s string) []string {
+	var parts []string
+	depth := 0
+	start := 0
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '(':
+			depth++
+		case ')':
+			if depth > 0 {
+				depth--
+			}
+		case '|':
+			if depth == 0 {
+				parts = append(parts, s[start:i])
+				start = i + 1
+			}
+		}
+	}
+	parts = append(parts, s[start:])
+	return parts
+}
+
+// longestLiteral finds the longest contiguous non-metacharacter substring.
+func longestLiteral(s string) string {
+	best := ""
+	var current strings.Builder
+
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c == '\\' && i+1 < len(s) {
+			current.WriteByte(s[i+1])
+			i++
+			continue
+		}
+		if isRegexMeta(c) {
+			if current.Len() > len(best) {
+				best = current.String()
+			}
+			current.Reset()
+			continue
+		}
+		current.WriteByte(c)
+	}
+	if current.Len() > len(best) {
+		best = current.String()
+	}
+	return best
+}
+
+func isRegexMeta(c byte) bool {
+	return c == '.' || c == '+' || c == '*' || c == '?' ||
+		c == '^' || c == '$' || c == '{' || c == '}' ||
+		c == '[' || c == ']' || c == '(' || c == ')' ||
+		c == '|' || c == '\\'
+}
+
+// prefilterMatch checks if file data contains any of the prefilter literals.
+// Returns true if prefilter is nil/empty (disabled) or any literal matches.
+func prefilterMatch(data []byte, literals [][]byte) bool {
+	if len(literals) == 0 {
+		return true
+	}
+	lower := bytes.ToLower(data)
+	for _, lit := range literals {
+		if bytes.Contains(lower, lit) {
+			return true
+		}
+	}
+	return false
 }
