@@ -316,6 +316,15 @@ func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bo
 
 	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n", pattern, len(files), opts.MaxDays, scope)
 
+	// Hint: space-containing patterns are literal phrases — suggest alternation or wildcard
+	if !isSemantic && strings.Contains(pattern, " ") {
+		words := strings.Fields(pattern)
+		if len(words) >= 2 {
+			fmt.Fprintf(os.Stderr, "hint: %q searches for literal phrase — try: \"(%s)\" or \"%s\"\n",
+				pattern, strings.Join(words, "|"), strings.Join(words, ".*"))
+		}
+	}
+
 	// Copy-pasteable retry command
 	if scope == "current project" || opts.MaxDays <= 7 {
 		fmt.Fprintf(os.Stderr, "retry: claude-grep -a -d 30 %q\n", pattern)

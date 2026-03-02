@@ -168,7 +168,7 @@ func printUsageStats() {
 				seen[p] = true
 			}
 		}
-		fmt.Println("  ^ likely prefilter bug — pattern has no extractable literal")
+		fmt.Println("  ^ prefilter literal not found in any file — try broader search (-a -d 30)")
 	}
 
 	// Empty patterns (deduped, top 10)
