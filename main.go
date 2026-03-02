@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -123,6 +122,14 @@ Exit codes:
 		os.Exit(2)
 	}
 	pattern := flag.Arg(0)
+
+	// Reject suspicious patterns that match everything (flag-parsing mistakes)
+	if isSuspiciousPattern(pattern) {
+		fmt.Fprintf(os.Stderr, "pattern %q matches everything — did you mean a different search term?\n", pattern)
+		fmt.Fprintf(os.Stderr, "  use -- to separate flags from pattern: claude-grep -- %q\n", pattern)
+		os.Exit(2)
+	}
+
 	origPattern := pattern
 	startTime := time.Now()
 
@@ -177,11 +184,12 @@ Exit codes:
 			fmt.Fprintf(os.Stderr, "error: %s\n", err)
 			os.Exit(2)
 		}
+		capped := len(matches) >= opts.MaxResults
 		files, _ := findSessionFiles(searchPath, opts.MaxDays)
 		logUsage(UsageEvent{
 			Pattern: pattern, Mode: "semantic", Flags: strings.Join(flagList, " "),
 			Results: len(matches), Files: len(files), Days: *maxDays,
-			Scope: scope, ExtraArgs: hasExtraArgs,
+			Scope: scope, ExtraArgs: hasExtraArgs, Capped: capped,
 			DurationMs: time.Since(startTime).Milliseconds(),
 		})
 		if len(matches) == 0 {
@@ -192,6 +200,9 @@ Exit codes:
 			formatJSON(matches, os.Stdout)
 		} else {
 			formatTerminal(matches, opts)
+		}
+		if capped {
+			printCapHint(opts)
 		}
 		return
 	}
@@ -207,10 +218,11 @@ Exit codes:
 		os.Exit(2)
 	}
 
+	capped := len(matches) >= opts.MaxResults
 	logUsage(UsageEvent{
 		Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
 		Results: len(matches), Files: searchStats.FilesTotal, Days: *maxDays,
-		Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs,
+		Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs, Capped: capped,
 		DurationMs: time.Since(startTime).Milliseconds(),
 		PrefilterSkip: searchStats.PrefilterSkipped,
 		RegexSearched: searchStats.RegexSearched,
@@ -224,8 +236,10 @@ Exit codes:
 	if *jsonOut {
 		formatJSON(matches, os.Stdout)
 	} else {
-		re, _ := regexp.Compile("(?i)" + pattern)
-		formatTerminal(matches, opts, re)
+		formatTerminal(matches, opts)
+	}
+	if capped {
+		printCapHint(opts)
 	}
 }
 
@@ -293,31 +307,38 @@ func resolveSearchPath(allProjects bool) (string, error) {
 }
 
 func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bool) {
-	// Count files in scope for context
 	files, _ := findSessionFiles(searchPath, opts.MaxDays)
-	nFiles := len(files)
 
 	scope := "current project"
 	if strings.HasSuffix(searchPath, filepath.Join(".claude", "projects")) {
 		scope = "all projects"
 	}
 
-	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n", pattern, nFiles, opts.MaxDays, scope)
+	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n", pattern, len(files), opts.MaxDays, scope)
 
-	// Suggest broadening
-	var hints []string
-	if opts.MaxDays <= 7 {
-		hints = append(hints, "-d 30 (broader time range)")
-	}
-	if scope == "current project" {
-		hints = append(hints, "-a (all projects)")
+	// Copy-pasteable retry command
+	if scope == "current project" || opts.MaxDays <= 7 {
+		fmt.Fprintf(os.Stderr, "retry: claude-grep -a -d 30 %q\n", pattern)
 	}
 	if !isSemantic {
-		hints = append(hints, "-s (semantic search by meaning)")
+		fmt.Fprintf(os.Stderr, "or:    claude-grep -s %q\n", pattern)
 	}
-	if len(hints) > 0 {
-		fmt.Fprintf(os.Stderr, "try: %s\n", strings.Join(hints, ", "))
+}
+
+func isSuspiciousPattern(pattern string) bool {
+	switch pattern {
+	case "-", ".", "*", ".*":
+		return true
 	}
+	return false
+}
+
+func printCapHint(opts SearchOpts) {
+	hint := fmt.Sprintf("results capped at %d — narrow your pattern or use -n 50", opts.MaxResults)
+	if opts.MaxDays <= 7 {
+		hint += ", -d 30"
+	}
+	fmt.Fprintln(os.Stderr, hint)
 }
 
 func encodePath(path string) string {

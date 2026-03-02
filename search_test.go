@@ -103,6 +103,35 @@ func TestStripOuterGroup(t *testing.T) {
 	}
 }
 
+func TestIsSuspiciousPattern(t *testing.T) {
+	suspicious := []string{"-", ".", "*", ".*"}
+	for _, p := range suspicious {
+		if !isSuspiciousPattern(p) {
+			t.Errorf("%q should be suspicious", p)
+		}
+	}
+	valid := []string{"openclaw", "(a|b)", "deploy.*prod", "--flag"}
+	for _, p := range valid {
+		if isSuspiciousPattern(p) {
+			t.Errorf("%q should NOT be suspicious", p)
+		}
+	}
+}
+
+func TestNormalizeBRE(t *testing.T) {
+	tests := []struct{ in, want string }{
+		{`\(a\|b\)`, "(a|b)"},
+		{"(a|b)", "(a|b)"},
+		{`open\.claw`, `open\.claw`},
+	}
+	for _, tt := range tests {
+		got := normalizeBRE(tt.in)
+		if got != tt.want {
+			t.Errorf("normalizeBRE(%q) = %q, want %q", tt.in, got, tt.want)
+		}
+	}
+}
+
 func TestLongestLiteral(t *testing.T) {
 	tests := []struct {
 		input, want string

@@ -23,6 +23,7 @@ type UsageEvent struct {
 	Scope          string `json:"scope"` // "project" or "all"
 	BRE            bool   `json:"bre,omitempty"`
 	ExtraArgs      bool   `json:"extra_args,omitempty"`
+	Capped         bool   `json:"capped,omitempty"`
 	DurationMs     int64  `json:"ms"`
 	PrefilterSkip  int    `json:"pf_skip,omitempty"`
 	RegexSearched  int    `json:"pf_pass,omitempty"`
@@ -94,6 +95,7 @@ func printUsageStats() {
 	empty := 0
 	breCount := 0
 	extraArgCount := 0
+	cappedCount := 0
 	var totalMs int64
 	flagCounts := make(map[string]int)
 	modeCounts := make(map[string]int)
@@ -111,6 +113,9 @@ func printUsageStats() {
 		}
 		if ev.ExtraArgs {
 			extraArgCount++
+		}
+		if ev.Capped {
+			cappedCount++
 		}
 		totalMs += ev.DurationMs
 		modeCounts[ev.Mode]++
@@ -132,7 +137,7 @@ func printUsageStats() {
 	}
 
 	// Agent issues
-	if breCount > 0 || extraArgCount > 0 {
+	if breCount > 0 || extraArgCount > 0 || cappedCount > 0 {
 		fmt.Println()
 		fmt.Println("Agent issues:")
 		if breCount > 0 {
@@ -140,6 +145,9 @@ func printUsageStats() {
 		}
 		if extraArgCount > 0 {
 			fmt.Printf("  Extra positional args (ignored): %d\n", extraArgCount)
+		}
+		if cappedCount > 0 {
+			fmt.Printf("  Cap-hit searches: %d (%d%%)\n", cappedCount, cappedCount*100/total)
 		}
 	}
 

@@ -4,26 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 )
 
-// ANSI colors
-const (
-	blue     = "\033[34m"
-	green    = "\033[32m"
-	yellow   = "\033[33;1m"
-	bold     = "\033[1m"
-	dim      = "\033[2m"
-	reset    = "\033[0m"
-	cyan     = "\033[36m"
-)
-
-func formatTerminal(matches []Match, opts SearchOpts, highlightRe ...*regexp.Regexp) {
-	var re *regexp.Regexp
-	if len(highlightRe) > 0 {
-		re = highlightRe[0]
-	}
+func formatTerminal(matches []Match, opts SearchOpts) {
 	// Group matches by session
 	type sessionGroup struct {
 		project   string
@@ -61,28 +45,28 @@ func formatTerminal(matches []Match, opts SearchOpts, highlightRe ...*regexp.Reg
 			fmt.Println()
 		}
 		g := groups[key]
-		fmt.Printf("%s--- %s/%s ---%s\n", bold, g.project, g.sessionID, reset)
+		fmt.Printf("--- %s/%s ---\n", g.project, g.sessionID)
 
 		printed := make(map[int]bool)
 		for mi, m := range g.matches {
 			// Context before
 			for _, ctx := range m.ContextBefore {
 				if !printed[ctx.MsgIndex] {
-					printMessage(ctx, false, m.Similarity, re)
+					printMessage(ctx, false, m.Similarity)
 					printed[ctx.MsgIndex] = true
 				}
 			}
 
 			// The match itself
 			if !printed[m.Message.MsgIndex] {
-				printMessage(m.Message, true, m.Similarity, re)
+				printMessage(m.Message, true, m.Similarity)
 				printed[m.Message.MsgIndex] = true
 			}
 
 			// Context after
 			for _, ctx := range m.ContextAfter {
 				if !printed[ctx.MsgIndex] {
-					printMessage(ctx, false, m.Similarity, re)
+					printMessage(ctx, false, m.Similarity)
 					printed[ctx.MsgIndex] = true
 				}
 			}
@@ -95,10 +79,10 @@ func formatTerminal(matches []Match, opts SearchOpts, highlightRe ...*regexp.Reg
 	}
 }
 
-func printMessage(msg Message, isMatch bool, similarity float32, highlightRe *regexp.Regexp) {
-	tag := blue + "YOU" + reset
+func printMessage(msg Message, isMatch bool, similarity float32) {
+	tag := "YOU"
 	if msg.Role == "assistant" {
-		tag = green + "AI " + reset
+		tag = "AI "
 	}
 
 	text := msg.Text
@@ -108,45 +92,11 @@ func printMessage(msg Message, isMatch bool, similarity float32, highlightRe *re
 	}
 
 	if len(text) > maxLen {
-		if isMatch && highlightRe != nil {
-			loc := highlightRe.FindStringIndex(text)
-			if loc != nil {
-				start := loc[0] - 150
-				if start < 0 {
-					start = 0
-				}
-				end := loc[1] + 350
-				if end > len(text) {
-					end = len(text)
-				}
-				prefix := ""
-				suffix := ""
-				if start > 0 {
-					prefix = "..."
-				}
-				if end < len(text) {
-					suffix = "..."
-				}
-				text = prefix + text[start:end] + suffix
-			} else {
-				text = text[:maxLen] + "..."
-			}
-		} else {
-			text = text[:maxLen] + "..."
-		}
-	}
-
-	// Highlight match in yellow (for regex matches) or show as-is for semantic
-	if isMatch && highlightRe != nil {
-		text = highlightRe.ReplaceAllString(text, yellow+"${0}"+reset)
+		text = text[:maxLen] + "..."
 	}
 
 	// Replace newlines with spaces for compact display
 	text = strings.ReplaceAll(text, "\n", " ")
-
-	if !isMatch {
-		text = dim + text + reset
-	}
 
 	marker := " "
 	if isMatch {
@@ -155,7 +105,7 @@ func printMessage(msg Message, isMatch bool, similarity float32, highlightRe *re
 
 	simStr := ""
 	if isMatch && similarity > 0 {
-		simStr = fmt.Sprintf(" %s[%.2f]%s", cyan, similarity, reset)
+		simStr = fmt.Sprintf(" [%.2f]", similarity)
 	}
 
 	fmt.Printf("  %s %s [%s]%s %s\n", marker, msg.Timestamp, tag, simStr, text)
