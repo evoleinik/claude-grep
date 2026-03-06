@@ -71,7 +71,7 @@ claude-grep --usage                    # see how agents use the tool
 | `-r` | Search only AI responses | both |
 | `-a` | Search all projects | current dir |
 | `-l` | List sessions only | off |
-| `-n N` | Max results | 20 |
+| `-n N` | Max results | 50 |
 | `-d N` | Max age in days | 7 |
 | `-C N` | Context messages (before + after) | 0 |
 | `-B N` | Context messages before | 0 |
@@ -95,7 +95,9 @@ claude-grep --usage                    # see how agents use the tool
 
 **Regex mode**: Walks `~/.claude/projects/`, parses JSONL session files, matches text with Go regexp. Pre-filters files with literal substring matching for speed — alternation patterns like `(a|b|c)` are decomposed into individual literals and checked with OR semantics. Concurrent file processing (8 goroutines).
 
-**Semantic mode**: Embeds query via ollama (`nomic-embed-text`, 768 dims), computes cosine similarity against pre-built index. Index stored as gob files in `~/.claude/search-index/`.
+**Semantic mode**: Embeds query via ollama (`nomic-embed-text`, 768 dims), computes cosine similarity against pre-built index (threshold: 0.55). Skips file re-reads when no context is requested (~60x faster). Index stored as gob files in `~/.claude/search-index/`.
+
+**Auto-escalation**: When the current project has ≤5 session files, automatically widens to all projects (avoids the common retry pattern of project→all).
 
 **Regex syntax**: Uses Go regexp (ERE-style), not grep BRE. Use `|` not `\|`, `(` not `\(`. BRE escapes are auto-normalized but should be avoided.
 
@@ -117,8 +119,9 @@ Every search emits a structured event to `~/.claude/search-index/usage.jsonl`:
 Run `claude-grep --usage` for a 30-day summary including:
 - Hit rate and latency
 - Empty patterns (improvement candidates)
-- **Prefilter diagnostics** — flags searches where the pre-filter rejected ALL files (likely bug)
-- Retry chains (consecutive empty→found within 2 minutes)
+- **Prefilter diagnostics** — flags searches where the pre-filter rejected ALL files
+- **Retry chains** — consecutive searches <90s apart (any type), with worst chain, wasted time, scope escalations
+- **Duplicate searches** — same pattern+scope repeated across sessions
 - BRE misuse and extra arg warnings
 
 ## Use with AI agents
