@@ -81,7 +81,7 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 			}
 
 			sim := cosineSimilarity(queryVec, entry.Vector)
-			if sim > 0.3 { // minimum threshold
+			if sim > 0.55 { // minimum threshold (0.3 was too low — nomic-embed-text baseline is high)
 				candidates = append(candidates, scored{entry: entry, similarity: sim})
 			}
 		}
@@ -124,35 +124,37 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 			Similarity: c.similarity,
 		}
 
-		// Retrieve full text and context from original file
-		if data, err := os.ReadFile(c.entry.FilePath); err == nil {
-			allMsgs := parseJSONL(c.entry.FilePath, data)
-			// Find matching message by index
-			if c.entry.MsgIndex < len(allMsgs) {
-				m.Message.Text = allMsgs[c.entry.MsgIndex].Text
-			}
-
-			// Context before
-			if opts.Before > 0 {
-				start := c.entry.MsgIndex - opts.Before
-				if start < 0 {
-					start = 0
+		// Only re-read file if context requested or preview is empty
+		if (opts.Before > 0 || opts.After > 0) || c.entry.Preview == "" {
+			if data, err := os.ReadFile(c.entry.FilePath); err == nil {
+				allMsgs := parseJSONL(c.entry.FilePath, data)
+				// Find matching message by index
+				if c.entry.MsgIndex < len(allMsgs) {
+					m.Message.Text = allMsgs[c.entry.MsgIndex].Text
 				}
-				for j := start; j < c.entry.MsgIndex; j++ {
-					if j < len(allMsgs) {
-						m.ContextBefore = append(m.ContextBefore, allMsgs[j])
+
+				// Context before
+				if opts.Before > 0 {
+					start := c.entry.MsgIndex - opts.Before
+					if start < 0 {
+						start = 0
+					}
+					for j := start; j < c.entry.MsgIndex; j++ {
+						if j < len(allMsgs) {
+							m.ContextBefore = append(m.ContextBefore, allMsgs[j])
+						}
 					}
 				}
-			}
 
-			// Context after
-			if opts.After > 0 {
-				end := c.entry.MsgIndex + opts.After + 1
-				if end > len(allMsgs) {
-					end = len(allMsgs)
-				}
-				for j := c.entry.MsgIndex + 1; j < end; j++ {
-					m.ContextAfter = append(m.ContextAfter, allMsgs[j])
+				// Context after
+				if opts.After > 0 {
+					end := c.entry.MsgIndex + opts.After + 1
+					if end > len(allMsgs) {
+						end = len(allMsgs)
+					}
+					for j := c.entry.MsgIndex + 1; j < end; j++ {
+						m.ContextAfter = append(m.ContextAfter, allMsgs[j])
+					}
 				}
 			}
 		}

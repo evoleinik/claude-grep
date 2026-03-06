@@ -20,7 +20,7 @@ func main() {
 	responses := flag.Bool("r", false, "search only assistant responses")
 	allProjects := flag.Bool("a", false, "search all projects")
 	listOnly := flag.Bool("l", false, "list matching sessions only")
-	maxResults := flag.Int("n", 20, "max results")
+	maxResults := flag.Int("n", 50, "max results")
 	maxDays := flag.Int("d", 7, "max age in days")
 	ctxBoth := flag.Int("C", 0, "context lines before and after")
 	ctxBefore := flag.Int("B", 0, "context lines before")
@@ -48,7 +48,7 @@ Flags:
   -r            search only assistant responses
   -a            search all projects (default: current dir)
   -l            list matching sessions only
-  -n N          max results (default: 20)
+  -n N          max results (default: 50)
   -d N          max age in days (default: 7)
   -C N          context messages before and after
   -B N          context messages before
@@ -150,6 +150,19 @@ Exit codes:
 		os.Exit(2)
 	}
 
+	// Auto-escalate to all projects if current project has very few sessions
+	if !*allProjects {
+		files, _ := findSessionFiles(searchPath, *maxDays)
+		if len(files) <= 5 {
+			allSearchPath, err := resolveSearchPath(true)
+			if err == nil {
+				fmt.Fprintf(os.Stderr, "only %d sessions in project scope — searching all projects\n", len(files))
+				searchPath = allSearchPath
+				*allProjects = true
+			}
+		}
+	}
+
 	scope := "project"
 	if *allProjects {
 		scope = "all"
@@ -164,7 +177,7 @@ Exit codes:
 	if *semantic { flagList = append(flagList, "-s") }
 	if *jsonOut { flagList = append(flagList, "--json") }
 	if *maxDays != 7 { flagList = append(flagList, "-d") }
-	if *maxResults != 20 { flagList = append(flagList, "-n") }
+	if *maxResults != 50 { flagList = append(flagList, "-n") }
 	if *ctxBefore > 0 || *ctxAfter > 0 || *ctxBoth > 0 {
 		flagList = append(flagList, "-C")
 	}
@@ -193,7 +206,7 @@ Exit codes:
 			DurationMs: time.Since(startTime).Milliseconds(),
 		})
 		if len(matches) == 0 {
-			printNoMatchHint(pattern, searchPath, opts, true)
+			printNoMatchHint(pattern, searchPath, opts, true, SearchStats{FilesTotal: len(files)})
 			os.Exit(1)
 		}
 		if *jsonOut {
@@ -229,7 +242,7 @@ Exit codes:
 	})
 
 	if len(matches) == 0 {
-		printNoMatchHint(pattern, searchPath, opts, false)
+		printNoMatchHint(pattern, searchPath, opts, false, searchStats)
 		os.Exit(1)
 	}
 
@@ -306,22 +319,25 @@ func resolveSearchPath(allProjects bool) (string, error) {
 	return path, nil
 }
 
-func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bool) {
-	files, _ := findSessionFiles(searchPath, opts.MaxDays)
-
+func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bool, stats SearchStats) {
 	scope := "current project"
 	if strings.HasSuffix(searchPath, filepath.Join(".claude", "projects")) {
 		scope = "all projects"
 	}
 
-	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n", pattern, len(files), opts.MaxDays, scope)
+	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n", pattern, stats.FilesTotal, opts.MaxDays, scope)
+
+	// If prefilter killed everything and pattern has spaces, explain why
+	if !isSemantic && strings.Contains(pattern, " ") && stats.PrefilterSkipped == stats.FilesTotal && stats.FilesTotal > 0 {
+		fmt.Fprintf(os.Stderr, "note: %q matched as a literal phrase — words must appear together\n", pattern)
+	}
 
 	// Hint: space-containing patterns are literal phrases — suggest alternation or wildcard
 	if !isSemantic && strings.Contains(pattern, " ") {
 		words := strings.Fields(pattern)
 		if len(words) >= 2 {
-			fmt.Fprintf(os.Stderr, "hint: %q searches for literal phrase — try: \"(%s)\" or \"%s\"\n",
-				pattern, strings.Join(words, "|"), strings.Join(words, ".*"))
+			fmt.Fprintf(os.Stderr, "hint: try: \"(%s)\" or \"%s\"\n",
+				strings.Join(words, "|"), strings.Join(words, ".*"))
 		}
 	}
 
@@ -343,7 +359,7 @@ func isSuspiciousPattern(pattern string) bool {
 }
 
 func printCapHint(opts SearchOpts) {
-	hint := fmt.Sprintf("results capped at %d — narrow your pattern or use -n 50", opts.MaxResults)
+	hint := fmt.Sprintf("results capped at %d — narrow your pattern or use -n 100", opts.MaxResults)
 	if opts.MaxDays <= 7 {
 		hint += ", -d 30"
 	}

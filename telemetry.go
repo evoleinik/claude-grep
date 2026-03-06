@@ -221,35 +221,109 @@ func printUsageStats() {
 		}
 	}
 
-	// Retry chains: consecutive empty→found within same minute
-	chains := 0
-	totalRetries := 0
-	for i := 1; i < len(recent); i++ {
-		if recent[i-1].Results == 0 && recent[i].Results > 0 {
-			// Check if within 2 minutes (likely same agent session)
-			t1, e1 := time.Parse(time.RFC3339, recent[i-1].Timestamp)
-			t2, e2 := time.Parse(time.RFC3339, recent[i].Timestamp)
-			if e1 == nil && e2 == nil && t2.Sub(t1) < 2*time.Minute {
-				chains++
-				// Count how many empties preceded this success
-				retries := 1
-				for j := i - 2; j >= 0; j-- {
-					if recent[j].Results == 0 {
-						t0, e0 := time.Parse(time.RFC3339, recent[j].Timestamp)
-						if e0 == nil && t1.Sub(t0) < 2*time.Minute {
-							retries++
-							continue
-						}
-					}
-					break
+	// Retry chains: consecutive searches <90s apart
+	chains := detectChains(recent)
+	if len(chains) > 0 {
+		fmt.Println()
+		totalLen := 0
+		var wastedMs int64
+		var worstChain []UsageEvent
+		scopeEscalations := 0
+		for _, chain := range chains {
+			totalLen += len(chain)
+			if len(chain) > len(worstChain) {
+				worstChain = chain
+			}
+			for _, ev := range chain {
+				if ev.Results == 0 {
+					wastedMs += ev.DurationMs
 				}
-				totalRetries += retries
+			}
+			for i := 1; i < len(chain); i++ {
+				if chain[i-1].Scope == "project" && chain[i].Scope == "all" {
+					scopeEscalations++
+				}
 			}
 		}
+		fmt.Printf("Retry chains: %d (avg %.1f searches/chain)\n",
+			len(chains), float64(totalLen)/float64(len(chains)))
+		if wastedMs > 0 {
+			fmt.Printf("  Wasted time (empty searches in chains): %dms\n", wastedMs)
+		}
+		if len(worstChain) > 0 {
+			var patterns []string
+			for _, ev := range worstChain {
+				patterns = append(patterns, fmt.Sprintf("%q", ev.Pattern))
+			}
+			fmt.Printf("  Worst chain (%d searches): %s\n", len(worstChain), strings.Join(patterns, " → "))
+		}
+		if scopeEscalations > 0 {
+			fmt.Printf("  Scope escalations (project→all): %d\n", scopeEscalations)
+		}
 	}
-	if chains > 0 {
+
+	// Duplicate searches
+	dups := detectDuplicates(recent)
+	if len(dups) > 0 {
 		fmt.Println()
-		fmt.Printf("Retry chains: %d detected (avg %.1f retries before success)\n",
-			chains, float64(totalRetries)/float64(chains))
+		fmt.Println("Duplicate searches:")
+		for i, d := range dups {
+			if i >= 5 {
+				break
+			}
+			fmt.Printf("  %dx %-8s %q\n", d.count, d.scope, d.pattern)
+		}
 	}
+}
+
+// detectChains finds consecutive searches <90s apart (regardless of result).
+func detectChains(events []UsageEvent) [][]UsageEvent {
+	if len(events) == 0 {
+		return nil
+	}
+
+	var chains [][]UsageEvent
+	current := []UsageEvent{events[0]}
+
+	for i := 1; i < len(events); i++ {
+		t1, e1 := time.Parse(time.RFC3339, events[i-1].Timestamp)
+		t2, e2 := time.Parse(time.RFC3339, events[i].Timestamp)
+		if e1 == nil && e2 == nil && t2.Sub(t1) < 90*time.Second {
+			current = append(current, events[i])
+		} else {
+			if len(current) > 1 {
+				chains = append(chains, current)
+			}
+			current = []UsageEvent{events[i]}
+		}
+	}
+	if len(current) > 1 {
+		chains = append(chains, current)
+	}
+
+	return chains
+}
+
+type dupEntry struct {
+	pattern string
+	scope   string
+	count   int
+}
+
+// detectDuplicates finds exact duplicate searches (same pattern+scope).
+func detectDuplicates(events []UsageEvent) []dupEntry {
+	type dupKey struct{ pattern, scope string }
+	counts := make(map[dupKey]int)
+	for _, ev := range events {
+		counts[dupKey{ev.Pattern, ev.Scope}]++
+	}
+
+	var dups []dupEntry
+	for k, c := range counts {
+		if c > 1 {
+			dups = append(dups, dupEntry{k.pattern, k.scope, c})
+		}
+	}
+	sort.Slice(dups, func(i, j int) bool { return dups[i].count > dups[j].count })
+	return dups
 }
