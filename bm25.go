@@ -188,7 +188,8 @@ func splitSentences(text string) []string {
 	return merged
 }
 
-// tokenize splits text into lowercase word tokens.
+// tokenize splits text into lowercase word tokens, filters stop words,
+// and applies simple suffix stemming.
 func tokenize(text string) []string {
 	var tokens []string
 	var word strings.Builder
@@ -197,15 +198,63 @@ func tokenize(text string) []string {
 			word.WriteRune(r)
 		} else {
 			if word.Len() > 0 {
-				tokens = append(tokens, word.String())
+				w := word.String()
+				if !stopWords[w] {
+					tokens = append(tokens, stem(w))
+				}
 				word.Reset()
 			}
 		}
 	}
 	if word.Len() > 0 {
-		tokens = append(tokens, word.String())
+		w := word.String()
+		if !stopWords[w] {
+			tokens = append(tokens, stem(w))
+		}
 	}
 	return tokens
+}
+
+// stem applies minimal suffix stripping so "deploy", "deployed",
+// "deploying", "deployment" all match. Not a full Porter stemmer —
+// just the highest-value English suffixes.
+func stem(w string) string {
+	// Order matters: try longest suffixes first
+	for _, suffix := range []string{
+		"ment", "tion", "sion", "ness", "ling",
+		"ing", "ied", "ies", "ous", "ive", "ful", "ble", "ally",
+		"ly", "ed", "er", "es",
+	} {
+		if strings.HasSuffix(w, suffix) && len(w)-len(suffix) >= 3 {
+			return w[:len(w)-len(suffix)]
+		}
+	}
+	// Trailing 's' (plurals) — keep at least 3 chars
+	if strings.HasSuffix(w, "s") && len(w) >= 4 {
+		return w[:len(w)-1]
+	}
+	return w
+}
+
+var stopWords = map[string]bool{
+	"a": true, "an": true, "the": true, "is": true, "are": true,
+	"was": true, "were": true, "be": true, "been": true, "being": true,
+	"have": true, "has": true, "had": true, "do": true, "does": true,
+	"did": true, "will": true, "would": true, "could": true, "should": true,
+	"may": true, "might": true, "shall": true, "can": true,
+	"of": true, "in": true, "to": true, "for": true, "with": true,
+	"on": true, "at": true, "by": true, "from": true, "as": true,
+	"into": true, "about": true, "between": true, "through": true,
+	"and": true, "or": true, "but": true, "not": true, "no": true,
+	"if": true, "then": true, "so": true, "than": true,
+	"that": true, "this": true, "it": true, "its": true,
+	"i": true, "me": true, "my": true, "we": true, "our": true,
+	"you": true, "your": true, "he": true, "she": true, "they": true,
+	"them": true, "their": true, "what": true, "which": true, "who": true,
+	"all": true, "each": true, "some": true, "any": true, "more": true,
+	"also": true, "just": true, "here": true, "there": true, "when": true,
+	"how": true, "very": true, "only": true, "well": true, "now": true,
+	"let": true, "use": true,
 }
 
 // bm25Score computes BM25 scores for each document given query tokens.
