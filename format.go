@@ -12,6 +12,20 @@ import (
 var searchQuery string
 
 func formatTerminal(matches []Match, opts SearchOpts) {
+	// Adaptive budget: target ~15K total chars, divide among matches
+	// Fewer matches = more detail each. Clamp to [300, 2000].
+	const totalBudget = 15000
+	n := len(matches)
+	if n > 0 {
+		matchBudget = totalBudget / n
+		if matchBudget < 300 {
+			matchBudget = 300
+		}
+		if matchBudget > 2000 {
+			matchBudget = 2000
+		}
+	}
+
 	// Group matches by session
 	type sessionGroup struct {
 		project   string
@@ -94,12 +108,16 @@ func formatTerminal(matches []Match, opts SearchOpts) {
 	}
 }
 
+// matchBudget is the per-match character budget for BM25 compression.
+// Set by formatTerminal based on total match count.
+var matchBudget = 500
+
 // compressForDisplay compresses a message's text for terminal display.
 func compressForDisplay(msg Message, isMatch bool) string {
 	text := msg.Text
 	maxLen := 200
 	if isMatch {
-		maxLen = 500
+		maxLen = matchBudget
 	}
 
 	if len(text) > maxLen {

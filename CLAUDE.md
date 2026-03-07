@@ -41,7 +41,11 @@ go vet ./...
 - Gob encoding for index (fast serialize/deserialize in Go)
 - Concurrent file search with fan-out/fan-in pattern
 - Semantic search threshold: cosine similarity > 0.3
-- BM25 compression: terminal output shows query-relevant paragraphs, not blind head truncation
+- BM25 compression: terminal output shows query-relevant chunks, not blind head truncation
+- Sentence-level splitting: large paragraphs broken into sentences for finer BM25 granularity
+- Stop word filtering + suffix stemming: deploy matches deployed/deploying/deployment
+- Adaptive budget: 15K total chars divided among matches (3 matches=2000 each, 50=300 each)
+- Cross-match content dedup: identical compressed text across sessions is collapsed
 - JSON output (`--json`) preserves full uncompressed text
 
 ### Agent telemetry

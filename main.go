@@ -191,7 +191,11 @@ Exit codes:
 		ListOnly:   *listOnly,
 	}
 
-	// Set search query for BM25 compression in terminal output
+	// Set search query for BM25 compression in terminal output.
+	// Extract literal words from regex pattern — regex metacharacters
+	// become whitespace for tokenization, which is exactly what we want:
+	// "(deploy|rollback)" → tokens "deploy", "rollback"
+	// "deploy.*config" → tokens "deploy", "config"
 	searchQuery = pattern
 
 	if *semantic {

@@ -199,7 +199,7 @@ func tokenize(text string) []string {
 		} else {
 			if word.Len() > 0 {
 				w := word.String()
-				if !stopWords[w] {
+				if len(w) > 1 && !stopWords[w] {
 					tokens = append(tokens, stem(w))
 				}
 				word.Reset()
@@ -208,7 +208,7 @@ func tokenize(text string) []string {
 	}
 	if word.Len() > 0 {
 		w := word.String()
-		if !stopWords[w] {
+		if len(w) > 1 && !stopWords[w] {
 			tokens = append(tokens, stem(w))
 		}
 	}
