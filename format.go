@@ -44,6 +44,10 @@ func formatTerminal(matches []Match, opts SearchOpts) {
 		return
 	}
 
+	// Content-level dedup: track compressed text hashes across all sessions
+	// to skip near-duplicate messages (e.g. compacted summaries that repeat)
+	seenContent := make(map[string]bool)
+
 	for i, key := range order {
 		if i > 0 {
 			fmt.Println()
@@ -53,6 +57,13 @@ func formatTerminal(matches []Match, opts SearchOpts) {
 
 		printed := make(map[int]bool)
 		for mi, m := range g.matches {
+			// Content dedup: compress first, check if we've seen this text
+			compressed := compressForDisplay(m.Message, true)
+			if seenContent[compressed] {
+				continue
+			}
+			seenContent[compressed] = true
+
 			// Context before
 			for _, ctx := range m.ContextBefore {
 				if !printed[ctx.MsgIndex] {
@@ -63,7 +74,7 @@ func formatTerminal(matches []Match, opts SearchOpts) {
 
 			// The match itself
 			if !printed[m.Message.MsgIndex] {
-				printMessage(m.Message, true, m.Similarity)
+				printMessageText(m.Message, compressed, true, m.Similarity)
 				printed[m.Message.MsgIndex] = true
 			}
 
@@ -83,12 +94,8 @@ func formatTerminal(matches []Match, opts SearchOpts) {
 	}
 }
 
-func printMessage(msg Message, isMatch bool, similarity float32) {
-	tag := "YOU"
-	if msg.Role == "assistant" {
-		tag = "AI "
-	}
-
+// compressForDisplay compresses a message's text for terminal display.
+func compressForDisplay(msg Message, isMatch bool) string {
 	text := msg.Text
 	maxLen := 200
 	if isMatch {
@@ -103,8 +110,19 @@ func printMessage(msg Message, isMatch bool, similarity float32) {
 		}
 	}
 
-	// Replace newlines with spaces for compact display
-	text = strings.ReplaceAll(text, "\n", " ")
+	return strings.ReplaceAll(text, "\n", " ")
+}
+
+func printMessage(msg Message, isMatch bool, similarity float32) {
+	text := compressForDisplay(msg, isMatch)
+	printMessageText(msg, text, isMatch, similarity)
+}
+
+func printMessageText(msg Message, text string, isMatch bool, similarity float32) {
+	tag := "YOU"
+	if msg.Role == "assistant" {
+		tag = "AI "
+	}
 
 	marker := " "
 	if isMatch {

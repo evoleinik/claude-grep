@@ -13,7 +13,7 @@ func bm25Compress(text, query string, maxLen int) string {
 		return text
 	}
 
-	paras := splitParagraphs(text)
+	paras := splitChunks(text)
 	if len(paras) == 0 {
 		return text[:maxLen]
 	}
@@ -103,20 +103,27 @@ func bm25Compress(text, query string, maxLen int) string {
 	return result
 }
 
-// splitParagraphs splits text on double-newlines or single newlines for
-// messages that don't have paragraph structure.
-func splitParagraphs(text string) []string {
-	// Try double-newline split first
+// splitChunks splits text into scorable chunks. Uses paragraph splits first,
+// then breaks large paragraphs into sentences for finer granularity.
+func splitChunks(text string) []string {
+	// Split on double-newline
 	paras := strings.Split(text, "\n\n")
-	if len(paras) > 1 {
-		var out []string
-		for _, p := range paras {
-			p = strings.TrimSpace(p)
-			if p != "" {
-				out = append(out, p)
-			}
+	var chunks []string
+	for _, p := range paras {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
 		}
-		return out
+		// Large paragraphs: split into sentences for finer granularity
+		if len(p) > 200 {
+			sents := splitSentences(p)
+			chunks = append(chunks, sents...)
+		} else {
+			chunks = append(chunks, p)
+		}
+	}
+	if len(chunks) > 0 {
+		return chunks
 	}
 
 	// Fall back to single-newline split for flat text
@@ -132,6 +139,53 @@ func splitParagraphs(text string) []string {
 		}
 	}
 	return out
+}
+
+// splitSentences splits a paragraph into sentences at ". " boundaries,
+// keeping short runs together to avoid fragments.
+func splitSentences(text string) []string {
+	var sents []string
+	var cur strings.Builder
+	for i := 0; i < len(text); i++ {
+		cur.WriteByte(text[i])
+		// Sentence boundary: period/question/exclamation followed by space + uppercase or newline
+		if (text[i] == '.' || text[i] == '?' || text[i] == '!') && cur.Len() >= 40 {
+			if i+2 < len(text) && text[i+1] == ' ' && unicode.IsUpper(rune(text[i+2])) {
+				sents = append(sents, strings.TrimSpace(cur.String()))
+				cur.Reset()
+				i++ // skip the space
+				continue
+			}
+			if i+1 < len(text) && text[i+1] == '\n' {
+				sents = append(sents, strings.TrimSpace(cur.String()))
+				cur.Reset()
+				continue
+			}
+		}
+	}
+	if cur.Len() > 0 {
+		sents = append(sents, strings.TrimSpace(cur.String()))
+	}
+	// Merge very short fragments back together
+	var merged []string
+	var buf strings.Builder
+	for _, s := range sents {
+		if buf.Len() > 0 {
+			buf.WriteByte(' ')
+		}
+		buf.WriteString(s)
+		if buf.Len() >= 60 {
+			merged = append(merged, buf.String())
+			buf.Reset()
+		}
+	}
+	if buf.Len() > 0 {
+		merged = append(merged, buf.String())
+	}
+	if len(merged) == 0 {
+		return []string{text}
+	}
+	return merged
 }
 
 // tokenize splits text into lowercase word tokens.
