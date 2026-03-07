@@ -18,15 +18,15 @@ func bm25Compress(text, query string, maxLen int) string {
 		return text[:maxLen]
 	}
 
-	queryTokens := tokenize(query)
+	queryTokens := tokenizeWithBigrams(query)
 	if len(queryTokens) == 0 {
 		return text[:maxLen]
 	}
 
-	// Tokenize all paragraphs
+	// Tokenize all paragraphs with bigrams
 	docs := make([][]string, len(paras))
 	for i, p := range paras {
-		docs[i] = tokenize(p)
+		docs[i] = tokenizeWithBigrams(p)
 	}
 
 	scores := bm25Score(docs, queryTokens)
@@ -211,6 +211,22 @@ func tokenize(text string) []string {
 		if len(w) > 1 && !stopWords[w] {
 			tokens = append(tokens, stem(w))
 		}
+	}
+	return tokens
+}
+
+// tokenizeWithBigrams returns unigrams + adjacent bigrams.
+// "pip install scrapling" → [pip, install, scrapl, pip_install, install_scrapl]
+// Bigrams boost chunks where query words appear together.
+func tokenizeWithBigrams(text string) []string {
+	unigrams := tokenize(text)
+	if len(unigrams) <= 1 {
+		return unigrams
+	}
+	tokens := make([]string, 0, len(unigrams)*2)
+	tokens = append(tokens, unigrams...)
+	for i := 0; i < len(unigrams)-1; i++ {
+		tokens = append(tokens, unigrams[i]+"_"+unigrams[i+1])
 	}
 	return tokens
 }
