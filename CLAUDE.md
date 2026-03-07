@@ -28,6 +28,7 @@ go vet ./...
 |------|---------|
 | `main.go` | CLI flags, routing |
 | `search.go` | JSONL parsing, regex search, concurrent file processing |
+| `bm25.go` | BM25 query-focused paragraph compression |
 | `format.go` | Terminal (colored) and JSON output |
 | `index.go` | Ollama embedding, incremental indexer |
 | `store.go` | Gob-based vector store on disk |
@@ -40,6 +41,8 @@ go vet ./...
 - Gob encoding for index (fast serialize/deserialize in Go)
 - Concurrent file search with fan-out/fan-in pattern
 - Semantic search threshold: cosine similarity > 0.3
+- BM25 compression: terminal output shows query-relevant paragraphs, not blind head truncation
+- JSON output (`--json`) preserves full uncompressed text
 
 ### Agent telemetry
 

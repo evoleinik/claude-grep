@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+// searchQuery holds the current search pattern for BM25 compression.
+// Set by main before calling format functions.
+var searchQuery string
+
 func formatTerminal(matches []Match, opts SearchOpts) {
 	// Group matches by session
 	type sessionGroup struct {
@@ -92,7 +96,11 @@ func printMessage(msg Message, isMatch bool, similarity float32) {
 	}
 
 	if len(text) > maxLen {
-		text = text[:maxLen] + "..."
+		if isMatch && searchQuery != "" {
+			text = bm25Compress(text, searchQuery, maxLen)
+		} else {
+			text = text[:maxLen] + "..."
+		}
 	}
 
 	// Replace newlines with spaces for compact display

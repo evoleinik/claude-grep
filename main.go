@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var version = "1.0.0"
+var version = "1.1.0"
 
 func main() {
 	// Reorder args: allow flags after pattern (agents write "pattern -n 5" not "-n 5 pattern")
@@ -190,6 +190,9 @@ Exit codes:
 		After:      *ctxAfter,
 		ListOnly:   *listOnly,
 	}
+
+	// Set search query for BM25 compression in terminal output
+	searchQuery = pattern
 
 	if *semantic {
 		matches, err := semanticSearch(pattern, searchPath, opts)
