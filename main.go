@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -250,6 +251,8 @@ Exit codes:
 
 	if len(matches) == 0 {
 		printNoMatchHint(pattern, searchPath, opts, false, searchStats)
+		// Near-miss: try a relaxed substring search on the longest literal
+		printNearMiss(pattern, searchPath, opts)
 		os.Exit(1)
 	}
 
@@ -354,6 +357,47 @@ func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bo
 	}
 	if !isSemantic {
 		fmt.Fprintf(os.Stderr, "or:    claude-grep -s %q\n", pattern)
+	}
+}
+
+// printNearMiss tries a relaxed search when regex found nothing.
+// Extracts the longest literal from the pattern and does a simple
+// case-insensitive substring search to show near-misses.
+func printNearMiss(pattern, searchPath string, opts SearchOpts) {
+	lit := longestLiteral(pattern)
+	if len(lit) < 3 || lit == strings.TrimLeft(pattern, "(?i:") {
+		// Pattern IS a simple literal, or too short — no point retrying
+		return
+	}
+
+	// Quick search using the literal as the pattern
+	relaxedOpts := opts
+	relaxedOpts.MaxResults = 3
+	re, err := regexp.Compile("(?i)" + regexp.QuoteMeta(lit))
+	if err != nil {
+		return
+	}
+	files, err := findSessionFiles(searchPath, opts.MaxDays)
+	if err != nil || len(files) == 0 {
+		return
+	}
+
+	var found int
+	for _, f := range files {
+		data, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+		if re.Match(data) {
+			found++
+		}
+		if found >= 3 {
+			break
+		}
+	}
+
+	if found > 0 {
+		fmt.Fprintf(os.Stderr, "near: %d files contain %q — try: claude-grep %q\n", found, lit, lit)
 	}
 }
 
