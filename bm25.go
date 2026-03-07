@@ -108,37 +108,42 @@ func bm25Compress(text, query string, maxLen int) string {
 func splitChunks(text string) []string {
 	// Split on double-newline
 	paras := strings.Split(text, "\n\n")
-	var chunks []string
-	for _, p := range paras {
-		p = strings.TrimSpace(p)
-		if p == "" {
-			continue
+	if len(paras) > 1 {
+		var chunks []string
+		for _, p := range paras {
+			p = strings.TrimSpace(p)
+			if p == "" {
+				continue
+			}
+			// Large paragraphs: split into sentences for finer granularity
+			if len(p) > 200 {
+				sents := splitSentences(p)
+				chunks = append(chunks, sents...)
+			} else {
+				chunks = append(chunks, p)
+			}
 		}
-		// Large paragraphs: split into sentences for finer granularity
-		if len(p) > 200 {
-			sents := splitSentences(p)
-			chunks = append(chunks, sents...)
-		} else {
-			chunks = append(chunks, p)
+		if len(chunks) > 0 {
+			return chunks
 		}
-	}
-	if len(chunks) > 0 {
-		return chunks
 	}
 
 	// Fall back to single-newline split for flat text
 	lines := strings.Split(text, "\n")
-	if len(lines) <= 3 {
-		return []string{text}
-	}
-	var out []string
-	for _, l := range lines {
-		l = strings.TrimSpace(l)
-		if l != "" {
-			out = append(out, l)
+	if len(lines) > 3 {
+		var out []string
+		for _, l := range lines {
+			l = strings.TrimSpace(l)
+			if l != "" {
+				out = append(out, l)
+			}
+		}
+		if len(out) > 0 {
+			return out
 		}
 	}
-	return out
+
+	return []string{text}
 }
 
 // splitSentences splits a paragraph into sentences at ". " boundaries,
