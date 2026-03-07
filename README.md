@@ -108,6 +108,8 @@ claude-grep --usage                    # see how agents use the tool
 
 This means "deploy" also matches "deployed", "deploying", "deployment", and multi-word queries like "pip install" boost chunks where the words appear adjacent. Budget adapts: 3 matches get 2000 chars each, 50 matches get 300 chars each (15K total target). JSON output (`--json`) always preserves full uncompressed text.
 
+**Near-miss hints**: When a regex search returns zero results, claude-grep extracts the longest literal substring from the pattern and runs a relaxed case-insensitive search. If files contain that literal, it prints a suggestion like `near: 3 files contain "deploy" — try: claude-grep "deploy"`. This helps when a complex pattern (e.g. `deploy.*rollback`) fails but simpler terms would match.
+
 **Auto-escalation**: When the current project has ≤5 session files, automatically widens to all projects (avoids the common retry pattern of project→all).
 
 **Regex syntax**: Uses Go regexp (ERE-style), not grep BRE. Use `|` not `\|`, `(` not `\(`. BRE escapes are auto-normalized but should be avoided.

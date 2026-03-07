@@ -46,6 +46,7 @@ go vet ./...
 - Stop word filtering + suffix stemming: deploy matches deployed/deploying/deployment
 - Adaptive budget: 15K total chars divided among matches (3 matches=2000 each, 50=300 each)
 - Cross-match content dedup: identical compressed text across sessions is collapsed
+- Near-miss hints: when regex finds nothing, extracts longest literal and does relaxed search to suggest simpler patterns
 - JSON output (`--json`) preserves full uncompressed text
 
 ### Agent telemetry
