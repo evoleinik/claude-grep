@@ -9,6 +9,7 @@ Search Claude Code session history with regex or semantic (vector) search.
 | Claude Code sessions are buried in JSONL files | `claude-grep` searches them like grep |
 | Can't find "that conversation about X" | `-s` does meaning-based search via embeddings |
 | Python startup adds ~200ms latency | Go binary starts in <10ms |
+| Search results flood the context window | BM25 compression shows only query-relevant text |
 | No structured output for piping | `--json` outputs clean JSON |
 
 ## Install
@@ -96,6 +97,16 @@ claude-grep --usage                    # see how agents use the tool
 **Regex mode**: Walks `~/.claude/projects/`, parses JSONL session files, matches text with Go regexp. Pre-filters files with literal substring matching for speed — alternation patterns like `(a|b|c)` are decomposed into individual literals and checked with OR semantics. Concurrent file processing (8 goroutines).
 
 **Semantic mode**: Embeds query via ollama (`nomic-embed-text`, 768 dims), computes cosine similarity against pre-built index (threshold: 0.55). Skips file re-reads when no context is requested (~60x faster). Index stored as gob files in `~/.claude/search-index/`.
+
+**BM25 compression**: Terminal output uses Okapi BM25 to extract the most query-relevant chunks from each matched message, instead of blind head truncation. The pipeline:
+
+1. Split message into sentences (paragraphs > 200 chars get sentence-split)
+2. Tokenize with bigrams, stop word filtering, and suffix stemming
+3. Score each chunk against the query with BM25 (k1=1.2, b=0.75)
+4. Select top-scoring chunks within an adaptive per-match budget
+5. Deduplicate identical compressed text across matches
+
+This means "deploy" also matches "deployed", "deploying", "deployment", and multi-word queries like "pip install" boost chunks where the words appear adjacent. Budget adapts: 3 matches get 2000 chars each, 50 matches get 300 chars each (15K total target). JSON output (`--json`) always preserves full uncompressed text.
 
 **Auto-escalation**: When the current project has ≤5 session files, automatically widens to all projects (avoids the common retry pattern of project→all).
 
