@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var version = "1.2.0"
+var version = "1.3.0"
 
 func main() {
 	// Reorder args: allow flags after pattern (agents write "pattern -n 5" not "-n 5 pattern")
@@ -23,6 +23,7 @@ func main() {
 	listOnly := flag.Bool("l", false, "list matching sessions only")
 	maxResults := flag.Int("n", 50, "max results")
 	maxDays := flag.Int("d", 7, "max age in days")
+	maxHours := flag.Int("H", 0, "max age in hours (overrides -d)")
 	ctxBoth := flag.Int("C", 0, "context lines before and after")
 	ctxBefore := flag.Int("B", 0, "context lines before")
 	ctxAfter := flag.Int("A", 0, "context lines after")
@@ -51,6 +52,7 @@ Flags:
   -l            list matching sessions only
   -n N          max results (default: 50)
   -d N          max age in days (default: 7)
+  -H N          max age in hours (overrides -d)
   -C N          context messages before and after
   -B N          context messages before
   -A N          context messages after
@@ -67,6 +69,7 @@ Examples:
   claude-grep -p -n 5 "database"      your prompts about databases
   claude-grep -C 2 "error"            matches with 2 messages context
   claude-grep -a -d 30 "deploy"       all projects, last 30 days
+  claude-grep -H 4 "bug"              last 4 hours only
   claude-grep -s "that migration fix" semantic search by meaning
   claude-grep --json "test" | jq .    pipe JSON to jq
 
@@ -177,6 +180,7 @@ Exit codes:
 	if *listOnly { flagList = append(flagList, "-l") }
 	if *semantic { flagList = append(flagList, "-s") }
 	if *jsonOut { flagList = append(flagList, "--json") }
+	if *maxHours > 0 { flagList = append(flagList, "-H") }
 	if *maxDays != 7 { flagList = append(flagList, "-d") }
 	if *maxResults != 50 { flagList = append(flagList, "-n") }
 	if *ctxBefore > 0 || *ctxAfter > 0 || *ctxBoth > 0 {
@@ -190,6 +194,9 @@ Exit codes:
 		Before:     *ctxBefore,
 		After:      *ctxAfter,
 		ListOnly:   *listOnly,
+	}
+	if *maxHours > 0 {
+		opts.MaxAge = time.Duration(*maxHours) * time.Hour
 	}
 
 	// Set search query for BM25 compression in terminal output.
@@ -277,7 +284,7 @@ func reorderArgs() {
 
 	// Flags that consume the next arg as a value
 	valueTakers := map[string]bool{
-		"-n": true, "-d": true, "-C": true, "-B": true, "-A": true,
+		"-n": true, "-d": true, "-H": true, "-C": true, "-B": true, "-A": true,
 	}
 
 	var flags, positional []string

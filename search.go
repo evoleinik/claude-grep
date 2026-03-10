@@ -45,6 +45,7 @@ type SearchOpts struct {
 	Role       string // "both", "user", "assistant"
 	MaxResults int
 	MaxDays    int
+	MaxAge     time.Duration // if non-zero, overrides MaxDays
 	Before     int
 	After      int
 	ListOnly   bool
@@ -57,7 +58,12 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 		return nil, SearchStats{}, err
 	}
 
-	files, err := findSessionFiles(searchPath, opts.MaxDays)
+	var files []string
+	if opts.MaxAge > 0 {
+		files, err = findSessionFilesWithAge(searchPath, opts.MaxAge)
+	} else {
+		files, err = findSessionFiles(searchPath, opts.MaxDays)
+	}
 	if err != nil {
 		return nil, SearchStats{}, err
 	}
@@ -122,9 +128,13 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 	return allMatches, stats, nil
 }
 
-// findSessionFiles finds JSONL files modified within maxDays.
+// findSessionFiles finds JSONL files modified within the given time range.
 func findSessionFiles(searchPath string, maxDays int) ([]string, error) {
-	cutoff := time.Now().AddDate(0, 0, -maxDays)
+	return findSessionFilesWithAge(searchPath, time.Duration(maxDays)*24*time.Hour)
+}
+
+func findSessionFilesWithAge(searchPath string, maxAge time.Duration) ([]string, error) {
+	cutoff := time.Now().Add(-maxAge)
 	var files []string
 
 	err := filepath.Walk(searchPath, func(path string, info os.FileInfo, err error) error {
