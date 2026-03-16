@@ -1,5 +1,10 @@
 # claude-grep
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/evoleinik/claude-grep.svg)](https://pkg.go.dev/github.com/evoleinik/claude-grep)
+[![Go Report Card](https://goreportcard.com/badge/github.com/evoleinik/claude-grep)](https://goreportcard.com/report/github.com/evoleinik/claude-grep)
+[![codecov](https://codecov.io/gh/evoleinik/claude-grep/branch/main/graph/badge.svg)](https://app.codecov.io/gh/evoleinik/claude-grep)
+[![CI](https://github.com/evoleinik/claude-grep/actions/workflows/ci.yml/badge.svg)](https://github.com/evoleinik/claude-grep/actions/workflows/ci.yml)
+
 Search Claude Code session history with regex or semantic (vector) search.
 
 ## Why
