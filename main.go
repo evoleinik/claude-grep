@@ -264,6 +264,35 @@ Exit codes:
 	})
 
 	if len(matches) == 0 {
+		// Auto-escalate: try all projects when current project found nothing
+		if !*allProjects {
+			allSearchPath, err := resolveSearchPath(true)
+			if err == nil {
+				fmt.Fprintf(os.Stderr, "no matches in project — searching all projects...\n")
+				allMatches, allStats, allErr := regexSearch(pattern, allSearchPath, opts)
+				if allErr == nil && len(allMatches) > 0 {
+					logUsage(UsageEvent{
+						Pattern: origPattern, Mode: "regex-escalated", Flags: strings.Join(flagList, " "),
+						Results: len(allMatches), Files: allStats.FilesTotal, Days: *maxDays,
+						Scope: "all", DurationMs: time.Since(startTime).Milliseconds(),
+					})
+					if *jsonOut {
+						formatJSON(allMatches, os.Stdout)
+					} else {
+						formatTerminal(allMatches, opts)
+					}
+					if len(allMatches) >= opts.MaxResults {
+						printCapHint(opts)
+					}
+					return
+				}
+				// Update stats for hint messages
+				searchStats = allStats
+				scope = "all"
+				searchPath = allSearchPath
+			}
+		}
+
 		// Auto-fallback: try semantic search when regex finds nothing
 		if !*semantic && ollamaReachable() {
 			fmt.Fprintf(os.Stderr, "no regex matches — trying semantic search...\n")
