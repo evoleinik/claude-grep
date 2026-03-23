@@ -21,7 +21,7 @@ func main() {
 	responses := flag.Bool("r", false, "search only assistant responses")
 	allProjects := flag.Bool("a", false, "search all projects")
 	listOnly := flag.Bool("l", false, "list matching sessions only")
-	maxResults := flag.Int("n", 50, "max results")
+	maxResults := flag.Int("n", 100, "max results")
 	maxDays := flag.Int("d", 7, "max age in days")
 	maxHours := flag.Int("H", 0, "max age in hours (overrides -d)")
 	ctxBoth := flag.Int("C", 0, "context lines before and after")
@@ -50,7 +50,7 @@ Flags:
   -r            search only assistant responses
   -a            search all projects (default: current dir)
   -l            list matching sessions only
-  -n N          max results (default: 50)
+  -n N          max results (default: 100)
   -d N          max age in days (default: 7)
   -H N          max age in hours (overrides -d)
   -C N          context messages before and after
@@ -188,7 +188,7 @@ Exit codes:
 	if *jsonOut { flagList = append(flagList, "--json") }
 	if *maxHours > 0 { flagList = append(flagList, "-H") }
 	if *maxDays != 7 { flagList = append(flagList, "-d") }
-	if *maxResults != 50 { flagList = append(flagList, "-n") }
+	if *maxResults != 100 { flagList = append(flagList, "-n") }
 	if *ctxBefore > 0 || *ctxAfter > 0 || *ctxBoth > 0 {
 		flagList = append(flagList, "-C")
 	}

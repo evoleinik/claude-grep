@@ -12,9 +12,9 @@ import (
 var searchQuery string
 
 func formatTerminal(matches []Match, opts SearchOpts) {
-	// Adaptive budget: target ~15K total chars, divide among matches
+	// Adaptive budget: target ~30K total chars, divide among matches
 	// Fewer matches = more detail each. Clamp to [300, 2000].
-	const totalBudget = 15000
+	const totalBudget = 30000
 	n := len(matches)
 	if n > 0 {
 		matchBudget = totalBudget / n
