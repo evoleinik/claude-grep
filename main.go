@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var version = "1.3.0"
+var version = "1.4.0"
 
 func main() {
 	// Reorder args: allow flags after pattern (agents write "pattern -n 5" not "-n 5 pattern")
@@ -137,6 +137,12 @@ Exit codes:
 	origPattern := pattern
 	startTime := time.Now()
 
+	// Warn about short patterns that produce noisy results
+	lit := longestLiteral(pattern)
+	if !*semantic && len(lit) <= 3 && len(lit) > 0 {
+		fmt.Fprintf(os.Stderr, "warning: short pattern %q will match many false positives — consider: claude-grep -s %q\n", pattern, pattern)
+	}
+
 	// Warn about extra positional args (agents try grep-style "pattern path")
 	hasExtraArgs := flag.NArg() > 1
 	if hasExtraArgs {
@@ -188,12 +194,13 @@ Exit codes:
 	}
 
 	opts := SearchOpts{
-		Role:       role,
-		MaxResults: *maxResults,
-		MaxDays:    *maxDays,
-		Before:     *ctxBefore,
-		After:      *ctxAfter,
-		ListOnly:   *listOnly,
+		Role:        role,
+		MaxResults:  *maxResults,
+		MaxDays:     *maxDays,
+		Before:      *ctxBefore,
+		After:       *ctxAfter,
+		ListOnly:    *listOnly,
+		ExcludeSelf: true,
 	}
 	if *maxHours > 0 {
 		opts.MaxAge = time.Duration(*maxHours) * time.Hour
@@ -257,6 +264,26 @@ Exit codes:
 	})
 
 	if len(matches) == 0 {
+		// Auto-fallback: try semantic search when regex finds nothing
+		if !*semantic && ollamaReachable() {
+			fmt.Fprintf(os.Stderr, "no regex matches — trying semantic search...\n")
+			semMatches, semErr := semanticSearch(origPattern, searchPath, opts)
+			if semErr == nil && len(semMatches) > 0 {
+				logUsage(UsageEvent{
+					Pattern: origPattern, Mode: "semantic-fallback", Flags: strings.Join(flagList, " "),
+					Results: len(semMatches), Files: searchStats.FilesTotal, Days: *maxDays,
+					Scope: scope, DurationMs: time.Since(startTime).Milliseconds(),
+				})
+				if *jsonOut {
+					formatJSON(semMatches, os.Stdout)
+				} else {
+					formatTerminal(semMatches, opts)
+				}
+				return
+			}
+			fmt.Fprintf(os.Stderr, "semantic search also found nothing\n")
+		}
+
 		printNoMatchHint(pattern, searchPath, opts, false, searchStats)
 		// Near-miss: try a relaxed substring search on the longest literal
 		printNearMiss(pattern, searchPath, opts)

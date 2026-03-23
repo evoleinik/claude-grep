@@ -42,13 +42,14 @@ type Match struct {
 
 // SearchOpts holds search parameters.
 type SearchOpts struct {
-	Role       string // "both", "user", "assistant"
-	MaxResults int
-	MaxDays    int
-	MaxAge     time.Duration // if non-zero, overrides MaxDays
-	Before     int
-	After      int
-	ListOnly   bool
+	Role        string // "both", "user", "assistant"
+	MaxResults  int
+	MaxDays     int
+	MaxAge      time.Duration // if non-zero, overrides MaxDays
+	Before      int
+	After       int
+	ListOnly    bool
+	ExcludeSelf bool // exclude the current (most recent) session
 }
 
 // regexSearch finds matches across session files using regex.
@@ -66,6 +67,11 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 	}
 	if err != nil {
 		return nil, SearchStats{}, err
+	}
+
+	// Exclude current session (most recently modified file)
+	if opts.ExcludeSelf && len(files) > 0 {
+		files = excludeNewestFile(files)
 	}
 
 	// Concurrent search with fan-in
@@ -463,6 +469,57 @@ func isRegexMeta(c byte) bool {
 		c == '^' || c == '$' || c == '{' || c == '}' ||
 		c == '[' || c == ']' || c == '(' || c == ')' ||
 		c == '|' || c == '\\'
+}
+
+// findNewestSessionFile returns the path of the most recently modified .jsonl
+// file under searchPath, if modified within the last 60 seconds.
+func findNewestSessionFile(searchPath string) string {
+	var newest string
+	var newestMod time.Time
+
+	filepath.Walk(searchPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".jsonl") {
+			return nil
+		}
+		if info.ModTime().After(newestMod) {
+			newestMod = info.ModTime()
+			newest = path
+		}
+		return nil
+	})
+
+	if time.Since(newestMod) > 60*time.Second {
+		return ""
+	}
+	return newest
+}
+
+// excludeNewestFile removes the most recently modified file from the list.
+// Used to skip the current session's file (which is being written to right now).
+func excludeNewestFile(files []string) []string {
+	if len(files) <= 1 {
+		return files
+	}
+
+	newestIdx := 0
+	var newestMod time.Time
+	for i, f := range files {
+		info, err := os.Stat(f)
+		if err != nil {
+			continue
+		}
+		if info.ModTime().After(newestMod) {
+			newestMod = info.ModTime()
+			newestIdx = i
+		}
+	}
+
+	// Only exclude if modified within the last 60 seconds (likely current session)
+	if time.Since(newestMod) > 60*time.Second {
+		return files
+	}
+
+	return append(files[:newestIdx], files[newestIdx+1:]...)
 }
 
 // prefilterMatch checks if file data contains any of the prefilter literals.

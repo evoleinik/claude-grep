@@ -47,6 +47,9 @@ go vet ./...
 - Adaptive budget: 15K total chars divided among matches (3 matches=2000 each, 50=300 each)
 - Cross-match content dedup: identical compressed text across sessions is collapsed
 - Near-miss hints: when regex finds nothing, extracts longest literal and does relaxed search to suggest simpler patterns
+- Auto-fallback: when regex finds 0 results and Ollama is running, automatically retries with semantic search
+- Short-pattern warning: patterns with longest literal ≤3 chars get a stderr hint to use `-s` instead
+- Self-exclusion: automatically skips the current session file (most recently modified within 60s) to avoid self-referential results
 - JSON output (`--json`) preserves full uncompressed text
 
 ### Agent telemetry

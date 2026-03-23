@@ -47,6 +47,12 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 
 	var candidates []scored
 
+	// Find the current session file to exclude
+	var excludeFile string
+	if opts.ExcludeSelf {
+		excludeFile = findNewestSessionFile(searchPath)
+	}
+
 	for _, e := range entries {
 		if filepath.Ext(e.Name()) != ".gob" {
 			continue
@@ -67,6 +73,10 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 		}
 
 		for _, entry := range idx.Entries {
+			// Skip current session
+			if excludeFile != "" && entry.FilePath == excludeFile {
+				continue
+			}
 			// Role filter
 			if opts.Role != "both" && entry.Role != opts.Role {
 				continue
