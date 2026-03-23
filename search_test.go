@@ -1,7 +1,10 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestExtractPrefilterLiterals(t *testing.T) {
@@ -129,6 +132,75 @@ func TestNormalizeBRE(t *testing.T) {
 		if got != tt.want {
 			t.Errorf("normalizeBRE(%q) = %q, want %q", tt.in, got, tt.want)
 		}
+	}
+}
+
+func TestExcludeNewestFile(t *testing.T) {
+	// Create temp files with different mtimes
+	dir := t.TempDir()
+
+	old := filepath.Join(dir, "old.jsonl")
+	mid := filepath.Join(dir, "mid.jsonl")
+	fresh := filepath.Join(dir, "fresh.jsonl")
+
+	for _, f := range []string{old, mid, fresh} {
+		os.WriteFile(f, []byte("{}"), 0644)
+	}
+
+	// Set old and mid to past timestamps
+	past := time.Now().Add(-5 * time.Minute)
+	older := time.Now().Add(-10 * time.Minute)
+	os.Chtimes(old, older, older)
+	os.Chtimes(mid, past, past)
+	// fresh keeps its current mtime (within 60s)
+
+	files := []string{old, mid, fresh}
+	result := excludeNewestFile(files)
+
+	if len(result) != 2 {
+		t.Fatalf("expected 2 files, got %d", len(result))
+	}
+	for _, f := range result {
+		if f == fresh {
+			t.Error("fresh file should have been excluded")
+		}
+	}
+}
+
+func TestExcludeNewestFileAllOld(t *testing.T) {
+	// When all files are older than 60s, none should be excluded
+	dir := t.TempDir()
+
+	a := filepath.Join(dir, "a.jsonl")
+	b := filepath.Join(dir, "b.jsonl")
+
+	for _, f := range []string{a, b} {
+		os.WriteFile(f, []byte("{}"), 0644)
+	}
+
+	past := time.Now().Add(-5 * time.Minute)
+	os.Chtimes(a, past, past)
+	os.Chtimes(b, past, past)
+
+	files := []string{a, b}
+	result := excludeNewestFile(files)
+
+	if len(result) != 2 {
+		t.Fatalf("expected 2 files (none excluded), got %d", len(result))
+	}
+}
+
+func TestExcludeNewestFileSingleFile(t *testing.T) {
+	// Single file should not be excluded (even if fresh)
+	dir := t.TempDir()
+	f := filepath.Join(dir, "only.jsonl")
+	os.WriteFile(f, []byte("{}"), 0644)
+
+	files := []string{f}
+	result := excludeNewestFile(files)
+
+	if len(result) != 1 {
+		t.Fatalf("single file should not be excluded, got %d", len(result))
 	}
 }
 
