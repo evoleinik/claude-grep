@@ -4,13 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 )
 
-var version = "1.4.0"
+var version = "1.5.0"
 
 func main() {
 	// Reorder args: allow flags after pattern (agents write "pattern -n 5" not "-n 5 pattern")
@@ -354,13 +355,51 @@ func resolveSearchPath(allProjects bool) (string, error) {
 		return "", err
 	}
 
-	encoded := encodePath(cwd)
+	// Sessions are keyed by the encoded cwd at session start. A linked git
+	// worktree (e.g. `.claude/worktrees/foo`) is a short-lived branch of the
+	// main repo — project history lives with the main repo, not the worktree
+	// path. Substitute so "project scope" means the main repo's sessions.
+	candidate := cwd
+	substituted := false
+	if main, ok := mainRepoPath(cwd); ok {
+		mainPath := filepath.Join(base, encodePath(main))
+		if _, err := os.Stat(mainPath); err == nil {
+			candidate = main
+			substituted = true
+		}
+	}
+
+	encoded := encodePath(candidate)
 	path := filepath.Join(base, encoded)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return "", fmt.Errorf("no sessions for %s\ntry -a to search all projects", cwd)
 	}
+	if substituted {
+		fmt.Fprintf(os.Stderr, "worktree detected — searching main project (%s)\n", candidate)
+	}
 	return path, nil
+}
+
+// mainRepoPath returns the main repository working directory if cwd is
+// inside a linked git worktree. Returns ("", false) for the main worktree,
+// non-git directories, or any git error.
+func mainRepoPath(cwd string) (string, bool) {
+	cmd := exec.Command("git", "-C", cwd, "rev-parse",
+		"--path-format=absolute", "--git-dir", "--git-common-dir")
+	out, err := cmd.Output()
+	if err != nil {
+		return "", false
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	if len(lines) != 2 {
+		return "", false
+	}
+	gitDir, commonDir := lines[0], lines[1]
+	if gitDir == "" || commonDir == "" || gitDir == commonDir {
+		return "", false // main worktree, not a linked one
+	}
+	return filepath.Dir(commonDir), true
 }
 
 func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bool, stats SearchStats) {
