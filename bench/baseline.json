@@ -1,0 +1,822 @@
+[
+  {
+    "query": "(AX principles|agent experience|AX design)",
+    "found": true,
+    "ms": 1569
+  },
+  {
+    "query": "(BIOS|undervolt|power budget|CPU throttl|power draw)",
+    "found": true,
+    "ms": 3071
+  },
+  {
+    "query": "(Hebrew|Greek|Pali|Tipitaka|Tanakh|BHSA|SBLGNT|WLC)",
+    "found": true,
+    "ms": 1739
+  },
+  {
+    "query": "(PSU|power supply|i9-10900|Z490|RAPL|turbo boost|power limit)",
+    "found": true,
+    "ms": 1603
+  },
+  {
+    "query": "(Z490|MSI.*BIOS|ICCMAX|voltage regulator|VRM)",
+    "found": true,
+    "ms": 3529
+  },
+  {
+    "query": "(adversarial|paper.tex|review round|reviewer)",
+    "found": true,
+    "ms": 1504
+  },
+  {
+    "query": "(call.to.action|CTA|phone number) (in|on|within) (content|article)",
+    "found": true,
+    "ms": 2933
+  },
+  {
+    "query": "(curate-docs|curate-all|post.commit)",
+    "found": true,
+    "ms": 1737
+  },
+  {
+    "query": "(curate.*cron|background.*housekeeping|automat.*curate|post.commit.*hook)",
+    "found": true,
+    "ms": 1907
+  },
+  {
+    "query": "(i9-10900|PL1|PL2|turbo boost|power limit|PSU|overcurrent|RAPL)",
+    "found": true,
+    "ms": 1732
+  },
+  {
+    "query": "(non-arabic|hebrew|greek|pali|multilang|control corp)",
+    "found": true,
+    "ms": 924
+  },
+  {
+    "query": "(openclaw|heartbeat)",
+    "found": true,
+    "ms": 1055
+  },
+  {
+    "query": "(openclaw|nanoclaw|ralph.*(loop|wiggum)|sesh)",
+    "found": true,
+    "ms": 1420
+  },
+  {
+    "query": "(openclaw|open.claw|heartbeat|gateway)",
+    "found": true,
+    "ms": 1862
+  },
+  {
+    "query": "(orchestrat|multi.session|context.inject)",
+    "found": true,
+    "ms": 1847
+  },
+  {
+    "query": "(paper.tex|adversarial|reviewer|bridge activation)",
+    "found": true,
+    "ms": 1586
+  },
+  {
+    "query": "(qmine|bridge activation|residualized|falsification|null model)",
+    "found": true,
+    "ms": 2523
+  },
+  {
+    "query": "(sesh|session intelligence|digest)",
+    "found": true,
+    "ms": 1775
+  },
+  {
+    "query": "(session.*history|context.*share|aggregate.*session|session.*summary)",
+    "found": true,
+    "ms": 1810
+  },
+  {
+    "query": "(slow.*down|housekeeping|background.*task|async.*curate)",
+    "found": true,
+    "ms": 1875
+  },
+  {
+    "query": "(sp-ucp-manifest|ucp-manifest|llms-txt|price-consistency) (custom|platform|generalize)",
+    "found": true,
+    "ms": 1095
+  },
+  {
+    "query": "(sp-ucp-manifest|ucp-manifest|nb-llms-txt|llms-txt|price-consistency) custom platform",
+    "found": true,
+    "ms": 3229
+  },
+  {
+    "query": "(tailscale|exit.node)",
+    "found": true,
+    "ms": 1890
+  },
+  {
+    "query": "AX improvement loop",
+    "found": true,
+    "ms": 2899
+  },
+  {
+    "query": "AX score JSON-LD",
+    "found": true,
+    "ms": 2433
+  },
+  {
+    "query": "BenchRun flagged contamination guardrail",
+    "found": true,
+    "ms": 2550
+  },
+  {
+    "query": "BingUrlSnapshot",
+    "found": true,
+    "ms": 450
+  },
+  {
+    "query": "Black Box KVM",
+    "found": true,
+    "ms": 759
+  },
+  {
+    "query": "Black Box KVM pipeline",
+    "found": true,
+    "ms": 2363
+  },
+  {
+    "query": "Branch recreated|Done\\. Fresh branch|create_branch|psql.*neon.tech.*Vivek|scrub.*Assessment",
+    "found": true,
+    "ms": 1948
+  },
+  {
+    "query": "Do you have any memory of buying",
+    "found": true,
+    "ms": 2460
+  },
+  {
+    "query": "Exit code 1",
+    "found": true,
+    "ms": 1196
+  },
+  {
+    "query": "GOOGLE_CLOUD_PROJECT",
+    "found": true,
+    "ms": 399
+  },
+  {
+    "query": "GOOGLE_CLOUD_PROJECT=inspired-gift",
+    "found": true,
+    "ms": 2434
+  },
+  {
+    "query": "HP JSON-LD",
+    "found": true,
+    "ms": 2736
+  },
+  {
+    "query": "HP demo tracking",
+    "found": true,
+    "ms": 2418
+  },
+  {
+    "query": "ProductStatusGrid",
+    "found": true,
+    "ms": 461
+  },
+  {
+    "query": "QueryCoverageCard categoryBreakdown",
+    "found": true,
+    "ms": 2293
+  },
+  {
+    "query": "SabotageTable",
+    "found": true,
+    "ms": 485
+  },
+  {
+    "query": "Toshiba auto-id JSON-LD",
+    "found": true,
+    "ms": 598
+  },
+  {
+    "query": "TruSheet",
+    "found": true,
+    "ms": 2458
+  },
+  {
+    "query": "airshelf-catalog|W1B|BuilderRunTrace",
+    "found": true,
+    "ms": 1295
+  },
+  {
+    "query": "ashish.*@|@.*ashish",
+    "found": true,
+    "ms": 988
+  },
+  {
+    "query": "ax auto loop temporal workflow",
+    "found": true,
+    "ms": 2418
+  },
+  {
+    "query": "ax check Shopify custom platform generalization",
+    "found": true,
+    "ms": 2467
+  },
+  {
+    "query": "ax check Shopify generalize",
+    "found": true,
+    "ms": 2429
+  },
+  {
+    "query": "ax check generalize platform",
+    "found": true,
+    "ms": 378
+  },
+  {
+    "query": "ax check generalize platform shopify custom",
+    "found": true,
+    "ms": 2444
+  },
+  {
+    "query": "ax check llms-txt custom platform",
+    "found": true,
+    "ms": 2388
+  },
+  {
+    "query": "ax check llms-txt platform shopify custom",
+    "found": true,
+    "ms": 2414
+  },
+  {
+    "query": "ax check platform generalization sp-ucp-manifest",
+    "found": true,
+    "ms": 2500
+  },
+  {
+    "query": "ax check shopify custom platform generalize",
+    "found": true,
+    "ms": 2566
+  },
+  {
+    "query": "ax sp-ucp-manifest jsonld product-identifiers",
+    "found": true,
+    "ms": 2499
+  },
+  {
+    "query": "ax-check platform generalize nb-llms-txt sp-ucp-manifest so-jsonld-presence",
+    "found": true,
+    "ms": 2480
+  },
+  {
+    "query": "ax-fix Shopify custom platform",
+    "found": true,
+    "ms": 2493
+  },
+  {
+    "query": "ax-fix Shopify custom platform check generalize",
+    "found": true,
+    "ms": 2536
+  },
+  {
+    "query": "ax-fix di-price-consistency",
+    "found": true,
+    "ms": 2408
+  },
+  {
+    "query": "ax-fix di-price-consistency so-product-fields",
+    "found": true,
+    "ms": 2435
+  },
+  {
+    "query": "ax-fix llms-txt platform generalization",
+    "found": true,
+    "ms": 2451
+  },
+  {
+    "query": "ax-fix llms-txt ucp-manifest",
+    "found": true,
+    "ms": 2461
+  },
+  {
+    "query": "ax-fix llms-txt ucp-manifest jsonld-presence",
+    "found": true,
+    "ms": 2411
+  },
+  {
+    "query": "ax-fix nb-llms-txt",
+    "found": true,
+    "ms": 2452
+  },
+  {
+    "query": "ax-fix nb-llms-txt sp-ucp-manifest",
+    "found": true,
+    "ms": 2427
+  },
+  {
+    "query": "ax-fix nb-llms-txt sp-ucp-manifest so-product-feed platform generalization",
+    "found": true,
+    "ms": 2421
+  },
+  {
+    "query": "ax-fix sp-ucp-manifest",
+    "found": true,
+    "ms": 2444
+  },
+  {
+    "query": "ax-fix sp-ucp-manifest nb-llms-txt platform generalization",
+    "found": true,
+    "ms": 2389
+  },
+  {
+    "query": "ax-interview",
+    "found": true,
+    "ms": 377
+  },
+  {
+    "query": "ax-scan llms-txt platform shopify generalize",
+    "found": true,
+    "ms": 2417
+  },
+  {
+    "query": "ax-scan llms-txt ucp-manifest price-consistency",
+    "found": true,
+    "ms": 2515
+  },
+  {
+    "query": "backfill-bench-contamination",
+    "found": true,
+    "ms": 388
+  },
+  {
+    "query": "background.*claude|cron.*claude|autonomous.*agent",
+    "found": true,
+    "ms": 1814
+  },
+  {
+    "query": "bing_impact_tracker",
+    "found": true,
+    "ms": 391
+  },
+  {
+    "query": "br-delicate-cell|br-lucky-river|recreat.*branch.*scrub|create.*branch.*vivek",
+    "found": true,
+    "ms": 1883
+  },
+  {
+    "query": "branded_accuracy\\|rank_for_merchant\\|sources dict",
+    "found": true,
+    "ms": 1018
+  },
+  {
+    "query": "build-static BOA handler.func",
+    "found": true,
+    "ms": 2443
+  },
+  {
+    "query": "buy.*UPS\\|UPS.*buy\\|order.*BV\\|let's go with\\|I'll take\\|I want.*UPS\\|want to buy",
+    "found": true,
+    "ms": 2062
+  },
+  {
+    "query": "buying a UPS battery backup for the server",
+    "found": true,
+    "ms": 2421
+  },
+  {
+    "query": "candidates_from_branded_accuracy",
+    "found": true,
+    "ms": 400
+  },
+  {
+    "query": "candidates_from_discovery_gap",
+    "found": true,
+    "ms": 444
+  },
+  {
+    "query": "canon laser printer",
+    "found": true,
+    "ms": 2433
+  },
+  {
+    "query": "catalog-w1b|AgenticCategoryWorkflow|catalog_scraper_lib",
+    "found": true,
+    "ms": 684
+  },
+  {
+    "query": "catalog-w2|catalog cli|airshelf catalog",
+    "found": true,
+    "ms": 900
+  },
+  {
+    "query": "choosing UPS for server power protection",
+    "found": true,
+    "ms": 2503
+  },
+  {
+    "query": "citable content",
+    "found": true,
+    "ms": 792
+  },
+  {
+    "query": "content.loop",
+    "found": true,
+    "ms": 1684
+  },
+  {
+    "query": "crawler.*subdomain|subdomain.*crawl",
+    "found": true,
+    "ms": 1465
+  },
+  {
+    "query": "dedupeByUtcDayKeepLatest",
+    "found": true,
+    "ms": 418
+  },
+  {
+    "query": "demo ingest workflow temporal",
+    "found": true,
+    "ms": 2517
+  },
+  {
+    "query": "demo-up.sh\\|demo-down\\|airshelf-h100",
+    "found": true,
+    "ms": 651
+  },
+  {
+    "query": "deploy.*kubernetes.*rollback",
+    "found": true,
+    "ms": 2691
+  },
+  {
+    "query": "di-price-consistency generalize",
+    "found": true,
+    "ms": 2507
+  },
+  {
+    "query": "di-price-consistency price-consistency",
+    "found": true,
+    "ms": 2440
+  },
+  {
+    "query": "discover.md skill",
+    "found": true,
+    "ms": 3740
+  },
+  {
+    "query": "domains diagnostic",
+    "found": true,
+    "ms": 362
+  },
+  {
+    "query": "edge build-static",
+    "found": true,
+    "ms": 2492
+  },
+  {
+    "query": "edge handler func bundle data path",
+    "found": true,
+    "ms": 2485
+  },
+  {
+    "query": "edge subdomain routing vercel X-Forwarded-Host",
+    "found": true,
+    "ms": 2481
+  },
+  {
+    "query": "edge verify-content llm_host",
+    "found": true,
+    "ms": 2458
+  },
+  {
+    "query": "feat/content-auto-publish-loop 18c94877",
+    "found": true,
+    "ms": 2404
+  },
+  {
+    "query": "foobarbaz quxquux",
+    "found": true,
+    "ms": 2520
+  },
+  {
+    "query": "fundamental analysis trading strategy backtest",
+    "found": true,
+    "ms": 2498
+  },
+  {
+    "query": "gap insights diagnostic",
+    "found": true,
+    "ms": 365
+  },
+  {
+    "query": "gap-insights-v3 own-brand isMerchantOwnBrand",
+    "found": true,
+    "ms": 2555
+  },
+  {
+    "query": "gemini citation uniformity vertex-backfill transformVertexRow",
+    "found": true,
+    "ms": 2531
+  },
+  {
+    "query": "generate_invisible_guide explainer prompt",
+    "found": true,
+    "ms": 2517
+  },
+  {
+    "query": "geo-content generate guide explainer",
+    "found": true,
+    "ms": 2503
+  },
+  {
+    "query": "geo-content publish onboarding merchant",
+    "found": true,
+    "ms": 2478
+  },
+  {
+    "query": "get_responses cohort",
+    "found": true,
+    "ms": 2452
+  },
+  {
+    "query": "grep learnings",
+    "found": true,
+    "ms": 384
+  },
+  {
+    "query": "hn-demo|hn demo|harvey norman demo",
+    "found": true,
+    "ms": 2637
+  },
+  {
+    "query": "investment analysis",
+    "found": true,
+    "ms": 3145
+  },
+  {
+    "query": "invisible_guide stage_rules",
+    "found": true,
+    "ms": 3084
+  },
+  {
+    "query": "isGmcMerchant eligibility gmc",
+    "found": true,
+    "ms": 2459
+  },
+  {
+    "query": "kyocera catalog discover",
+    "found": true,
+    "ms": 2396
+  },
+  {
+    "query": "kyocera printer",
+    "found": true,
+    "ms": 2804
+  },
+  {
+    "query": "leadNotificationEmail BotConfig telegram",
+    "found": true,
+    "ms": 2406
+  },
+  {
+    "query": "mcp__vx-resources__redeploy|vx redeploy",
+    "found": true,
+    "ms": 1682
+  },
+  {
+    "query": "mechanical keyboard",
+    "found": true,
+    "ms": 484
+  },
+  {
+    "query": "median helper stats",
+    "found": true,
+    "ms": 2461
+  },
+  {
+    "query": "merchantPathToRoute",
+    "found": true,
+    "ms": 546
+  },
+  {
+    "query": "nb-llms-txt llms.txt check generalize",
+    "found": true,
+    "ms": 2455
+  },
+  {
+    "query": "nb-llms-txt sp-ucp-manifest",
+    "found": true,
+    "ms": 2500
+  },
+  {
+    "query": "parallel worktree sibling merged PR overlap",
+    "found": true,
+    "ms": 2406
+  },
+  {
+    "query": "per_merchant_cap|_per_merchant_cap|never_cited_on_domain",
+    "found": true,
+    "ms": 466
+  },
+  {
+    "query": "pip install",
+    "found": true,
+    "ms": 662
+  },
+  {
+    "query": "pipeline golden-record edge proxy merchant slug",
+    "found": true,
+    "ms": 2394
+  },
+  {
+    "query": "provider key rotation module-level cache",
+    "found": true,
+    "ms": 2442
+  },
+  {
+    "query": "qqqqzzzznowaythisexists999",
+    "found": true,
+    "ms": 2441
+  },
+  {
+    "query": "quantum entanglement processor",
+    "found": true,
+    "ms": 2435
+  },
+  {
+    "query": "query coverage",
+    "found": true,
+    "ms": 832
+  },
+  {
+    "query": "query-coverage",
+    "found": true,
+    "ms": 869
+  },
+  {
+    "query": "ralph sesh",
+    "found": true,
+    "ms": 2477
+  },
+  {
+    "query": "relevance",
+    "found": true,
+    "ms": 978
+  },
+  {
+    "query": "relevance toshiba",
+    "found": true,
+    "ms": 2496
+  },
+  {
+    "query": "session start protocol learnings",
+    "found": true,
+    "ms": 2570
+  },
+  {
+    "query": "sitemap robots.txt edge",
+    "found": true,
+    "ms": 2595
+  },
+  {
+    "query": "so-product-fields product-fields.ts",
+    "found": true,
+    "ms": 2468
+  },
+  {
+    "query": "soft-404 llms.txt AX check HTML",
+    "found": true,
+    "ms": 2395
+  },
+  {
+    "query": "sp-ucp-manifest llms-txt product-fields custom platform",
+    "found": true,
+    "ms": 2470
+  },
+  {
+    "query": "stage_rules fortress verify_guide",
+    "found": true,
+    "ms": 2454
+  },
+  {
+    "query": "stage_rules_block comparison",
+    "found": true,
+    "ms": 2510
+  },
+  {
+    "query": "stage_rules_block fortress",
+    "found": true,
+    "ms": 2414
+  },
+  {
+    "query": "stage_rules_block pdp_body",
+    "found": true,
+    "ms": 2473
+  },
+  {
+    "query": "stress test battery",
+    "found": true,
+    "ms": 2385
+  },
+  {
+    "query": "subtree push|bime-telegram.*push|deploy telegram",
+    "found": true,
+    "ms": 1129
+  },
+  {
+    "query": "systemctl.*(stop|restart)",
+    "found": true,
+    "ms": 450
+  },
+  {
+    "query": "toshiba.*(url|domain|site|\\.com|\\.au)",
+    "found": true,
+    "ms": 1557
+  },
+  {
+    "query": "tproxy",
+    "found": true,
+    "ms": 889
+  },
+  {
+    "query": "tuco jsonld shopify pipeline",
+    "found": true,
+    "ms": 2458
+  },
+  {
+    "query": "ucp-manifest generalize custom platform",
+    "found": true,
+    "ms": 2475
+  },
+  {
+    "query": "ucp-manifest jsonld-presence product-identifiers generalize",
+    "found": true,
+    "ms": 350
+  },
+  {
+    "query": "ucp-manifest llms-txt platform custom shopify AX check generalize",
+    "found": true,
+    "ms": 2414
+  },
+  {
+    "query": "ucp-manifest llms-txt price-consistency",
+    "found": true,
+    "ms": 2391
+  },
+  {
+    "query": "ucp-manifest llms-txt product-fields custom platform",
+    "found": true,
+    "ms": 2466
+  },
+  {
+    "query": "ucp-manifest sp-ucp-manifest custom platform",
+    "found": true,
+    "ms": 2451
+  },
+  {
+    "query": "verified specifications",
+    "found": true,
+    "ms": 764
+  },
+  {
+    "query": "verify_comparison verify_table_count stage_rules",
+    "found": true,
+    "ms": 2406
+  },
+  {
+    "query": "visibility dynamics",
+    "found": true,
+    "ms": 421
+  },
+  {
+    "query": "vllm lightrag gce inference",
+    "found": true,
+    "ms": 2406
+  },
+  {
+    "query": "xylophone kazoo",
+    "found": false,
+    "ms": 2414
+  },
+  {
+    "query": "xyznonexistent123",
+    "found": true,
+    "ms": 2518
+  },
+  {
+    "query": "xyznonexistent999",
+    "found": true,
+    "ms": 2442
+  },
+  {
+    "query": "xyzzy plugh plover",
+    "found": true,
+    "ms": 2467
+  },
+  {
+    "query": "zzzznothing_ever_9999",
+    "found": true,
+    "ms": 2479
+  }
+]
