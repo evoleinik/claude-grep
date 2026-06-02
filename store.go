@@ -29,17 +29,17 @@ type FileMetadata struct {
 
 // Index is the in-memory representation of a project's vector index.
 type Index struct {
-	Entries  []IndexEntry
-	Files    map[string]FileMetadata // keyed by filepath
-	Project  string
+	Entries []IndexEntry
+	Files   map[string]FileMetadata // keyed by filepath
+	Project string
 }
 
 // IndexStats holds aggregate index statistics.
 type IndexStats struct {
-	Projects     int
-	Files        int
-	Vectors      int
-	SizeBytes    int64
+	Projects  int
+	Files     int
+	Vectors   int
+	SizeBytes int64
 }
 
 func indexDir() string {

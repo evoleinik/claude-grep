@@ -200,15 +200,33 @@ Exit codes:
 
 	// Build flags string for telemetry
 	var flagList []string
-	if *prompts { flagList = append(flagList, "-p") }
-	if *responses { flagList = append(flagList, "-r") }
-	if *allProjects { flagList = append(flagList, "-a") }
-	if *listOnly { flagList = append(flagList, "-l") }
-	if *semantic { flagList = append(flagList, "-s") }
-	if *jsonOut { flagList = append(flagList, "--json") }
-	if *maxHours > 0 { flagList = append(flagList, "-H") }
-	if *maxDays != 7 { flagList = append(flagList, "-d") }
-	if *maxResults != 100 { flagList = append(flagList, "-n") }
+	if *prompts {
+		flagList = append(flagList, "-p")
+	}
+	if *responses {
+		flagList = append(flagList, "-r")
+	}
+	if *allProjects {
+		flagList = append(flagList, "-a")
+	}
+	if *listOnly {
+		flagList = append(flagList, "-l")
+	}
+	if *semantic {
+		flagList = append(flagList, "-s")
+	}
+	if *jsonOut {
+		flagList = append(flagList, "--json")
+	}
+	if *maxHours > 0 {
+		flagList = append(flagList, "-H")
+	}
+	if *maxDays != 7 {
+		flagList = append(flagList, "-d")
+	}
+	if *maxResults != 100 {
+		flagList = append(flagList, "-n")
+	}
 	if *ctxBefore > 0 || *ctxAfter > 0 || *ctxBoth > 0 {
 		flagList = append(flagList, "-C")
 	}

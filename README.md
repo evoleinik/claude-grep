@@ -69,6 +69,25 @@ claude-grep --index --status           # show index stats
 claude-grep --usage                    # see how agents use the tool
 ```
 
+### Curated docs
+
+Searches also surface a repo's curated docs (`learnings/` or `docs/`) in a
+separate block, so one command covers both "what did we discuss" (sessions) and
+"what's the documented gotcha" (curated notes):
+
+```bash
+claude-grep "cron auth"          # sessions + a "=== curated docs ===" block
+claude-grep -s "cold start"      # semantic doc hits (section-level, ranked)
+claude-grep --no-docs "x"        # sessions only
+claude-grep --index --docs       # build/refresh this repo's docs index
+claude-grep --bench-docs bench/docs-queries.json   # grep-vs-semantic benchmark
+```
+
+Docs come from the current repo (`learnings/` then `docs/`, or set
+`CLAUDE_GREP_DOCS=dir1:dir2`), ignore `-d`/`-a`, and the semantic index
+self-heals on use (re-embeds only changed files — no cron). Regex doc search
+needs no index; semantic needs ollama (same as session semantic search).
+
 ## Flags
 
 | Flag | Description | Default |
@@ -89,6 +108,9 @@ claude-grep --usage                    # see how agents use the tool
 | `--status` | Show index stats | - |
 | `--all` | Reindex everything | incremental |
 | `--usage` | Show usage stats (agent telemetry) | - |
+| `--no-docs` | Suppress the curated-docs block | off |
+| `--docs` | With `--index`: (re)build the cwd repo's docs index | - |
+| `--bench-docs FILE` | Run the labeled grep-vs-semantic docs benchmark | - |
 
 ## Exit codes
 

@@ -13,22 +13,22 @@ import (
 
 // UsageEvent is one line in the usage log.
 type UsageEvent struct {
-	Timestamp      string `json:"ts"`
-	Pattern        string `json:"pattern"`
-	Mode           string `json:"mode"` // "regex" or "semantic"
-	Flags          string `json:"flags"`
-	Results        int    `json:"results"`
-	Files          int    `json:"files"`
-	Days           int    `json:"days"`
-	Scope          string `json:"scope"` // "project" or "all"
-	BRE            bool   `json:"bre,omitempty"`
-	ExtraArgs      bool   `json:"extra_args,omitempty"`
-	Capped         bool   `json:"capped,omitempty"`
-	DurationMs     int64  `json:"ms"`
-	PrefilterSkip  int    `json:"pf_skip,omitempty"`
-	RegexSearched  int    `json:"pf_pass,omitempty"`
-	DocsResults    int    `json:"docs_results,omitempty"`
-	DocsEngine     string `json:"docs_engine,omitempty"` // "regex"/"semantic"/"none"
+	Timestamp     string `json:"ts"`
+	Pattern       string `json:"pattern"`
+	Mode          string `json:"mode"` // "regex" or "semantic"
+	Flags         string `json:"flags"`
+	Results       int    `json:"results"`
+	Files         int    `json:"files"`
+	Days          int    `json:"days"`
+	Scope         string `json:"scope"` // "project" or "all"
+	BRE           bool   `json:"bre,omitempty"`
+	ExtraArgs     bool   `json:"extra_args,omitempty"`
+	Capped        bool   `json:"capped,omitempty"`
+	DurationMs    int64  `json:"ms"`
+	PrefilterSkip int    `json:"pf_skip,omitempty"`
+	RegexSearched int    `json:"pf_pass,omitempty"`
+	DocsResults   int    `json:"docs_results,omitempty"`
+	DocsEngine    string `json:"docs_engine,omitempty"` // "regex"/"semantic"/"none"
 }
 
 func usageLogPath() string {
