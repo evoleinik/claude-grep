@@ -1,7 +1,7 @@
 # claude-grep AX Recovery — Design Spec
 
 - **Date:** 2026-06-02
-- **Status:** Approved in brainstorming → pending implementation plan
+- **Status:** Implemented (2026-06-02)
 - **Scope owner:** Evgeny
 - **Code:** `~/src/claude-grep` (Go, stdlib + Ollama for semantic)
 
@@ -160,6 +160,10 @@ The mechanical verifier — lives next to the code (Eugene's rule).
 2. No-regression slice stays 100% with stable counts; success-path p50 latency unchanged.
 3. Next live `--usage` (1 week post-merge): prefilter-reject count and retry-chain count fall;
    `tokenized-fallback` rescues visible in the mode histogram.
+
+**Measured result (2026-06-02):** corpus=164, regex=63, tokenized=89, semantic=11, none=1.
+Median latency: regex 1021ms, tokenized 1288ms, semantic 2924ms. Tokenized answered 54% of
+corpus (89/164) — the dominant layer — at 2.3× lower cost than semantic. Found rate: 163/164 (99%).
 
 ## Prior art (learned constraint)
 
