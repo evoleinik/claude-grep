@@ -37,6 +37,8 @@ func main() {
 	showUsage := flag.Bool("usage", false, "show usage stats")
 	benchPath := flag.String("bench", "", "run benchmark over a JSON corpus of queries")
 	noDocs := flag.Bool("no-docs", false, "suppress the curated-docs block")
+	docsIndex := flag.Bool("docs", false, "with --index: (re)build the cwd repo's docs index")
+	benchDocsPath := flag.String("bench-docs", "", "run the labeled docs benchmark over a JSON corpus")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `claude-grep — search Claude Code session history
@@ -101,6 +103,11 @@ Exit codes:
 		return
 	}
 
+	if *benchDocsPath != "" {
+		runDocsBench(*benchDocsPath)
+		return
+	}
+
 	// Context: -C sets both if not individually set
 	if *ctxBoth > 0 {
 		if *ctxBefore == 0 {
@@ -121,6 +128,10 @@ Exit codes:
 
 	// Index mode
 	if *index {
+		if *docsIndex {
+			runDocsIndexCmd(*indexStatus)
+			return
+		}
 		if *indexStatus {
 			printIndexStatus(*allProjects)
 			return
