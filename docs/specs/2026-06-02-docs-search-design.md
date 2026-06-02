@@ -59,10 +59,12 @@ per-repo vector index.
 
 ### Chunking
 
-- Split each `.md` on heading boundaries (`#`/`##`/`###`). A chunk = heading
-  path + body, capped at `maxEmbedChars` (2048, existing const).
-- A hit is identified as `file § heading` (e.g. `vercel.md § Cron auth`). This is
-  what makes a 91 KB file useful — you land on the section, not the file.
+- Split each `.md` on heading boundaries (`#`/`##`/`###`). A chunk = **heading
+  breadcrumb** (`H1 › H2 › H3`) + body, capped at `maxEmbedChars` (2048). Embedding
+  the full breadcrumb (not just the leaf heading) keeps a deep `###` section's
+  parent context — measurably better ranking than the leaf alone.
+- A hit is identified as `file § breadcrumb` (e.g. `vercel.md § Cron auth › Fail-
+  closed`). This is what makes a 91 KB file useful — you land on the section.
 
 ### Index schema (minimal extension of `IndexEntry`)
 
@@ -106,7 +108,8 @@ Add one field; repurpose existing fields for doc chunks (documented in a comment
   so `-s` still returns hits offline.
 - **Why hybrid:** benchmarking dense-only on `learnings/` (31 files) hit@3 11/15,
   MRR 0.76 — every miss was an exact-term/identifier query dense can't reach. RRF
-  with the lexical lane lifted hit@3 to 14/15, MRR 0.79. (An nomic `search_*`
+  with the lexical lane lifted hit@3 to 14/15, MRR 0.79; embedding the full heading
+  breadcrumb path (see Chunking) lifted it further to **0.83**. (A nomic `search_*`
   prefix experiment was tried first and **reverted** — net-zero on the bench.)
 
 **Cross-cutting rules:**
@@ -256,21 +259,30 @@ only, note semantic skipped (don't block the bench).
 Shipped on `feat/docs-search` (PR #2). Built TDD across the 11 planned tasks, then
 two measured follow-ups driven by the benchmark:
 
-**Measured (airshelf `learnings/`, 31 files / 612 chunks, 15-query labeled corpus):**
-- Dense-only `-s`: hit@3 11/15, MRR **0.76**; grep effective-MRR **0.07** (grep
-  returns avg **27.6 of 31** files per query — useless ranking).
-- **Hybrid `-s` (RRF of dense + BM25 lexical): hit@3 14/15, MRR 0.79.** Recovered
-  the exact-term/identifier misses dense couldn't reach: `dark-supply` 0→3,
-  `shop` 5→2, `maison` 4→1. Real-usage check: `promptContext`/`deploy` now land on
-  the correct section; `trafilatura` (absent from docs) correctly returns nothing.
+**Measured progression (MRR), two corpora:**
+
+| Lane | airshelf `learnings/` (31 files, 15q) | claude-grep `docs/` (4 files, 12q) |
+|------|--------------------------------------|-----------------------------------|
+| grep effective-MRR | 0.07 (avg **27.6/31** files returned) | 0.42 (avg 3.8/4) |
+| dense-only `-s` | hit@3 11/15, MRR 0.76 | hit@3 10/12, MRR 0.75 |
+| + hybrid RRF (dense ⊕ BM25) | hit@3 14/15, MRR 0.79 | hit@3 12/12, MRR 0.86 |
+| + heading breadcrumbs | **hit@3 14/15, MRR 0.83** | **hit@3 12/12, MRR 0.96** |
+
+Hybrid recovered the exact-term/identifier misses dense couldn't reach
+(`dark-supply` 0→3, `shop` 5→2, `maison` 4→1; real-usage `promptContext`/`deploy`
+fixed). Breadcrumbs (embedding the full `H1 › H2 › H3` path) recovered the RRF
+hit@1 dip and lifted MRR further. `trafilatura` (absent from docs) correctly
+returns nothing — no false positive.
 
 **Design deviations from plan:**
 - `IndexEntry` lives in `store.go`, not `index.go` (plan mislabeled the file).
 - Verdict gate changed from `hit@3 ≥ grep hit@any` to **`MRR ≥ grep eff-MRR`** —
   the original saturated (grep "hits" by dumping the whole corpus).
-- `-s` upgraded from dense-only to **hybrid RRF** (the dense-only misses were all
-  lexical-exact). A nomic `search_query:`/`search_document:` prefix experiment was
-  tried and **reverted** (net-zero / slight regression on the bench).
+- `-s` upgraded dense-only → **hybrid RRF** → **+ heading-breadcrumb chunks**. A
+  nomic `search_query:`/`search_document:` prefix experiment was tried and
+  **reverted** (net-zero). The docs gob now carries a `DocEmbedVersion` stamp:
+  changing chunk/embed logic auto-forces a full rebuild (mtime alone misses code
+  changes — the trap the prefix experiment exposed).
 
 **Follow-ups (not blocking):** the one stubborn miss is `stripe` ("guessing from
 empty fields" vs doc's "infer from null fields") — heavy paraphrase + code-symbol

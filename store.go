@@ -29,9 +29,10 @@ type FileMetadata struct {
 
 // Index is the in-memory representation of a project's vector index.
 type Index struct {
-	Entries []IndexEntry
-	Files   map[string]FileMetadata // keyed by filepath
-	Project string
+	Entries         []IndexEntry
+	Files           map[string]FileMetadata // keyed by filepath
+	Project         string
+	DocEmbedVersion string // docs index only: embed-logic version; mismatch forces full rebuild
 }
 
 // IndexStats holds aggregate index statistics.

@@ -55,11 +55,11 @@
       "files": 3
     },
     "cg_regex": {
-      "hit_rank": 9,
+      "hit_rank": 19,
       "files": 3
     },
     "cg_semantic": {
-      "hit_rank": 3,
+      "hit_rank": 1,
       "files": 4
     }
   },
@@ -71,7 +71,7 @@
       "files": 4
     },
     "cg_regex": {
-      "hit_rank": 25,
+      "hit_rank": 36,
       "files": 4
     },
     "cg_semantic": {
@@ -103,7 +103,7 @@
       "files": 4
     },
     "cg_regex": {
-      "hit_rank": 39,
+      "hit_rank": 42,
       "files": 4
     },
     "cg_semantic": {
@@ -119,7 +119,7 @@
       "files": 4
     },
     "cg_regex": {
-      "hit_rank": 40,
+      "hit_rank": 42,
       "files": 4
     },
     "cg_semantic": {
@@ -183,11 +183,11 @@
       "files": 3
     },
     "cg_regex": {
-      "hit_rank": 6,
+      "hit_rank": 7,
       "files": 3
     },
     "cg_semantic": {
-      "hit_rank": 2,
+      "hit_rank": 1,
       "files": 4
     }
   }

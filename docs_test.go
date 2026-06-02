@@ -86,8 +86,11 @@ func TestChunkMarkdown(t *testing.T) {
 	if chunks[0].Heading != "(intro)" || !strings.Contains(chunks[0].Body, "intro line") {
 		t.Errorf("intro chunk wrong: %+v", chunks[0])
 	}
-	if chunks[2].Heading != "Cron auth" || !strings.Contains(chunks[2].Body, "guard if !secret") {
-		t.Errorf("cron chunk wrong: %+v", chunks[2])
+	if chunks[2].Heading != "Title › Cron auth" || !strings.Contains(chunks[2].Body, "guard if !secret") {
+		t.Errorf("cron chunk breadcrumb wrong: %+v", chunks[2])
+	}
+	if chunks[3].Heading != "Title › Cron auth › nested" {
+		t.Errorf("nested chunk breadcrumb wrong: %+v", chunks[3])
 	}
 	if chunks[3].Ordinal != 3 {
 		t.Errorf("ordinal not sequential: %+v", chunks[3])
@@ -161,5 +164,37 @@ func TestRefreshDocsIndexIncremental(t *testing.T) {
 	idx := loadDocsIndex(root)
 	if len(idx.Entries) == 0 {
 		t.Error("index empty after refresh")
+	}
+}
+
+func TestRefreshDocsIndexVersionBump(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	root := t.TempDir()
+	ldir := filepath.Join(root, "learnings")
+	os.MkdirAll(ldir, 0755)
+	os.WriteFile(filepath.Join(ldir, "a.md"), []byte("# H\nalpha\n"), 0644)
+
+	calls := 0
+	fake := func(s string) ([]float32, error) { calls++; return []float32{1}, nil }
+
+	if err := refreshDocsIndex(root, []string{ldir}, fake); err != nil {
+		t.Fatal(err)
+	}
+	first := calls
+
+	// Simulate a gob written by an older embed-logic version (mtime unchanged).
+	idx := loadDocsIndex(root)
+	idx.DocEmbedVersion = "v0-old"
+	if err := saveDocsIndex(root, idx); err != nil {
+		t.Fatal(err)
+	}
+
+	// Version mismatch must force a full re-embed despite unchanged mtimes.
+	if err := refreshDocsIndex(root, []string{ldir}, fake); err != nil {
+		t.Fatal(err)
+	}
+	if calls == first {
+		t.Error("version mismatch should force re-embed even when mtime unchanged")
 	}
 }

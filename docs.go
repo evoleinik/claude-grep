@@ -52,11 +52,18 @@ func discoverDocsDir(cwd string) (repoRoot string, dirs []string, ok bool) {
 	return repoRoot, dirs, len(dirs) > 0
 }
 
-// chunkMarkdown splits markdown into one chunk per heading section.
-// Content before the first heading becomes an "(intro)" chunk (dropped if blank).
+// chunkMarkdown splits markdown into one chunk per heading section. The chunk's
+// Heading is the full breadcrumb path ("H1 › H2 › H3") so a deep section keeps
+// its parent context for both embedding and display. Content before the first
+// heading becomes an "(intro)" chunk (dropped if blank).
 func chunkMarkdown(data []byte) []DocChunk {
 	lines := strings.Split(string(data), "\n")
 	var chunks []DocChunk
+	type hnode struct {
+		level int
+		text  string
+	}
+	var stack []hnode
 	heading := "(intro)"
 	var body strings.Builder
 
@@ -73,9 +80,17 @@ func chunkMarkdown(data []byte) []DocChunk {
 	}
 
 	for _, ln := range lines {
-		if h := headingText(ln); h != "" {
+		if lvl, txt := headingLevel(ln); lvl > 0 {
 			flush()
-			heading = h
+			for len(stack) > 0 && stack[len(stack)-1].level >= lvl {
+				stack = stack[:len(stack)-1]
+			}
+			stack = append(stack, hnode{lvl, txt})
+			parts := make([]string, len(stack))
+			for i, h := range stack {
+				parts[i] = h.text
+			}
+			heading = strings.Join(parts, " › ")
 			continue
 		}
 		body.WriteString(ln)
@@ -85,17 +100,21 @@ func chunkMarkdown(data []byte) []DocChunk {
 	return chunks
 }
 
-// headingText returns the text of a markdown ATX heading (#/##/###...), or "".
-func headingText(line string) string {
+// headingLevel returns the level (# count) and text of a markdown ATX heading,
+// or (0, "") if the line is not a heading.
+func headingLevel(line string) (int, string) {
 	s := strings.TrimSpace(line)
 	if !strings.HasPrefix(s, "#") {
-		return ""
+		return 0, ""
 	}
-	s = strings.TrimLeft(s, "#")
-	if s == "" || s[0] != ' ' {
-		return "" // e.g. "#nottag" or bare "#"
+	lvl := 0
+	for lvl < len(s) && s[lvl] == '#' {
+		lvl++
 	}
-	return strings.TrimSpace(s)
+	if lvl >= len(s) || s[lvl] != ' ' {
+		return 0, "" // "#nottag" or bare "#"
+	}
+	return lvl, strings.TrimSpace(s[lvl:])
 }
 
 func docsIndexPath(repoRoot string) string {
@@ -152,9 +171,18 @@ func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]flo
 	return entries, nil
 }
 
-// refreshDocsIndex re-embeds only doc files whose mtime is newer than the index.
+// docEmbedVersion stamps the docs gob. Bump it whenever chunking or embed-input
+// logic changes — refreshDocsIndex then discards the stale vectors and rebuilds,
+// since file mtimes alone won't reflect a code change (the prefix-experiment trap).
+const docEmbedVersion = "v2-breadcrumb"
+
+// refreshDocsIndex re-embeds only doc files whose mtime is newer than the index,
+// unless the embed-logic version changed (then it rebuilds everything).
 func refreshDocsIndex(repoRoot string, dirs []string, embedFn func(string) ([]float32, error)) error {
 	idx := loadDocsIndex(repoRoot)
+	if idx.DocEmbedVersion != docEmbedVersion {
+		idx = &Index{Files: make(map[string]FileMetadata), Project: idx.Project, DocEmbedVersion: docEmbedVersion}
+	}
 	changed := false
 	for _, dir := range dirs {
 		filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
