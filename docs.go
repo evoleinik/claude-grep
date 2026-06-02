@@ -158,14 +158,13 @@ func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]flo
 		if err != nil {
 			return nil, err
 		}
-		preview := c.Body
-		if len(preview) > previewLen {
-			preview = preview[:previewLen]
-		}
+		// Store the full chunk body (already ≤ maxEmbedChars) — not a 200-char
+		// preview — so dense hits get BM25-compressed around the query at display
+		// time, matching the lexical lane's snippet quality.
 		entries = append(entries, IndexEntry{
 			Source: "docs", Heading: c.Heading, FilePath: file,
 			MsgIndex: c.Ordinal, Role: "doc", Timestamp: ts,
-			Preview: preview, Vector: vec,
+			Preview: c.Body, Vector: vec,
 		})
 	}
 	return entries, nil
@@ -174,7 +173,7 @@ func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]flo
 // docEmbedVersion stamps the docs gob. Bump it whenever chunking or embed-input
 // logic changes — refreshDocsIndex then discards the stale vectors and rebuilds,
 // since file mtimes alone won't reflect a code change (the prefix-experiment trap).
-const docEmbedVersion = "v2-breadcrumb"
+const docEmbedVersion = "v3-fullbody"
 
 // refreshDocsIndex re-embeds only doc files whose mtime is newer than the index,
 // unless the embed-logic version changed (then it rebuilds everything).

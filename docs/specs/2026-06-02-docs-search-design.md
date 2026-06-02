@@ -74,7 +74,7 @@ Add one field; repurpose existing fields for doc chunks (documented in a comment
 |-------|---------|------------|
 | `Source` (**new**) | `"session"` | `"docs"` |
 | `FilePath` | `.jsonl` path | `.md` path |
-| `Preview` | first 200 chars | first 200 chars of chunk |
+| `Preview` | first 200 chars | full chunk body (≤2048) — BM25-compressed around the query at display time |
 | `MsgIndex` | message index | chunk ordinal in file |
 | `Role` | user/assistant | `"doc"` |
 | `Timestamp` | message ts | file mtime (informational; **never** used to filter) |
@@ -284,8 +284,19 @@ returns nothing — no false positive.
   changing chunk/embed logic auto-forces a full rebuild (mtime alone misses code
   changes — the trap the prefix experiment exposed).
 
-**Follow-ups (not blocking):** the one stubborn miss is `stripe` ("guessing from
-empty fields" vs doc's "infer from null fields") — heavy paraphrase + code-symbol
-chunk; lexical finds it at rank 15, dense misses it. Candidate: light query
-expansion or chunk-level field extraction. Threshold `0.55` is still the
-session-tuned value; worth re-tuning for docs once more corpora exist.
+**Also shipped:** dense hits now store the **full chunk body** (not a 200-char
+preview), so they get the same query-focused BM25 snippet as lexical hits. This is
+ranking-neutral (MRR unchanged 0.83) — purely better output.
+
+**Ranking is at its ceiling on this corpus.** hit@1 11/15; the four non-#1 cases
+are genuine near-ties (`bime` rank 2: wrong-file `database.md § BotConfig` at 0.58
+edges the right file at 0.56; `shop` rank 2: `dark-supply.md` 0.63 edges
+`shop.md § Rate Limiting` 0.60) plus the one hard paraphrase (`stripe`). Demoting
+the colliding chunks would overfit 15 queries. A best-per-file dedup was tried and
+**reverted** (metric-neutral on both corpora).
+
+**Follow-ups (not blocking):** `stripe` ("guessing from empty fields" vs doc's
+"infer from null fields") needs query expansion or field-level extraction.
+Threshold `0.55` is still session-tuned. Highest-value next step is **growing the
+labeled corpus from `usage.jsonl`** so future tuning is trustworthy (the 15-query
+set saturates).

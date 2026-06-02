@@ -121,6 +121,17 @@ func TestBuildDocEntries(t *testing.T) {
 	if e.Role != "doc" || len(e.Vector) != 1 {
 		t.Errorf("bad entry meta: %+v", e)
 	}
+
+	// Full chunk body is stored (not truncated to a 200-char preview), so dense
+	// hits can be BM25-compressed around the query at display time.
+	long := strings.Repeat("x", 500)
+	le, err := buildDocEntries("/r/x.md", []DocChunk{{Heading: "H", Body: long, Ordinal: 0}}, fake)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(le[0].Preview) != 500 {
+		t.Errorf("expected full 500-char body stored, got %d", len(le[0].Preview))
+	}
 }
 
 func TestRefreshDocsIndexIncremental(t *testing.T) {
