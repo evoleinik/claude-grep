@@ -34,3 +34,42 @@ func TestRegexDocsSearchCap(t *testing.T) {
 		t.Fatalf("cap not applied: got %d", len(docs))
 	}
 }
+
+func TestSemanticDocsSearchRanksAndCaps(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	root := "/fake/repo"
+	idx := &Index{Files: map[string]FileMetadata{}, Project: encodePath(root) + ".docs",
+		Entries: []IndexEntry{
+			{Source: "docs", Heading: "Cron auth", FilePath: "/r/learnings/vercel.md",
+				Preview: "guard", Vector: []float32{1, 0}},
+			{Source: "docs", Heading: "Neon", FilePath: "/r/learnings/db.md",
+				Preview: "branch", Vector: []float32{0, 1}},
+		}}
+	if err := saveDocsIndex(root, idx); err != nil {
+		t.Fatal(err)
+	}
+
+	embedQueryFn = func(string) ([]float32, error) { return []float32{1, 0}, nil }
+	refreshDocsFn = func(string, []string, func(string) ([]float32, error)) error { return nil }
+	defer func() { embedQueryFn = embed; refreshDocsFn = refreshDocsIndex }()
+
+	docs, err := semanticDocsSearch("how to auth cron", root, []string{"/fake/repo/learnings"}, 5)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(docs) == 0 || docs[0].Heading != "Cron auth" {
+		t.Fatalf("expected Cron auth ranked first, got %+v", docs)
+	}
+	if docs[0].Similarity < 0.99 {
+		t.Errorf("similarity not computed: %v", docs[0].Similarity)
+	}
+}
+
+func TestCollectDocsNotARepo(t *testing.T) {
+	dir := t.TempDir() // no git
+	docs, engine := collectDocs(dir, "anything", false, 100)
+	if len(docs) != 0 || engine != "none" {
+		t.Errorf("expected no docs outside a repo, got %d/%q", len(docs), engine)
+	}
+}
