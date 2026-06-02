@@ -155,16 +155,19 @@ func printMessageText(msg Message, text string, isMatch bool, similarity float32
 	fmt.Printf("  %s %s [%s]%s %s\n", marker, msg.Timestamp, tag, simStr, text)
 }
 
-// JSONMatch is the JSON output structure.
+// JSONMatch is the JSON output structure for both session and doc hits.
 type JSONMatch struct {
-	Session       string     `json:"session"`
-	Project       string     `json:"project"`
-	Timestamp     string     `json:"timestamp"`
-	Role          string     `json:"role"`
-	Text          string     `json:"text"`
-	Similarity    float32    `json:"similarity,omitempty"`
-	ContextBefore []JSONCtx  `json:"context_before,omitempty"`
-	ContextAfter  []JSONCtx  `json:"context_after,omitempty"`
+	Session       string    `json:"session,omitempty"`
+	Project       string    `json:"project,omitempty"`
+	Timestamp     string    `json:"timestamp,omitempty"`
+	Role          string    `json:"role,omitempty"`
+	Text          string    `json:"text"`
+	Similarity    float32   `json:"similarity,omitempty"`
+	Source        string    `json:"source,omitempty"` // "docs" for curated-doc hits
+	File          string    `json:"file,omitempty"`
+	Heading       string    `json:"heading,omitempty"`
+	ContextBefore []JSONCtx `json:"context_before,omitempty"`
+	ContextAfter  []JSONCtx `json:"context_after,omitempty"`
 }
 
 type JSONCtx struct {
