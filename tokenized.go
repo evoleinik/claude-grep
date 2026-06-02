@@ -38,3 +38,20 @@ func containsAllTokens(data []byte, tokens [][]byte) bool {
 	}
 	return true
 }
+
+// tokenizedSearch rescues a multi-word query that matched nothing as a literal
+// phrase. It selects sessions containing ALL tokens (AND gate) and surfaces the
+// messages matching ANY token (OR regex). No external dependencies.
+func tokenizedSearch(tokens []string, searchPath string, opts SearchOpts) ([]Match, SearchStats, error) {
+	quoted := make([]string, len(tokens))
+	gate := make([][]byte, len(tokens))
+	for i, t := range tokens {
+		quoted[i] = regexp.QuoteMeta(t)
+		gate[i] = []byte(strings.ToLower(t))
+	}
+	re, err := regexp.Compile("(?i)(" + strings.Join(quoted, "|") + ")")
+	if err != nil {
+		return nil, SearchStats{}, err
+	}
+	return searchCore(re, nil, gate, searchPath, opts)
+}

@@ -37,3 +37,28 @@ func TestContainsAllTokens(t *testing.T) {
 		t.Error("expected false when a token is absent")
 	}
 }
+
+func TestTokenizedSearchAndSemantics(t *testing.T) {
+	dir := t.TempDir()
+	// session A: contains BOTH tokens → should match
+	writeSession(t, dir, "a.jsonl", "2026-06-01T10:00:00", "assistant",
+		"we fixed the ucp-manifest and the jsonld presence check")
+	// session B: contains only ONE token → AND gate excludes it
+	writeSession(t, dir, "b.jsonl", "2026-06-01T11:00:00", "assistant",
+		"only talked about jsonld here")
+
+	matches, stats, err := tokenizedSearch([]string{"ucp", "jsonld"}, dir,
+		SearchOpts{Role: "both", MaxResults: 100, MaxDays: 3650})
+	if err != nil {
+		t.Fatalf("tokenizedSearch error: %v", err)
+	}
+	if len(matches) != 1 {
+		t.Fatalf("expected 1 match (session A only), got %d", len(matches))
+	}
+	if matches[0].Message.SessionID == "" {
+		t.Error("expected a populated SessionID on the match")
+	}
+	if stats.TotalMatches != 1 {
+		t.Errorf("expected TotalMatches=1, got %d", stats.TotalMatches)
+	}
+}
