@@ -41,6 +41,9 @@ func regexDocsSearch(pattern string, dirs []string, cap int) ([]DocMatch, error)
 			if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
 				return nil
 			}
+			if isIndexDoc(path) {
+				return nil
+			}
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return nil
@@ -116,6 +119,9 @@ func lexicalDocsSearch(query string, dirs []string, limit int) []DocMatch {
 	for _, dir := range dirs {
 		filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
+				return nil
+			}
+			if isIndexDoc(path) {
 				return nil
 			}
 			data, err := os.ReadFile(path)

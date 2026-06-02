@@ -100,6 +100,17 @@ func chunkMarkdown(data []byte) []DocChunk {
 	return chunks
 }
 
+// isIndexDoc reports whether a path is a summary/index file (README, MEMORY)
+// rather than real content — those compete with content chunks and pollute both
+// ranking and mined bench labels.
+func isIndexDoc(path string) bool {
+	switch strings.ToLower(filepath.Base(path)) {
+	case "readme.md", "memory.md":
+		return true
+	}
+	return false
+}
+
 // headingLevel returns the level (# count) and text of a markdown ATX heading,
 // or (0, "") if the line is not a heading.
 func headingLevel(line string) (int, string) {
@@ -173,7 +184,7 @@ func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]flo
 // docEmbedVersion stamps the docs gob. Bump it whenever chunking or embed-input
 // logic changes — refreshDocsIndex then discards the stale vectors and rebuilds,
 // since file mtimes alone won't reflect a code change (the prefix-experiment trap).
-const docEmbedVersion = "v3-fullbody"
+const docEmbedVersion = "v4-noindexfiles"
 
 // refreshDocsIndex re-embeds only doc files whose mtime is newer than the index,
 // unless the embed-logic version changed (then it rebuilds everything).
@@ -187,6 +198,9 @@ func refreshDocsIndex(repoRoot string, dirs []string, embedFn func(string) ([]fl
 		filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
 				return nil
+			}
+			if isIndexDoc(path) {
+				return nil // skip README/MEMORY index files
 			}
 			if meta, ok := idx.Files[path]; ok && !info.ModTime().After(meta.LastModified) {
 				return nil // unchanged

@@ -97,6 +97,17 @@ func TestChunkMarkdown(t *testing.T) {
 	}
 }
 
+func TestIsIndexDoc(t *testing.T) {
+	for _, p := range []string{"learnings/README.md", "/a/MEMORY.md", "Readme.md"} {
+		if !isIndexDoc(p) {
+			t.Errorf("expected index doc: %s", p)
+		}
+	}
+	if isIndexDoc("learnings/vercel.md") {
+		t.Error("vercel.md is content, not an index file")
+	}
+}
+
 func TestChunkMarkdownNoHeadings(t *testing.T) {
 	chunks := chunkMarkdown([]byte("just a paragraph\nmore text\n"))
 	if len(chunks) != 1 || chunks[0].Heading != "(intro)" {

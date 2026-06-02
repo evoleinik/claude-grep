@@ -39,6 +39,7 @@ func main() {
 	noDocs := flag.Bool("no-docs", false, "suppress the curated-docs block")
 	docsIndex := flag.Bool("docs", false, "with --index: (re)build the cwd repo's docs index")
 	benchDocsPath := flag.String("bench-docs", "", "run the labeled docs benchmark over a JSON corpus")
+	mineDocsQueries := flag.Bool("mine-docs-queries", false, "propose labeled docs-bench cases from usage.jsonl")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `claude-grep — search Claude Code session history
@@ -105,6 +106,11 @@ Exit codes:
 
 	if *benchDocsPath != "" {
 		runDocsBench(*benchDocsPath)
+		return
+	}
+
+	if *mineDocsQueries {
+		runMineDocsQueries(20)
 		return
 	}
 

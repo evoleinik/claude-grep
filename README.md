@@ -81,6 +81,7 @@ claude-grep -s "cold start"      # hybrid doc hits: dense + keyword, RRF-fused
 claude-grep --no-docs "x"        # sessions only
 claude-grep --index --docs       # build/refresh this repo's docs index
 claude-grep --bench-docs bench/docs-queries.json   # grep-vs-hybrid benchmark
+claude-grep --mine-docs-queries > cand.json        # propose bench cases from real usage
 ```
 
 Docs come from the current repo (`learnings/` then `docs/`, or set
@@ -113,7 +114,8 @@ needs no index.
 | `--usage` | Show usage stats (agent telemetry) | - |
 | `--no-docs` | Suppress the curated-docs block | off |
 | `--docs` | With `--index`: (re)build the cwd repo's docs index | - |
-| `--bench-docs FILE` | Run the labeled grep-vs-semantic docs benchmark | - |
+| `--bench-docs FILE` | Run the labeled grep-vs-hybrid docs benchmark | - |
+| `--mine-docs-queries` | Propose labeled bench cases from `usage.jsonl` (review-ready JSON) | - |
 
 ## Exit codes
 

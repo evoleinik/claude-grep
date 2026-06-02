@@ -186,6 +186,14 @@ axis.
 hand-picking against known `learnings/` headings. Committed as the gold set.
 `expect_heading` is optional (enables section-level scoring).
 
+**Growing the corpus:** `claude-grep --mine-docs-queries` reads real queries from
+`usage.jsonl`, runs them through the current repo's docs lane, and emits
+review-ready JSON candidates (top-hit file proposed as `expect_file`, sorted by
+confidence). The human verifies labels and merges into the corpus — so the gold
+set grows from authentic agent queries and the bench stops saturating on a small
+hand-written set. Index/summary files (`README.md`/`MEMORY.md`) are excluded from
+both the index and the proposals so they don't pollute labels.
+
 ### Engines (same corpus)
 
 1. **`grep`** (baseline) — the realistic CLAUDE.md invocation:
@@ -266,13 +274,16 @@ two measured follow-ups driven by the benchmark:
 | grep effective-MRR | 0.07 (avg **27.6/31** files returned) | 0.42 (avg 3.8/4) |
 | dense-only `-s` | hit@3 11/15, MRR 0.76 | hit@3 10/12, MRR 0.75 |
 | + hybrid RRF (dense ⊕ BM25) | hit@3 14/15, MRR 0.79 | hit@3 12/12, MRR 0.86 |
-| + heading breadcrumbs | **hit@3 14/15, MRR 0.83** | **hit@3 12/12, MRR 0.96** |
+| + heading breadcrumbs | hit@3 14/15, MRR 0.83 | hit@3 12/12, MRR 0.96 |
+| + drop README/MEMORY index files | **hit@1 12/15, MRR 0.87** | **hit@3 12/12, MRR 0.96** |
 
 Hybrid recovered the exact-term/identifier misses dense couldn't reach
 (`dark-supply` 0→3, `shop` 5→2, `maison` 4→1; real-usage `promptContext`/`deploy`
 fixed). Breadcrumbs (embedding the full `H1 › H2 › H3` path) recovered the RRF
-hit@1 dip and lifted MRR further. `trafilatura` (absent from docs) correctly
-returns nothing — no false positive.
+hit@1 dip. Excluding `README.md`/`MEMORY.md` index files (an idea the
+`--mine-docs-queries` tool surfaced — they appeared as proposed labels) removed
+chunks that were occasionally outranking real content: MRR 0.83→0.87, hit@1 11→12.
+`trafilatura` (absent from docs) correctly returns nothing — no false positive.
 
 **Design deviations from plan:**
 - `IndexEntry` lives in `store.go`, not `index.go` (plan mislabeled the file).
@@ -288,9 +299,8 @@ returns nothing — no false positive.
 preview), so they get the same query-focused BM25 snippet as lexical hits. This is
 ranking-neutral (MRR unchanged 0.83) — purely better output.
 
-**Ranking is at its ceiling on this corpus.** hit@1 11/15; the four non-#1 cases
-are genuine near-ties (`bime` rank 2: wrong-file `database.md § BotConfig` at 0.58
-edges the right file at 0.56; `shop` rank 2: `dark-supply.md` 0.63 edges
+**Ranking is near its ceiling on this corpus.** hit@1 12/15; the remaining non-#1
+cases are genuine near-ties (e.g. `shop`: `dark-supply.md` 0.63 edges
 `shop.md § Rate Limiting` 0.60) plus the one hard paraphrase (`stripe`). Demoting
 the colliding chunks would overfit 15 queries. A best-per-file dedup was tried and
 **reverted** (metric-neutral on both corpora).
