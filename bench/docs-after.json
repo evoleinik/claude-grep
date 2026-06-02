@@ -1,0 +1,194 @@
+[
+  {
+    "query": "why keep curated docs separate from session history search",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 42,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "how does the docs index stay fresh without a cron job",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 35,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "how is a markdown file split into searchable pieces",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 32,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "finding which folder holds a repo's curated notes",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 3
+    },
+    "cg_regex": {
+      "hit_rank": 19,
+      "files": 3
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "measuring retrieval quality against plain keyword grep",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 36,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "what new columns were added to the stored index record",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 28,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 2,
+      "files": 4
+    }
+  },
+  {
+    "query": "command line switches to turn off or rebuild the docs section",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 42,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "how the two search lanes handle time and scope differently",
+    "expect_file": "2026-06-02-docs-search-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 42,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "fallback chain when an exact pattern returns nothing",
+    "expect_file": "2026-06-02-ax-recovery-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 14,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "automatically widening a phrase into separate terms",
+    "expect_file": "2026-06-02-ax-recovery-design.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 9,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  },
+  {
+    "query": "the ordered list of build steps for the docs feature",
+    "expect_file": "2026-06-02-docs-search.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 4
+    },
+    "cg_regex": {
+      "hit_rank": 6,
+      "files": 4
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 3
+    }
+  },
+  {
+    "query": "shared function names reused across the implementation tasks",
+    "expect_file": "2026-06-02-docs-search.md",
+    "grep": {
+      "hit_rank": 1,
+      "files": 3
+    },
+    "cg_regex": {
+      "hit_rank": 7,
+      "files": 3
+    },
+    "cg_semantic": {
+      "hit_rank": 1,
+      "files": 4
+    }
+  }
+]

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// IndexEntry holds a single embedded message.
+// IndexEntry holds a single embedded message (chat) or markdown chunk (docs).
 type IndexEntry struct {
 	SessionID string
 	MsgIndex  int
@@ -17,6 +17,8 @@ type IndexEntry struct {
 	Preview   string // first 200 chars of text
 	FilePath  string
 	Vector    []float32
+	Source    string // "" or "session" for chat; "docs" for markdown chunks
+	Heading   string // markdown heading path for doc chunks; "" for chat
 }
 
 // FileMetadata tracks which files have been indexed.
@@ -27,17 +29,18 @@ type FileMetadata struct {
 
 // Index is the in-memory representation of a project's vector index.
 type Index struct {
-	Entries  []IndexEntry
-	Files    map[string]FileMetadata // keyed by filepath
-	Project  string
+	Entries         []IndexEntry
+	Files           map[string]FileMetadata // keyed by filepath
+	Project         string
+	DocEmbedVersion string // docs index only: embed-logic version; mismatch forces full rebuild
 }
 
 // IndexStats holds aggregate index statistics.
 type IndexStats struct {
-	Projects     int
-	Files        int
-	Vectors      int
-	SizeBytes    int64
+	Projects  int
+	Files     int
+	Vectors   int
+	SizeBytes int64
 }
 
 func indexDir() string {

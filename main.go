@@ -36,6 +36,10 @@ func main() {
 	showVersion := flag.Bool("version", false, "show version")
 	showUsage := flag.Bool("usage", false, "show usage stats")
 	benchPath := flag.String("bench", "", "run benchmark over a JSON corpus of queries")
+	noDocs := flag.Bool("no-docs", false, "suppress the curated-docs block")
+	docsIndex := flag.Bool("docs", false, "with --index: (re)build the cwd repo's docs index")
+	benchDocsPath := flag.String("bench-docs", "", "run the labeled docs benchmark over a JSON corpus")
+	mineDocsQueries := flag.Bool("mine-docs-queries", false, "propose labeled docs-bench cases from usage.jsonl")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `claude-grep — search Claude Code session history
@@ -100,6 +104,16 @@ Exit codes:
 		return
 	}
 
+	if *benchDocsPath != "" {
+		runDocsBench(*benchDocsPath)
+		return
+	}
+
+	if *mineDocsQueries {
+		runMineDocsQueries(20)
+		return
+	}
+
 	// Context: -C sets both if not individually set
 	if *ctxBoth > 0 {
 		if *ctxBefore == 0 {
@@ -120,6 +134,10 @@ Exit codes:
 
 	// Index mode
 	if *index {
+		if *docsIndex {
+			runDocsIndexCmd(*indexStatus)
+			return
+		}
 		if *indexStatus {
 			printIndexStatus(*allProjects)
 			return
@@ -188,15 +206,33 @@ Exit codes:
 
 	// Build flags string for telemetry
 	var flagList []string
-	if *prompts { flagList = append(flagList, "-p") }
-	if *responses { flagList = append(flagList, "-r") }
-	if *allProjects { flagList = append(flagList, "-a") }
-	if *listOnly { flagList = append(flagList, "-l") }
-	if *semantic { flagList = append(flagList, "-s") }
-	if *jsonOut { flagList = append(flagList, "--json") }
-	if *maxHours > 0 { flagList = append(flagList, "-H") }
-	if *maxDays != 7 { flagList = append(flagList, "-d") }
-	if *maxResults != 100 { flagList = append(flagList, "-n") }
+	if *prompts {
+		flagList = append(flagList, "-p")
+	}
+	if *responses {
+		flagList = append(flagList, "-r")
+	}
+	if *allProjects {
+		flagList = append(flagList, "-a")
+	}
+	if *listOnly {
+		flagList = append(flagList, "-l")
+	}
+	if *semantic {
+		flagList = append(flagList, "-s")
+	}
+	if *jsonOut {
+		flagList = append(flagList, "--json")
+	}
+	if *maxHours > 0 {
+		flagList = append(flagList, "-H")
+	}
+	if *maxDays != 7 {
+		flagList = append(flagList, "-d")
+	}
+	if *maxResults != 100 {
+		flagList = append(flagList, "-n")
+	}
 	if *ctxBefore > 0 || *ctxAfter > 0 || *ctxBoth > 0 {
 		flagList = append(flagList, "-C")
 	}
@@ -221,6 +257,18 @@ Exit codes:
 	// "deploy.*config" → tokens "deploy", "config"
 	searchQuery = pattern
 
+	// Curated-docs lane: independent of -a/-d, cwd repo only, role "both" only.
+	var docMatches []DocMatch
+	docsEngine := "none"
+	var docsLabelStr string
+	if !*noDocs && role == "both" {
+		cwd := mustGetwd()
+		docMatches, docsEngine = collectDocs(cwd, pattern, *semantic, *maxResults)
+		if _, dirs, ok := discoverDocsDir(cwd); ok && len(dirs) > 0 {
+			docsLabelStr = docsLabel(dirs[0])
+		}
+	}
+
 	if *semantic {
 		matches, err := semanticSearch(pattern, searchPath, opts)
 		if err != nil {
@@ -233,16 +281,18 @@ Exit codes:
 			Pattern: pattern, Mode: "semantic", Flags: strings.Join(flagList, " "),
 			Results: len(matches), Files: len(files), Days: *maxDays,
 			Scope: scope, ExtraArgs: hasExtraArgs, Capped: capped,
-			DurationMs: time.Since(startTime).Milliseconds(),
+			DurationMs:  time.Since(startTime).Milliseconds(),
+			DocsResults: len(docMatches), DocsEngine: docsEngine,
 		})
-		if len(matches) == 0 {
+		if len(matches) == 0 && len(docMatches) == 0 {
 			printNoMatchHint(pattern, searchPath, opts, true, SearchStats{FilesTotal: len(files)})
 			os.Exit(1)
 		}
 		if *jsonOut {
-			formatJSON(matches, os.Stdout)
+			encodeJSON(append(buildJSONMatches(matches), docsToJSON(docMatches)...), os.Stdout)
 		} else {
 			formatTerminal(matches, opts)
+			printDocsBlock(docsLabelStr, docMatches)
 		}
 		if capped {
 			printCapHint(opts, 0)
@@ -271,8 +321,9 @@ Exit codes:
 			Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
 			Results: len(matches), Files: files, Days: *maxDays,
 			Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs, Capped: capped,
-			DurationMs: time.Since(startTime).Milliseconds(),
+			DurationMs:    time.Since(startTime).Milliseconds(),
 			PrefilterSkip: searchStats.PrefilterSkipped, RegexSearched: searchStats.RegexSearched,
+			DocsResults: len(docMatches), DocsEngine: docsEngine,
 		})
 	case "tokenized":
 		fmt.Fprintf(os.Stderr, "phrase auto-matched as AND-of-terms (%d tokens) — %d results\n",
@@ -281,6 +332,7 @@ Exit codes:
 			Pattern: origPattern, Mode: "tokenized-fallback", Flags: strings.Join(flagList, " "),
 			Results: len(matches), Files: files, Days: *maxDays,
 			Scope: scope, DurationMs: time.Since(startTime).Milliseconds(),
+			DocsResults: len(docMatches), DocsEngine: docsEngine,
 		})
 	case "semantic":
 		fmt.Fprintf(os.Stderr, "no regex/token match — semantic results\n")
@@ -288,29 +340,37 @@ Exit codes:
 			Pattern: origPattern, Mode: "semantic-fallback", Flags: strings.Join(flagList, " "),
 			Results: len(matches), Files: files, Days: *maxDays,
 			Scope: scope, DurationMs: time.Since(startTime).Milliseconds(),
+			DocsResults: len(docMatches), DocsEngine: docsEngine,
 		})
 	case "none":
 		logUsage(UsageEvent{
 			Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
 			Results: 0, Files: files, Days: *maxDays,
 			Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs,
-			DurationMs: time.Since(startTime).Milliseconds(),
+			DurationMs:    time.Since(startTime).Milliseconds(),
 			PrefilterSkip: searchStats.PrefilterSkipped, RegexSearched: searchStats.RegexSearched,
+			DocsResults: len(docMatches), DocsEngine: docsEngine,
 		})
-		printNoMatchHint(pattern, searchPath, opts, false, searchStats)
-		printNearMiss(pattern, searchPath, opts)
-		os.Exit(1)
+		if len(docMatches) == 0 {
+			printNoMatchHint(pattern, searchPath, opts, false, searchStats)
+			printNearMiss(pattern, searchPath, opts)
+			os.Exit(1)
+		}
+		// sessions empty but docs hit — fall through to emit the docs block
 	}
 
 	if *jsonOut {
-		formatJSON(matches, os.Stdout)
+		encodeJSON(append(buildJSONMatches(matches), docsToJSON(docMatches)...), os.Stdout)
 	} else {
 		formatTerminal(matches, opts)
+		printDocsBlock(docsLabelStr, docMatches)
 	}
 	if capped {
 		printCapHint(opts, searchStats.TotalMatches)
 	}
 }
+
+func mustGetwd() string { d, _ := os.Getwd(); return d }
 
 // reorderArgs moves flags after the pattern to before it.
 // Go's flag.Parse() stops at the first non-flag arg, so
