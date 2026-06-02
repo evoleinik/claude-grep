@@ -149,6 +149,27 @@ Run `claude-grep --usage` for a 30-day summary including:
 - **Duplicate searches** — same pattern+scope repeated across sessions
 - BRE misuse and extra arg warnings
 
+## Recovery ladder
+
+When a regex returns nothing, claude-grep escalates automatically (within your
+chosen scope — it never widens `-a`/`-d`):
+
+1. **regex** as typed
+2. **tokenized** — multi-word queries retry as AND-of-terms (sessions containing
+   every word), surfacing the matching messages. No Ollama needed.
+3. **semantic** — embedding search (requires the index + Ollama)
+
+A stderr note tells you which layer answered.
+
+## Benchmarking
+
+```bash
+./bench/extract-corpus.sh                 # refresh corpus from telemetry (optional)
+claude-grep --bench bench/queries.json    # JSON records to stdout, summary to stderr
+```
+
+`bench/baseline.json` is the pre-recovery measurement; compare after-runs against it.
+
 ## Use with AI agents
 
 Add to your `CLAUDE.md`:

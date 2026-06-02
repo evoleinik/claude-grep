@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -222,5 +224,34 @@ func TestLongestLiteral(t *testing.T) {
 				t.Errorf("got %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSearchTotalMatchesBeforeCap(t *testing.T) {
+	dir := t.TempDir()
+	// 3 sessions, each with one message containing "alpha"
+	for i, ts := range []string{"2026-06-01T10:00:00", "2026-06-01T11:00:00", "2026-06-01T12:00:00"} {
+		writeSession(t, dir, fmt.Sprintf("s%d.jsonl", i), ts, "user", "alpha beta")
+	}
+	matches, stats, err := regexSearch("alpha", dir, SearchOpts{Role: "both", MaxResults: 2, MaxDays: 3650})
+	if err != nil {
+		t.Fatalf("regexSearch error: %v", err)
+	}
+	if len(matches) != 2 {
+		t.Fatalf("expected 2 matches (capped), got %d", len(matches))
+	}
+	if stats.TotalMatches != 3 {
+		t.Errorf("expected TotalMatches=3 (pre-cap), got %d", stats.TotalMatches)
+	}
+}
+
+func writeSession(t *testing.T, dir, name, ts, role, text string) {
+	t.Helper()
+	line, _ := json.Marshal(map[string]any{
+		"type": role, "timestamp": ts + "Z",
+		"message": map[string]any{"role": role, "content": text},
+	})
+	if err := os.WriteFile(filepath.Join(dir, name), append(line, '\n'), 0644); err != nil {
+		t.Fatal(err)
 	}
 }
