@@ -411,30 +411,38 @@ func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bo
 	if strings.HasSuffix(searchPath, filepath.Join(".claude", "projects")) {
 		scope = "all projects"
 	}
+	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n",
+		pattern, stats.FilesTotal, opts.MaxDays, scope)
 
-	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n", pattern, stats.FilesTotal, opts.MaxDays, scope)
+	words := strings.Fields(pattern)
+	isPhrase := !isSemantic && len(words) >= 2
 
-	// If prefilter killed everything and pattern has spaces, explain why
-	if !isSemantic && strings.Contains(pattern, " ") && stats.PrefilterSkipped == stats.FilesTotal && stats.FilesTotal > 0 {
-		fmt.Fprintf(os.Stderr, "note: %q matched as a literal phrase — words must appear together\n", pattern)
+	if isPhrase {
+		// Phrase already auto-tried as AND-of-terms + semantic. Most distinctive token wins.
+		fmt.Fprintf(os.Stderr, "hint: narrow to the most distinctive token, e.g. claude-grep %q\n",
+			longestWord(words))
+		fmt.Fprintf(os.Stderr, "or:    widen tokens — claude-grep \"(%s)\"\n", strings.Join(words, "|"))
+		return
 	}
 
-	// Hint: space-containing patterns are literal phrases — suggest alternation or wildcard
-	if !isSemantic && strings.Contains(pattern, " ") {
-		words := strings.Fields(pattern)
-		if len(words) >= 2 {
-			fmt.Fprintf(os.Stderr, "hint: try: \"(%s)\" or \"%s\"\n",
-				strings.Join(words, "|"), strings.Join(words, ".*"))
-		}
-	}
-
-	// Copy-pasteable retry command
+	// Single literal that simply isn't here: widening scope/time can help.
 	if scope == "current project" || opts.MaxDays <= 7 {
 		fmt.Fprintf(os.Stderr, "retry: claude-grep -a -d 30 %q\n", pattern)
 	}
 	if !isSemantic {
 		fmt.Fprintf(os.Stderr, "or:    claude-grep -s %q\n", pattern)
 	}
+}
+
+// longestWord returns the longest (most distinctive) word from a slice.
+func longestWord(words []string) string {
+	best := ""
+	for _, w := range words {
+		if len(w) > len(best) {
+			best = w
+		}
+	}
+	return best
 }
 
 // printNearMiss tries a relaxed search when regex found nothing.
