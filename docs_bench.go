@@ -129,26 +129,32 @@ func runDocsBenchRecords(corpusPath, root string, dirs []string) []DocsBenchReco
 	return recs
 }
 
-// benchVerdict gates CI: cg-semantic hit@3 >= grep hit@any. All-skipped semantic
-// (no ollama) cannot be judged → pass (don't block CI).
+// benchVerdict gates CI on RANKING QUALITY: cg-semantic MRR >= grep effective-MRR.
+// grep is unranked, so a found doc sits uniformly within its returned pile →
+// expected reciprocal rank = 2/(files+1); grep's noise (more files) lowers it.
+// This avoids the saturation trap where grep "hits" by dumping the whole corpus.
+// All-skipped semantic (no ollama) cannot be judged → pass (don't block CI).
 func benchVerdict(recs []DocsBenchRecord) (bool, string) {
-	var grepAny, semAt3, judged int
+	var grepMRR, semMRR float64
+	judged := 0
 	for _, r := range recs {
-		if r.Grep.HitRank >= 1 {
-			grepAny++
-		}
 		if r.CgSemantic.HitRank == -1 {
-			continue
+			continue // skipped — exclude from both sides for a fair denominator
 		}
 		judged++
-		if r.CgSemantic.HitRank >= 1 && r.CgSemantic.HitRank <= 3 {
-			semAt3++
+		if r.Grep.HitRank >= 1 && r.Grep.Files > 0 {
+			grepMRR += 2.0 / float64(r.Grep.Files+1)
+		}
+		if r.CgSemantic.HitRank >= 1 {
+			semMRR += 1.0 / float64(r.CgSemantic.HitRank)
 		}
 	}
 	if judged == 0 {
 		return true, "semantic skipped (no ollama) — gate not evaluated"
 	}
-	return semAt3 >= grepAny, fmt.Sprintf("cg-semantic hit@3=%d vs grep hit@any=%d", semAt3, grepAny)
+	grepMRR /= float64(judged)
+	semMRR /= float64(judged)
+	return semMRR >= grepMRR, fmt.Sprintf("cg-semantic MRR=%.2f vs grep eff-MRR=%.2f", semMRR, grepMRR)
 }
 
 func runDocsBench(corpusPath string) {

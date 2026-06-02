@@ -201,9 +201,15 @@ pair — the quotable pre/post numbers.
 
 ### CI verifier
 
-Assert `cg-semantic hit@3 ≥ grep hit@any` (**never worse than grep**) and print
-the relabel/rebuild fix command on failure. Degrades gracefully: no ollama/index
-→ report grep + cg-regex only, note semantic skipped (don't block the bench).
+Assert **`cg-semantic MRR ≥ grep effective-MRR`** (never worse than grep *at
+ranking the right doc*) and print the relabel/rebuild fix command on failure.
+grep is unranked, so a found doc sits uniformly within its returned pile →
+effective reciprocal rank `2/(files+1)`; grep's noise (more files returned)
+lowers it. This is the honest comparison: an earlier `hit@3 ≥ grep hit@any`
+formulation **saturated** on small/homogeneous corpora (grep "hits" by dumping
+the whole corpus, so hit@any → 100% and the gate could never pass regardless of
+semantic quality). Degrades gracefully: no ollama/index → report grep + cg-regex
+only, note semantic skipped (don't block the bench).
 
 ## Testing (deterministic, TDD-first)
 

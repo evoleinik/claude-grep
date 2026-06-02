@@ -13,24 +13,24 @@ func TestOrWords(t *testing.T) {
 }
 
 func TestBenchVerdict(t *testing.T) {
-	// semantic hit@3 (2/2) >= grep hit@any (1/2) → pass
+	// grep saturates (returns 4 files → eff-RR 0.4); semantic ranks #1/#2 (MRR 0.75) → pass
 	recs := []DocsBenchRecord{
-		{Grep: EngineResult{HitRank: 1}, CgSemantic: EngineResult{HitRank: 2}},
-		{Grep: EngineResult{HitRank: 0}, CgSemantic: EngineResult{HitRank: 1}},
+		{Grep: EngineResult{HitRank: 1, Files: 4}, CgSemantic: EngineResult{HitRank: 1}},
+		{Grep: EngineResult{HitRank: 1, Files: 4}, CgSemantic: EngineResult{HitRank: 2}},
 	}
-	if ok, _ := benchVerdict(recs); !ok {
-		t.Error("expected pass: semantic >= grep")
+	if ok, msg := benchVerdict(recs); !ok {
+		t.Errorf("expected pass (semantic ranks better than saturated grep): %s", msg)
 	}
-	// semantic worse than grep → fail
+	// grep precise (1 file, eff-RR 1.0); semantic misses → semantic genuinely worse → fail
 	bad := []DocsBenchRecord{
-		{Grep: EngineResult{HitRank: 1}, CgSemantic: EngineResult{HitRank: 0}},
-		{Grep: EngineResult{HitRank: 1}, CgSemantic: EngineResult{HitRank: 0}},
+		{Grep: EngineResult{HitRank: 1, Files: 1}, CgSemantic: EngineResult{HitRank: 0}},
+		{Grep: EngineResult{HitRank: 1, Files: 1}, CgSemantic: EngineResult{HitRank: 0}},
 	}
 	if ok, _ := benchVerdict(bad); ok {
-		t.Error("expected fail: semantic < grep")
+		t.Error("expected fail: semantic MRR 0 < grep eff-MRR 1.0")
 	}
 	// semantic skipped (-1) → cannot judge → pass (don't block CI without ollama)
-	skip := []DocsBenchRecord{{Grep: EngineResult{HitRank: 1}, CgSemantic: EngineResult{HitRank: -1}}}
+	skip := []DocsBenchRecord{{Grep: EngineResult{HitRank: 1, Files: 2}, CgSemantic: EngineResult{HitRank: -1}}}
 	if ok, _ := benchVerdict(skip); !ok {
 		t.Error("skipped semantic should not fail the gate")
 	}
