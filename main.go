@@ -35,6 +35,7 @@ func main() {
 	indexAll := flag.Bool("all", false, "reindex everything (use with --index)")
 	showVersion := flag.Bool("version", false, "show version")
 	showUsage := flag.Bool("usage", false, "show usage stats")
+	benchPath := flag.String("bench", "", "run benchmark over a JSON corpus of queries")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `claude-grep — search Claude Code session history
@@ -63,6 +64,7 @@ Flags:
   --status      show index stats (with --index)
   --all         reindex everything (with --index)
   --usage       show usage stats (agent telemetry)
+  --bench FILE  run recovery benchmark over a JSON array of queries
   --version     show version
 
 Examples:
@@ -90,6 +92,11 @@ Exit codes:
 
 	if *showUsage {
 		printUsageStats()
+		return
+	}
+
+	if *benchPath != "" {
+		runBench(*benchPath)
 		return
 	}
 
