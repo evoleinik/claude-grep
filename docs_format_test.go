@@ -51,6 +51,19 @@ func TestPrintDocsBlock(t *testing.T) {
 	}
 }
 
+func TestDocsLabel(t *testing.T) {
+	if got := docsLabel("/r/learnings"); got != "learnings/" {
+		t.Errorf("want learnings/, got %q", got)
+	}
+}
+
+func TestUsageEventHasDocsFields(t *testing.T) {
+	b, _ := json.Marshal(UsageEvent{DocsResults: 3, DocsEngine: "semantic"})
+	if !bytes.Contains(b, []byte(`"docs_results":3`)) || !bytes.Contains(b, []byte(`"docs_engine":"semantic"`)) {
+		t.Errorf("docs telemetry not serialized: %s", b)
+	}
+}
+
 func captureStdout(t *testing.T, fn func()) string {
 	t.Helper()
 	old := os.Stdout

@@ -177,6 +177,11 @@ type JSONCtx struct {
 }
 
 func formatJSON(matches []Match, w io.Writer) {
+	encodeJSON(buildJSONMatches(matches), w)
+}
+
+// buildJSONMatches converts session matches to JSONMatch entries.
+func buildJSONMatches(matches []Match) []JSONMatch {
 	var out []JSONMatch
 	for _, m := range matches {
 		jm := JSONMatch{
@@ -203,7 +208,11 @@ func formatJSON(matches []Match, w io.Writer) {
 		}
 		out = append(out, jm)
 	}
+	return out
+}
 
+// encodeJSON writes a JSONMatch slice as indented JSON.
+func encodeJSON(out []JSONMatch, w io.Writer) {
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	enc.Encode(out)

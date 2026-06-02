@@ -27,6 +27,8 @@ type UsageEvent struct {
 	DurationMs     int64  `json:"ms"`
 	PrefilterSkip  int    `json:"pf_skip,omitempty"`
 	RegexSearched  int    `json:"pf_pass,omitempty"`
+	DocsResults    int    `json:"docs_results,omitempty"`
+	DocsEngine     string `json:"docs_engine,omitempty"` // "regex"/"semantic"/"none"
 }
 
 func usageLogPath() string {
