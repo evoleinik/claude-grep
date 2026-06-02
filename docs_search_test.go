@@ -73,3 +73,28 @@ func TestCollectDocsNotARepo(t *testing.T) {
 		t.Errorf("expected no docs outside a repo, got %d/%q", len(docs), engine)
 	}
 }
+
+func TestLexicalDocsSearch(t *testing.T) {
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "stripe.md"),
+		[]byte("# Design partner\ncheck subscriptionPlan equals Design Partner never infer from null fields\n"), 0644)
+	os.WriteFile(filepath.Join(dir, "neon.md"),
+		[]byte("# Neon\nbranch per worktree database endpoint\n"), 0644)
+
+	docs := lexicalDocsSearch("how to check a design partner", []string{dir}, 5)
+	if len(docs) == 0 || filepath.Base(docs[0].File) != "stripe.md" {
+		t.Fatalf("expected stripe.md ranked first (exact-term lexical), got %+v", docs)
+	}
+}
+
+func TestFuseRRF(t *testing.T) {
+	dense := []DocMatch{{File: "a.md", Heading: "A"}, {File: "b.md", Heading: "B"}}
+	lexical := []DocMatch{{File: "b.md", Heading: "B"}, {File: "c.md", Heading: "C"}}
+	out := fuseRRF(dense, lexical, 5)
+	if len(out) != 3 {
+		t.Fatalf("want 3 unique fused, got %d: %+v", len(out), out)
+	}
+	if out[0].File != "b.md" {
+		t.Errorf("b.md ranks #1 (present in both lanes), got %s", out[0].File)
+	}
+}

@@ -77,16 +77,19 @@ separate block, so one command covers both "what did we discuss" (sessions) and
 
 ```bash
 claude-grep "cron auth"          # sessions + a "=== curated docs ===" block
-claude-grep -s "cold start"      # semantic doc hits (section-level, ranked)
+claude-grep -s "cold start"      # hybrid doc hits: dense + keyword, RRF-fused
 claude-grep --no-docs "x"        # sessions only
 claude-grep --index --docs       # build/refresh this repo's docs index
-claude-grep --bench-docs bench/docs-queries.json   # grep-vs-semantic benchmark
+claude-grep --bench-docs bench/docs-queries.json   # grep-vs-hybrid benchmark
 ```
 
 Docs come from the current repo (`learnings/` then `docs/`, or set
-`CLAUDE_GREP_DOCS=dir1:dir2`), ignore `-d`/`-a`, and the semantic index
-self-heals on use (re-embeds only changed files — no cron). Regex doc search
-needs no index; semantic needs ollama (same as session semantic search).
+`CLAUDE_GREP_DOCS=dir1:dir2`) and ignore `-d`/`-a`. `-s` fuses a dense (embedding)
+lane with a BM25 keyword lane via reciprocal-rank fusion — dense wins NL queries,
+keyword wins exact-term/identifier queries. The dense index self-heals on use
+(re-embeds only changed files — no cron); the keyword lane needs no index, so
+`-s` still returns hits when ollama is down. Plain regex doc search (no `-s`) also
+needs no index.
 
 ## Flags
 

@@ -100,12 +100,7 @@ func runDocsBenchRecords(corpusPath, root string, dirs []string) []DocsBenchReco
 
 	semFn := semanticDocsBenchFn
 	if semFn == nil {
-		semFn = func(q, r string, d []string, c int) ([]DocMatch, error) {
-			if !ollamaReachable() {
-				return nil, errSkip
-			}
-			return semanticDocsSearch(q, r, d, c)
-		}
+		semFn = hybridDocsSearch // dense ⊕ lexical RRF; degrades to lexical w/o ollama
 	}
 
 	recs := make([]DocsBenchRecord, 0, len(queries))
@@ -154,7 +149,7 @@ func benchVerdict(recs []DocsBenchRecord) (bool, string) {
 	}
 	grepMRR /= float64(judged)
 	semMRR /= float64(judged)
-	return semMRR >= grepMRR, fmt.Sprintf("cg-semantic MRR=%.2f vs grep eff-MRR=%.2f", semMRR, grepMRR)
+	return semMRR >= grepMRR, fmt.Sprintf("cg-hybrid MRR=%.2f vs grep eff-MRR=%.2f", semMRR, grepMRR)
 }
 
 func runDocsBench(corpusPath string) {
@@ -206,7 +201,7 @@ func runDocsBench(corpusPath string) {
 		semMRR = mrr / float64(judged)
 	}
 	fmt.Fprintf(os.Stderr,
-		"docs-bench: grep hit@any %d/%d (avg %.1f files) | cg-regex hit@1 %d hit@3 %d | cg-semantic hit@1 %d hit@3 %d/%d mrr %.2f\n",
+		"docs-bench: grep hit@any %d/%d (avg %.1f files) | cg-regex hit@1 %d hit@3 %d | cg-hybrid hit@1 %d hit@3 %d/%d mrr %.2f\n",
 		grepAny, n, avgFiles, rAt1, rAt3, sAt1, sAt3, judged, semMRR)
 
 	pass, msg := benchVerdict(recs)

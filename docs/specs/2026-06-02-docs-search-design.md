@@ -95,10 +95,19 @@ Add one field; repurpose existing fields for doc chunks (documented in a comment
   attribute each hit to its enclosing heading → doc matches. No index dependency,
   always live (no staleness).
 
-**Semantic mode** (`-s`):
-- Load `<repo>.docs.gob`, cosine similarity against chunks, same `0.55`
-  threshold. No index/ollama → docs lane prints nothing and suggests
-  `claude-grep --index --docs` once on stderr (Rule of Repair).
+**Semantic mode** (`-s`) — **hybrid (dense ⊕ lexical, RRF-fused):**
+- *Dense lane:* load `<repo>.docs.gob`, cosine similarity against chunks, `0.55`
+  threshold. Owns multi-word NL queries.
+- *Lexical lane:* BM25 over the live `.md` chunks (no index; reuses the shared
+  `tokenize`/`stem`). Owns exact-term/identifier queries (`promptContext`,
+  "design partner") that dense ranks poorly.
+- *Fusion:* reciprocal-rank fusion (`score = Σ 1/(60+rankᵢ)`); a chunk ranked
+  highly in both lanes wins. Degrades to lexical-only when ollama/index is absent,
+  so `-s` still returns hits offline.
+- **Why hybrid:** benchmarking dense-only on `learnings/` (31 files) hit@3 11/15,
+  MRR 0.76 — every miss was an exact-term/identifier query dense can't reach. RRF
+  with the lexical lane lifted hit@3 to 14/15, MRR 0.79. (An nomic `search_*`
+  prefix experiment was tried first and **reverted** — net-zero on the bench.)
 
 **Cross-cutting rules:**
 - **Time:** docs ignore `-d`/`-H` entirely. `-d 30` widens sessions only.
@@ -244,5 +253,27 @@ only, note semantic skipped (don't block the bench).
 
 ## Outcome
 
-_(Fill after implementation: measured grep vs cg-semantic numbers, any design
-deviations, follow-ups.)_
+Shipped on `feat/docs-search` (PR #2). Built TDD across the 11 planned tasks, then
+two measured follow-ups driven by the benchmark:
+
+**Measured (airshelf `learnings/`, 31 files / 612 chunks, 15-query labeled corpus):**
+- Dense-only `-s`: hit@3 11/15, MRR **0.76**; grep effective-MRR **0.07** (grep
+  returns avg **27.6 of 31** files per query — useless ranking).
+- **Hybrid `-s` (RRF of dense + BM25 lexical): hit@3 14/15, MRR 0.79.** Recovered
+  the exact-term/identifier misses dense couldn't reach: `dark-supply` 0→3,
+  `shop` 5→2, `maison` 4→1. Real-usage check: `promptContext`/`deploy` now land on
+  the correct section; `trafilatura` (absent from docs) correctly returns nothing.
+
+**Design deviations from plan:**
+- `IndexEntry` lives in `store.go`, not `index.go` (plan mislabeled the file).
+- Verdict gate changed from `hit@3 ≥ grep hit@any` to **`MRR ≥ grep eff-MRR`** —
+  the original saturated (grep "hits" by dumping the whole corpus).
+- `-s` upgraded from dense-only to **hybrid RRF** (the dense-only misses were all
+  lexical-exact). A nomic `search_query:`/`search_document:` prefix experiment was
+  tried and **reverted** (net-zero / slight regression on the bench).
+
+**Follow-ups (not blocking):** the one stubborn miss is `stripe` ("guessing from
+empty fields" vs doc's "infer from null fields") — heavy paraphrase + code-symbol
+chunk; lexical finds it at rank 15, dense misses it. Candidate: light query
+expansion or chunk-level field extraction. Threshold `0.55` is still the
+session-tuned value; worth re-tuning for docs once more corpora exist.
