@@ -18,6 +18,7 @@ type SearchStats struct {
 	FilesTotal       int
 	PrefilterSkipped int
 	RegexSearched    int
+	TotalMatches     int // matches found before MaxResults truncation
 }
 
 // Message represents a parsed chat message from a JSONL session file.
@@ -58,8 +59,15 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 	if err != nil {
 		return nil, SearchStats{}, err
 	}
+	return searchCore(re, extractPrefilterLiterals(pattern), nil, searchPath, opts)
+}
 
+// searchCore walks session files and collects matches. Exactly one of prefilter
+// (OR-of-literals, for regex) or gate (AND-of-tokens, for tokenized recovery)
+// selects which files to scan; the other must be nil.
+func searchCore(re *regexp.Regexp, prefilter [][]byte, gate [][]byte, searchPath string, opts SearchOpts) ([]Match, SearchStats, error) {
 	var files []string
+	var err error
 	if opts.MaxAge > 0 {
 		files, err = findSessionFilesWithAge(searchPath, opts.MaxAge)
 	} else {
@@ -68,24 +76,14 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 	if err != nil {
 		return nil, SearchStats{}, err
 	}
-
-	// Exclude current session (most recently modified file)
 	if opts.ExcludeSelf && len(files) > 0 {
 		files = excludeNewestFile(files)
 	}
 
-	// Concurrent search with fan-in
-	type fileResult struct {
-		matches []Match
-	}
-
+	type fileResult struct{ matches []Match }
 	results := make(chan fileResult, len(files))
 	var wg sync.WaitGroup
-
-	// Limit concurrency
 	sem := make(chan struct{}, 8)
-
-	prefilterLiterals := extractPrefilterLiterals(pattern)
 	var pfSkipped int32
 
 	for _, f := range files {
@@ -94,8 +92,7 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-
-			matches, skipped := searchFileTracked(fp, re, prefilterLiterals, opts)
+			matches, skipped := searchFileTracked(fp, re, prefilter, gate, opts)
 			if skipped {
 				atomic.AddInt32(&pfSkipped, 1)
 			}
@@ -104,23 +101,17 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 			}
 		}(f)
 	}
-
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
+	go func() { wg.Wait(); close(results) }()
 
 	var allMatches []Match
 	for r := range results {
 		allMatches = append(allMatches, r.matches...)
 	}
-
-	// Sort by timestamp descending (newest first)
 	sort.Slice(allMatches, func(i, j int) bool {
 		return allMatches[i].Message.Timestamp > allMatches[j].Message.Timestamp
 	})
 
-	// Limit results
+	total := len(allMatches)
 	if len(allMatches) > opts.MaxResults {
 		allMatches = allMatches[:opts.MaxResults]
 	}
@@ -129,8 +120,8 @@ func regexSearch(pattern, searchPath string, opts SearchOpts) ([]Match, SearchSt
 		FilesTotal:       len(files),
 		PrefilterSkipped: int(pfSkipped),
 		RegexSearched:    len(files) - int(pfSkipped),
+		TotalMatches:     total,
 	}
-
 	return allMatches, stats, nil
 }
 
@@ -164,14 +155,18 @@ func findSessionFilesWithAge(searchPath string, maxAge time.Duration) ([]string,
 }
 
 // searchFileTracked searches a single JSONL file and reports whether the prefilter skipped it.
-func searchFileTracked(filepath string, re *regexp.Regexp, prefilter [][]byte, opts SearchOpts) (matches []Match, prefilterSkipped bool) {
+func searchFileTracked(filepath string, re *regexp.Regexp, prefilter [][]byte, gate [][]byte, opts SearchOpts) (matches []Match, prefilterSkipped bool) {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, false
 	}
 
-	// Quick check: does the file even contain any prefilter literal?
-	if !prefilterMatch(data, prefilter) {
+	// File selection: AND-gate (tokenized) takes precedence over OR-prefilter (regex).
+	if gate != nil {
+		if !containsAllTokens(data, gate) {
+			return nil, true
+		}
+	} else if !prefilterMatch(data, prefilter) {
 		return nil, true
 	}
 
