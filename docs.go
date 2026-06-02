@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -95,4 +96,91 @@ func headingText(line string) string {
 		return "" // e.g. "#nottag" or bare "#"
 	}
 	return strings.TrimSpace(s)
+}
+
+func docsIndexPath(repoRoot string) string {
+	return filepath.Join(indexDir(), encodePath(repoRoot)+".docs.gob")
+}
+
+func loadDocsIndex(repoRoot string) *Index {
+	idx := &Index{Files: make(map[string]FileMetadata), Project: encodePath(repoRoot) + ".docs"}
+	f, err := os.Open(docsIndexPath(repoRoot))
+	if err != nil {
+		return idx
+	}
+	defer f.Close()
+	if err := gob.NewDecoder(f).Decode(idx); err != nil {
+		return &Index{Files: make(map[string]FileMetadata), Project: idx.Project}
+	}
+	return idx
+}
+
+func saveDocsIndex(repoRoot string, idx *Index) error {
+	if err := os.MkdirAll(indexDir(), 0755); err != nil {
+		return err
+	}
+	f, err := os.Create(docsIndexPath(repoRoot))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return gob.NewEncoder(f).Encode(idx)
+}
+
+// buildDocEntries chunks→embeds one markdown file into doc index entries.
+func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]float32, error)) ([]IndexEntry, error) {
+	var ts string
+	if info, err := os.Stat(file); err == nil {
+		ts = info.ModTime().Format("2006-01-02T15:04:05")
+	}
+	var entries []IndexEntry
+	for _, c := range chunks {
+		vec, err := embedFn(c.Heading + "\n" + c.Body)
+		if err != nil {
+			return nil, err
+		}
+		preview := c.Body
+		if len(preview) > previewLen {
+			preview = preview[:previewLen]
+		}
+		entries = append(entries, IndexEntry{
+			Source: "docs", Heading: c.Heading, FilePath: file,
+			MsgIndex: c.Ordinal, Role: "doc", Timestamp: ts,
+			Preview: preview, Vector: vec,
+		})
+	}
+	return entries, nil
+}
+
+// refreshDocsIndex re-embeds only doc files whose mtime is newer than the index.
+func refreshDocsIndex(repoRoot string, dirs []string, embedFn func(string) ([]float32, error)) error {
+	idx := loadDocsIndex(repoRoot)
+	changed := false
+	for _, dir := range dirs {
+		filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+			if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
+				return nil
+			}
+			if meta, ok := idx.Files[path]; ok && !info.ModTime().After(meta.LastModified) {
+				return nil // unchanged
+			}
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return nil
+			}
+			entries, err := buildDocEntries(path, chunkMarkdown(data), embedFn)
+			if err != nil {
+				return nil // skip this file; an ollama hiccup shouldn't abort the walk
+			}
+			idx.Entries = removeEntriesForFile(idx.Entries, path)
+			idx.Entries = append(idx.Entries, entries...)
+			idx.Files[path] = FileMetadata{FilePath: path, LastModified: info.ModTime()}
+			changed = true
+			return nil
+		})
+	}
+	if changed {
+		return saveDocsIndex(repoRoot, idx)
+	}
+	return nil
 }

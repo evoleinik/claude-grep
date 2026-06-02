@@ -101,5 +101,65 @@ func TestChunkMarkdownNoHeadings(t *testing.T) {
 	}
 }
 
-// keep imports used until later tasks add their tests
-var _ = time.Now
+func TestBuildDocEntries(t *testing.T) {
+	fake := func(s string) ([]float32, error) { return []float32{float32(len(s))}, nil }
+	chunks := []DocChunk{{Heading: "Cron auth", Body: "guard if !secret", Ordinal: 0}}
+	entries, err := buildDocEntries("/r/learnings/vercel.md", chunks, fake)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("want 1, got %d", len(entries))
+	}
+	e := entries[0]
+	if e.Source != "docs" || e.Heading != "Cron auth" || e.FilePath != "/r/learnings/vercel.md" {
+		t.Errorf("bad entry: %+v", e)
+	}
+	if e.Role != "doc" || len(e.Vector) != 1 {
+		t.Errorf("bad entry meta: %+v", e)
+	}
+}
+
+func TestRefreshDocsIndexIncremental(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	root := t.TempDir()
+	ldir := filepath.Join(root, "learnings")
+	os.MkdirAll(ldir, 0755)
+	f := filepath.Join(ldir, "a.md")
+	os.WriteFile(f, []byte("# H\nalpha beta\n"), 0644)
+
+	calls := 0
+	fake := func(s string) ([]float32, error) { calls++; return []float32{1}, nil }
+
+	if err := refreshDocsIndex(root, []string{ldir}, fake); err != nil {
+		t.Fatal(err)
+	}
+	first := calls
+	if first == 0 {
+		t.Fatal("expected embeds on first build")
+	}
+
+	// Unchanged file → no re-embed
+	if err := refreshDocsIndex(root, []string{ldir}, fake); err != nil {
+		t.Fatal(err)
+	}
+	if calls != first {
+		t.Errorf("re-embedded unchanged file: %d -> %d", first, calls)
+	}
+
+	// Touch file → re-embed
+	time.Sleep(10 * time.Millisecond)
+	os.WriteFile(f, []byte("# H\nalpha beta gamma\n"), 0644)
+	if err := refreshDocsIndex(root, []string{ldir}, fake); err != nil {
+		t.Fatal(err)
+	}
+	if calls == first {
+		t.Error("expected re-embed after file change")
+	}
+
+	idx := loadDocsIndex(root)
+	if len(idx.Entries) == 0 {
+		t.Error("index empty after refresh")
+	}
+}
