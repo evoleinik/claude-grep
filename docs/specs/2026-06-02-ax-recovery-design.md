@@ -156,6 +156,17 @@ The mechanical verifier — lives next to the code (Eugene's rule).
 3. Next live `--usage` (1 week post-merge): prefilter-reject count and retry-chain count fall;
    `tokenized-fallback` rescues visible in the mode histogram.
 
+## Prior art (learned constraint)
+
+Commit `3cff314` added a *different* auto-recovery — scope escalation (current-project regex →
+**all-projects** regex → semantic) — and it was reverted in `8ca40e6`. The lesson:
+**recovery must not silently widen scope.** When an agent scopes to the current project,
+surfacing matches from ~950 other projects is surprising noise (and slow over ~10K files).
+
+This design rewrites the *query* (phrase → AND-of-terms) **within the agent's chosen scope**;
+it never touches `-a`/`-d`. Scope stays a deliberate agent decision — telemetry shows 7
+manual project→all escalations, which is the desired pattern, not a gap to automate away.
+
 ## Risks & mitigations
 
 - **File-level AND too strict** (all tokens must co-occur in one session) → semantic layer is
