@@ -71,13 +71,19 @@ Flags:
   --bench FILE  run recovery benchmark over a JSON array of queries
   --version     show version
 
+Curated docs (searches the cwd repo's learnings/ or docs/ too):
+  --no-docs            suppress the curated-docs block
+  --index --docs       build/refresh this repo's docs index
+  --bench-docs FILE    run the labeled grep-vs-hybrid docs benchmark
+  --mine-docs-queries  propose bench cases from usage.jsonl (review-ready JSON)
+
 Examples:
   claude-grep "worktree"              find mentions of worktree
   claude-grep -p -n 5 "database"      your prompts about databases
   claude-grep -C 2 "error"            matches with 2 messages context
   claude-grep -a -d 30 "deploy"       all projects, last 30 days
   claude-grep -H 4 "bug"              last 4 hours only
-  claude-grep -s "that migration fix" semantic search by meaning
+  claude-grep -s "that migration fix" semantic search by meaning + curated docs
   claude-grep --json "test" | jq .    pipe JSON to jq
 
 Exit codes:
