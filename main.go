@@ -238,7 +238,7 @@ Exit codes:
 			formatTerminal(matches, opts)
 		}
 		if capped {
-			printCapHint(opts)
+			printCapHint(opts, 0)
 		}
 		return
 	}
@@ -297,7 +297,7 @@ Exit codes:
 		formatTerminal(matches, opts)
 	}
 	if capped {
-		printCapHint(opts)
+		printCapHint(opts, searchStats.TotalMatches)
 	}
 }
 
@@ -482,9 +482,15 @@ func isSuspiciousPattern(pattern string) bool {
 	return false
 }
 
-func printCapHint(opts SearchOpts) {
-	hint := fmt.Sprintf("results capped at %d — narrow your pattern or use -n 100", opts.MaxResults)
-	if opts.MaxDays <= 7 {
+func printCapHint(opts SearchOpts, total int) {
+	var hint string
+	if total > opts.MaxResults {
+		hint = fmt.Sprintf("showing %d of %d — narrow the pattern or raise -n (e.g. -n %d)",
+			opts.MaxResults, total, total)
+	} else {
+		hint = fmt.Sprintf("results capped at %d — narrow the pattern or raise -n", opts.MaxResults)
+	}
+	if opts.MaxDays <= 7 && opts.MaxAge == 0 {
 		hint += ", -d 30"
 	}
 	fmt.Fprintln(os.Stderr, hint)
