@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// IndexEntry holds a single embedded message.
+// IndexEntry holds a single embedded message (chat) or markdown chunk (docs).
 type IndexEntry struct {
 	SessionID string
 	MsgIndex  int
@@ -17,6 +17,8 @@ type IndexEntry struct {
 	Preview   string // first 200 chars of text
 	FilePath  string
 	Vector    []float32
+	Source    string // "" or "session" for chat; "docs" for markdown chunks
+	Heading   string // markdown heading path for doc chunks; "" for chat
 }
 
 // FileMetadata tracks which files have been indexed.
