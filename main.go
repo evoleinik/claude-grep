@@ -245,48 +245,52 @@ Exit codes:
 
 	// Normalize BRE syntax to ERE (agents write \| \( \) \+ \? instead of | ( ) + ?)
 	hasBRE := pattern != normalizeBRE(pattern)
-	pattern = normalizeBRE(pattern)
+	if hasBRE {
+		fmt.Fprintf(os.Stderr, "note: rewrote BRE escapes to ERE — claude-grep uses Go regex (use | ( ) + ? directly)\n")
+	}
 
-	// Regex search
-	matches, searchStats, err := regexSearch(pattern, searchPath, opts)
+	matches, searchStats, layer, err := searchWithRecovery(pattern, searchPath, opts, !*semantic)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		os.Exit(2)
 	}
 
+	files := searchStats.FilesTotal
 	capped := len(matches) >= opts.MaxResults
-	logUsage(UsageEvent{
-		Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
-		Results: len(matches), Files: searchStats.FilesTotal, Days: *maxDays,
-		Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs, Capped: capped,
-		DurationMs: time.Since(startTime).Milliseconds(),
-		PrefilterSkip: searchStats.PrefilterSkipped,
-		RegexSearched: searchStats.RegexSearched,
-	})
 
-	if len(matches) == 0 {
-		// Auto-fallback: try semantic search when regex finds nothing
-		if !*semantic && ollamaReachable() {
-			fmt.Fprintf(os.Stderr, "no regex matches — trying semantic search...\n")
-			semMatches, semErr := semanticSearch(origPattern, searchPath, opts)
-			if semErr == nil && len(semMatches) > 0 {
-				logUsage(UsageEvent{
-					Pattern: origPattern, Mode: "semantic-fallback", Flags: strings.Join(flagList, " "),
-					Results: len(semMatches), Files: searchStats.FilesTotal, Days: *maxDays,
-					Scope: scope, DurationMs: time.Since(startTime).Milliseconds(),
-				})
-				if *jsonOut {
-					formatJSON(semMatches, os.Stdout)
-				} else {
-					formatTerminal(semMatches, opts)
-				}
-				return
-			}
-			fmt.Fprintf(os.Stderr, "semantic search also found nothing\n")
-		}
-
+	switch layer {
+	case "regex":
+		logUsage(UsageEvent{
+			Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
+			Results: len(matches), Files: files, Days: *maxDays,
+			Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs, Capped: capped,
+			DurationMs: time.Since(startTime).Milliseconds(),
+			PrefilterSkip: searchStats.PrefilterSkipped, RegexSearched: searchStats.RegexSearched,
+		})
+	case "tokenized":
+		fmt.Fprintf(os.Stderr, "phrase auto-matched as AND-of-terms (%d tokens) — %d results\n",
+			len(extractWordTokens(pattern)), len(matches))
+		logUsage(UsageEvent{
+			Pattern: origPattern, Mode: "tokenized-fallback", Flags: strings.Join(flagList, " "),
+			Results: len(matches), Files: files, Days: *maxDays,
+			Scope: scope, DurationMs: time.Since(startTime).Milliseconds(),
+		})
+	case "semantic":
+		fmt.Fprintf(os.Stderr, "no regex/token match — semantic results\n")
+		logUsage(UsageEvent{
+			Pattern: origPattern, Mode: "semantic-fallback", Flags: strings.Join(flagList, " "),
+			Results: len(matches), Files: files, Days: *maxDays,
+			Scope: scope, DurationMs: time.Since(startTime).Milliseconds(),
+		})
+	case "none":
+		logUsage(UsageEvent{
+			Pattern: origPattern, Mode: "regex", Flags: strings.Join(flagList, " "),
+			Results: 0, Files: files, Days: *maxDays,
+			Scope: scope, BRE: hasBRE, ExtraArgs: hasExtraArgs,
+			DurationMs: time.Since(startTime).Milliseconds(),
+			PrefilterSkip: searchStats.PrefilterSkipped, RegexSearched: searchStats.RegexSearched,
+		})
 		printNoMatchHint(pattern, searchPath, opts, false, searchStats)
-		// Near-miss: try a relaxed substring search on the longest literal
 		printNearMiss(pattern, searchPath, opts)
 		os.Exit(1)
 	}
