@@ -126,12 +126,16 @@ The mechanical verifier — lives next to the code (Eugene's rule).
   per-query flags. Absolute numbers drift slowly as sessions age out of the 30-day window, so
   baseline and post-change runs are executed **on the same day** against an effectively
   identical session corpus — the before/after *delta* is the metric, not the absolute counts.
-- **Before/after** — capture `bench/baseline.json` from the *current* binary first (hit rate
-  ≈ 0 on this corpus by construction — they are the historical empties). After implementing,
-  re-run and diff.
-  - **Headline:** "of N historically-empty queries, recovery now answers M (tokenized K,
-    semantic K′); still-empty E."
-  - **No-regression slice:** a sample of queries that *did* succeed must stay 100% with
+- **Metric — layer attribution, not found-rate.** Measurement-first revealed that the pristine
+  binary already "finds" 163/164 of the corpus at `-a -d 30`: semantic fallback is a catch-all
+  whenever Ollama is up, so raw found-rate has ~zero headroom. Tokenized recovery's value is
+  **precision + cost** — exact token match, no Ollama, lower latency. Because the ladder tries
+  tokenized *before* semantic, one after-run attributes each query to the cheapest layer that
+  answered it:
+  - **Headline:** "of N historically-empty queries — regex/scope R, **tokenized K** (cheap,
+    precise, no Ollama), semantic S, none E" + median latency per layer (tokenized ≪ semantic).
+  - `bench/baseline.json` stays committed as the evidence that found-rate is the wrong metric.
+  - **No-regression slice:** a sample of queries that already succeeded must stay 100% with
     stable result counts, and success-path p50 latency unchanged.
 - Wire to `go test` / CI later (out of scope for this round).
 
@@ -150,8 +154,9 @@ The mechanical verifier — lives next to the code (Eugene's rule).
 
 ## Success criteria
 
-1. On `bench/queries.json`: still-empty rate drops from ~100% (baseline) to a small residual;
-   the majority of rescues come from the `tokenized` layer.
+1. On `bench/queries.json`: the `tokenized` layer answers a meaningful share of queries that
+   the pristine binary could only serve via fuzzy `semantic` (or `none`); tokenized median
+   latency is far below semantic median (no Ollama round-trip).
 2. No-regression slice stays 100% with stable counts; success-path p50 latency unchanged.
 3. Next live `--usage` (1 week post-merge): prefilter-reject count and retry-chain count fall;
    `tokenized-fallback` rescues visible in the mode histogram.

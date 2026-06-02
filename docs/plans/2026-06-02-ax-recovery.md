@@ -1083,20 +1083,39 @@ Expected: no vet errors, all tests PASS, clean build.
 Run: `/tmp/cg --bench bench/queries.json > bench/after.json 2> bench/after-summary.txt; cat bench/after-summary.txt`
 Expected: a summary line like `bench: M/N found (X%); layers=map[regex:.. tokenized:.. semantic:.. none:..]; p50=..ms p95=..ms`.
 
-- [ ] **Step 3: Compute the headline delta vs baseline**
+- [ ] **Step 3: Compute the headline (layer attribution + latency)**
 
-Run:
+Found-rate is NOT the headline: the pristine binary already "finds" ~163/164 because semantic
+fallback is a catch-all when Ollama is up (see `bench/baseline.json`). Tokenized recovery's
+value is **precision + cost** — exact token match, no Ollama, lower latency. Because the ladder
+tries tokenized *before* semantic, a single after-run attributes each query to the cheapest
+layer that answered it.
+
+Run (bulletproof explicit counts):
 
 ```bash
-jq -n \
-  --argjson before "$(jq '[.[]|select(.found)]|length' bench/baseline.json)" \
-  --argjson after  "$(jq '[.[]|select(.found)]|length' bench/after.json)" \
-  --argjson total  "$(jq 'length' bench/queries.json)" \
-  --argjson tok    "$(jq '[.[]|select(.layer=="tokenized")]|length' bench/after.json)" \
-  '{corpus:$total, found_before:$before, found_after:$after, gained:($after-$before), rescued_by_tokenized:$tok}'
+jq '{
+  corpus:    length,
+  regex:     ([.[]|select(.layer=="regex")]    |length),
+  tokenized: ([.[]|select(.layer=="tokenized")]|length),
+  semantic:  ([.[]|select(.layer=="semantic")] |length),
+  none:      ([.[]|select(.layer=="none")]     |length)
+}' bench/after.json
 ```
 
-Expected: `gained` > 0 and `rescued_by_tokenized` > 0. Record this object — it is the success metric.
+Then latency by layer (tokenized should be far below semantic):
+
+```bash
+for L in regex tokenized semantic; do
+  echo -n "$L median ms: "
+  jq --arg L "$L" '[.[]|select(.layer==$L)|.ms]|sort|.[(length/2)|floor] // 0' bench/after.json
+done
+```
+
+Expected: `tokenized` > 0 (the cheap layer precisely answers queries that would otherwise fall
+to fuzzy semantic), and tokenized median latency << semantic median. Record both — together they
+are the success metric. (`bench/baseline.json` stays committed as the evidence that found-rate
+has no headroom; it is context, not the headline.)
 
 - [ ] **Step 4: Document in README**
 
