@@ -59,3 +59,14 @@ func TestNoMatchHintSingleLiteralOffersWiderScope(t *testing.T) {
 		t.Errorf("single-literal miss should offer wider scope, got %q", out)
 	}
 }
+
+func TestNoMatchHintAlternationLeadsWithNarrow(t *testing.T) {
+	out := noMatchHintString(t, "branded_accuracy|rank_for_merchant",
+		SearchOpts{MaxDays: 30}, SearchStats{FilesTotal: 50, PrefilterSkipped: 50})
+	if !strings.Contains(out, "narrow") {
+		t.Errorf("no-space alternation (2 tokens) should lead with narrow, got %q", out)
+	}
+	if strings.Contains(out, "-a -d 30") {
+		t.Errorf("should NOT offer scope-widening for a multi-token query, got %q", out)
+	}
+}

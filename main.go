@@ -421,14 +421,14 @@ func printNoMatchHint(pattern, searchPath string, opts SearchOpts, isSemantic bo
 	fmt.Fprintf(os.Stderr, "no matches for %q (%d files, %d days, %s)\n",
 		pattern, stats.FilesTotal, opts.MaxDays, scope)
 
-	words := strings.Fields(pattern)
-	isPhrase := !isSemantic && len(words) >= 2
+	tokens := extractWordTokens(pattern)
+	isPhrase := !isSemantic && len(tokens) >= 2
 
 	if isPhrase {
 		// Phrase already auto-tried as AND-of-terms + semantic. Most distinctive token wins.
 		fmt.Fprintf(os.Stderr, "hint: narrow to the most distinctive token, e.g. claude-grep %q\n",
-			longestWord(words))
-		fmt.Fprintf(os.Stderr, "or:    widen tokens — claude-grep \"(%s)\"\n", strings.Join(words, "|"))
+			longestWord(tokens))
+		fmt.Fprintf(os.Stderr, "or:    widen tokens — claude-grep \"(%s)\"\n", strings.Join(tokens, "|"))
 		return
 	}
 
