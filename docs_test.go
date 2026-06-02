@@ -77,6 +77,29 @@ func TestDiscoverDocsDirNotARepo(t *testing.T) {
 	}
 }
 
+func TestChunkMarkdown(t *testing.T) {
+	md := []byte("intro line\n\n# Title\nbody a\n\n## Cron auth\nguard if !secret\n### nested\ndeep\n")
+	chunks := chunkMarkdown(md)
+	if len(chunks) != 4 { // (intro), Title, Cron auth, nested
+		t.Fatalf("want 4 chunks, got %d: %+v", len(chunks), chunks)
+	}
+	if chunks[0].Heading != "(intro)" || !strings.Contains(chunks[0].Body, "intro line") {
+		t.Errorf("intro chunk wrong: %+v", chunks[0])
+	}
+	if chunks[2].Heading != "Cron auth" || !strings.Contains(chunks[2].Body, "guard if !secret") {
+		t.Errorf("cron chunk wrong: %+v", chunks[2])
+	}
+	if chunks[3].Ordinal != 3 {
+		t.Errorf("ordinal not sequential: %+v", chunks[3])
+	}
+}
+
+func TestChunkMarkdownNoHeadings(t *testing.T) {
+	chunks := chunkMarkdown([]byte("just a paragraph\nmore text\n"))
+	if len(chunks) != 1 || chunks[0].Heading != "(intro)" {
+		t.Fatalf("want single intro chunk, got %+v", chunks)
+	}
+}
+
 // keep imports used until later tasks add their tests
-var _ = strings.TrimSpace
 var _ = time.Now
