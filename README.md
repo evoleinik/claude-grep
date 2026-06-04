@@ -99,7 +99,11 @@ block (respects `-s` and `--json`). Exit 1 + a one-line reason on no match or wh
 the cwd has no `learnings/`/`docs/` dir.
 
 Docs come from the current repo (`learnings/` then `docs/`, or set
-`CLAUDE_GREP_DOCS=dir1:dir2`) and ignore `-d`/`-a`. `-s` fuses a dense (embedding)
+`CLAUDE_GREP_DOCS=dir1:dir2`) and ignore `-d`/`-a`. In the default mode they also
+include every git-tracked `README.md`, `CLAUDE.md`, and `MEMORY.md` at any depth
+(nested `app/*/CLAUDE.md` too) — `git ls-files` skips `node_modules` and gitignored
+paths automatically. A `README.md`/`MEMORY.md` that lives *inside* `learnings/` or
+`docs/` is treated as a table-of-contents and stays excluded. `-s` fuses a dense (embedding)
 lane with a BM25 keyword lane via reciprocal-rank fusion — dense wins NL queries,
 keyword wins exact-term/identifier queries. The dense index self-heals on use
 (re-embeds only changed files — no cron); the keyword lane needs no index, so

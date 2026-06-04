@@ -49,7 +49,51 @@ func discoverDocsDir(cwd string) (repoRoot string, dirs []string, ok bool) {
 			}
 		}
 	}
+	// In default mode, also fold in the repo's git-tracked README/CLAUDE/MEMORY
+	// files — they hold curated knowledge agents expect to be searchable. Skipped
+	// when CLAUDE_GREP_DOCS is set (that's an explicit, literal override).
+	if !envSet {
+		dirs = append(dirs, trackedDocFiles(repoRoot, dirs)...)
+	}
 	return repoRoot, dirs, len(dirs) > 0
+}
+
+// trackedDocFiles returns absolute paths of git-tracked README.md / CLAUDE.md /
+// MEMORY.md files at any depth, excluding any that live under one of the already-
+// included dirs. A copy inside learnings/ or docs/ is a table-of-contents we
+// deliberately skip (see isIndexDoc); the root/nested originals are real content.
+// git-tracked means node_modules and gitignored paths are excluded for free.
+func trackedDocFiles(repoRoot string, excludeDirs []string) []string {
+	out, err := exec.Command("git", "-C", repoRoot, "ls-files", "-z", "--", "*.md").Output()
+	if err != nil {
+		return nil
+	}
+	var files []string
+	for _, rel := range strings.Split(strings.TrimRight(string(out), "\x00"), "\x00") {
+		if rel == "" {
+			continue
+		}
+		switch strings.ToLower(filepath.Base(rel)) {
+		case "readme.md", "claude.md", "memory.md":
+		default:
+			continue
+		}
+		abs := filepath.Join(repoRoot, rel)
+		if !pathUnderAny(abs, excludeDirs) {
+			files = append(files, abs)
+		}
+	}
+	return files
+}
+
+// pathUnderAny reports whether path is, or is nested within, one of dirs.
+func pathUnderAny(path string, dirs []string) bool {
+	for _, d := range dirs {
+		if path == d || strings.HasPrefix(path, d+string(filepath.Separator)) {
+			return true
+		}
+	}
+	return false
 }
 
 // chunkMarkdown splits markdown into one chunk per heading section. The chunk's
@@ -199,8 +243,8 @@ func refreshDocsIndex(repoRoot string, dirs []string, embedFn func(string) ([]fl
 			if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
 				return nil
 			}
-			if isIndexDoc(path) {
-				return nil // skip README/MEMORY index files
+			if path != dir && isIndexDoc(path) {
+				return nil // skip README/MEMORY found inside a docs dir; keep explicit file entries
 			}
 			if meta, ok := idx.Files[path]; ok && !info.ModTime().After(meta.LastModified) {
 				return nil // unchanged

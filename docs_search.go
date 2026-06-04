@@ -41,8 +41,8 @@ func regexDocsSearch(pattern string, dirs []string, cap int) ([]DocMatch, error)
 			if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
 				return nil
 			}
-			if isIndexDoc(path) {
-				return nil
+			if path != dir && isIndexDoc(path) {
+				return nil // skip a README/MEMORY found inside a docs dir; keep explicit file entries
 			}
 			data, err := os.ReadFile(path)
 			if err != nil {
@@ -121,8 +121,8 @@ func lexicalDocsSearch(query string, dirs []string, limit int) []DocMatch {
 			if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
 				return nil
 			}
-			if isIndexDoc(path) {
-				return nil
+			if path != dir && isIndexDoc(path) {
+				return nil // skip a README/MEMORY found inside a docs dir; keep explicit file entries
 			}
 			data, err := os.ReadFile(path)
 			if err != nil {

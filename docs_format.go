@@ -19,7 +19,7 @@ func runDocsOnly(cwd, pattern string, semantic, jsonOut, noDocs bool, maxResults
 	}
 	_, dirs, ok := discoverDocsDir(cwd)
 	if !ok || len(dirs) == 0 {
-		fmt.Fprintf(os.Stderr, "no curated docs: %s has no learnings/ or docs/ dir\n", cwd)
+		fmt.Fprintf(os.Stderr, "no curated docs in %s (no learnings//docs/ dir, README.md, CLAUDE.md, or MEMORY.md)\n", cwd)
 		return 1
 	}
 	searchQuery = pattern // drives bm25Compress in printDocsBlock
@@ -77,7 +77,14 @@ func printDocsBlock(label string, docs []DocMatch) {
 }
 
 // docsLabel turns an absolute doc dir into a display label, e.g. "learnings/".
-func docsLabel(dir string) string { return filepath.Base(dir) + "/" }
+// An explicitly-listed file entry (root README/CLAUDE) has no dir, so label it
+// generically rather than printing "CLAUDE.md/".
+func docsLabel(dir string) string {
+	if strings.HasSuffix(strings.ToLower(dir), ".md") {
+		return "repo docs"
+	}
+	return filepath.Base(dir) + "/"
+}
 
 // docsToJSON converts doc hits into JSONMatch entries tagged source="docs",
 // so they live in the same output array as session matches.
