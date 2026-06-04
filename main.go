@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var version = "1.6.0"
+var version = "1.7.0"
 
 func main() {
 	// Reorder args: allow flags after pattern (agents write "pattern -n 5" not "-n 5 pattern")
