@@ -251,9 +251,18 @@ func collectDocs(cwd, pattern string, semantic bool, maxResults int) ([]DocMatch
 		}
 		return docs, "hybrid"
 	}
+	// Layer 1: regex — fast path for exact identifiers and literal phrases.
 	docs, err := regexDocsSearch("(?i)"+pattern, dirs, cap)
-	if err != nil || len(docs) == 0 {
-		return nil, "none"
+	if err == nil && len(docs) > 0 {
+		return docs, "regex"
 	}
-	return docs, "regex"
+	// Rescue: a natural-language multi-word query compiles to one literal phrase
+	// that matches nothing (or is invalid regex). Mirror the session escalation
+	// ladder (recovery.go: regex → tokenized AND-of-terms → semantic) so the docs
+	// lane doesn't silently dead-end. hybridDocsSearch degrades to the pure-Go
+	// lexical (BM25) lane when ollama/index is unavailable.
+	if rescue, _ := hybridDocsSearch(pattern, root, dirs, cap); len(rescue) > 0 {
+		return rescue, "rescue"
+	}
+	return nil, "none"
 }

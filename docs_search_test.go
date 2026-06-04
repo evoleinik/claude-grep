@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -153,6 +154,44 @@ func TestCollectDocsNotARepo(t *testing.T) {
 	docs, engine := collectDocs(dir, "anything", false, 100)
 	if len(docs) != 0 || engine != "none" {
 		t.Errorf("expected no docs outside a repo, got %d/%q", len(docs), engine)
+	}
+}
+
+// TestCollectDocsRescuesMultiWordQuery is the regression guard for the --docs-only
+// dead-end: a natural-language multi-word query compiles to one literal regex phrase
+// that matches nothing, but its tokens DO appear in a doc. Non-semantic collectDocs
+// must rescue it (mirror the session regex→tokenized→semantic ladder) instead of
+// returning "none". Rescue must hold with Ollama down — via the pure-Go lexical lane.
+func TestCollectDocsRescuesMultiWordQuery(t *testing.T) {
+	repo := t.TempDir()
+	git := func(args ...string) {
+		if out, err := exec.Command("git", append([]string{"-C", repo}, args...)...).CombinedOutput(); err != nil {
+			t.Skipf("git unavailable: %v (%s)", err, out)
+		}
+	}
+	git("init")
+	p := filepath.Join(repo, "learnings", "shop.md")
+	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	os.WriteFile(p, []byte("# Shop API\nagent-native price search across markets and stores for ecommerce shopping\n"), 0o644)
+	git("add", "learnings/shop.md")
+
+	// Simulate Ollama down so the rescue must come from the lexical (BM25) lane.
+	embedQueryFn = func(string) ([]float32, error) { return nil, fmt.Errorf("ollama down") }
+	refreshDocsFn = func(string, []string, func(string) ([]float32, error)) error { return nil }
+	defer func() { embedQueryFn = embed; refreshDocsFn = refreshDocsIndex }()
+
+	q := "ecommerce shopping agent price search"
+	if hit, _ := regexDocsSearch("(?i)"+q, []string{filepath.Join(repo, "learnings")}, 5); len(hit) != 0 {
+		t.Fatalf("precondition: query must NOT match as a literal phrase, got %+v", hit)
+	}
+	docs, engine := collectDocs(repo, q, false, 5)
+	if len(docs) == 0 {
+		t.Fatalf("multi-word query not rescued: collectDocs returned 0 (engine=%q)", engine)
+	}
+	if filepath.Base(docs[0].File) != "shop.md" {
+		t.Errorf("wrong doc rescued: %+v (engine=%q)", docs[0], engine)
 	}
 }
 

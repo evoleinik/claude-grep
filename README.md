@@ -186,7 +186,10 @@ claude-grep --docs-only "x"           # learnings — read in full
 
 `--docs-only` skips the session scan and emits just the curated block (respects `-s`
 and `--json`). Exit 1 + a one-line reason on no match or when the cwd has no
-`learnings/`/`docs/` dir.
+`learnings/`/`docs/` dir. The docs lane mirrors the session [recovery ladder](#recovery-ladder):
+a regex that matches nothing (e.g. a natural-language multi-word query that compiles to
+one literal phrase) auto-escalates to the hybrid lane, so plain `--docs-only "how does X
+work"` no longer dead-ends — `-s` is no longer required for it to recover.
 
 Docs come from the current repo (`learnings/` then `docs/`, or set
 `CLAUDE_GREP_DOCS=dir1:dir2`) and ignore `-d`/`-a`. The default mode also includes
