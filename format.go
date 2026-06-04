@@ -165,6 +165,7 @@ type JSONMatch struct {
 	Similarity    float32   `json:"similarity,omitempty"`
 	Source        string    `json:"source,omitempty"` // "docs" for curated-doc hits
 	File          string    `json:"file,omitempty"`
+	Line          int       `json:"line,omitempty"` // 1-based heading line for doc hits
 	Heading       string    `json:"heading,omitempty"`
 	ContextBefore []JSONCtx `json:"context_before,omitempty"`
 	ContextAfter  []JSONCtx `json:"context_after,omitempty"`

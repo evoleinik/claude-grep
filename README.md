@@ -73,7 +73,9 @@ claude-grep --usage                    # see how agents use the tool
 
 Searches also surface a repo's curated docs (`learnings/` or `docs/`) in a
 separate block, so one command covers both "what did we discuss" (sessions) and
-"what's the documented gotcha" (curated notes):
+"what's the documented gotcha" (curated notes). Each doc hit is a navigable
+`file:line § heading` pointer (the heading's source line), so you can jump
+straight to it — e.g. `CLAUDE.md:312 § Python-to-Dashboard Contracts`:
 
 ```bash
 claude-grep "cron auth"          # sessions + a "=== curated docs ===" block

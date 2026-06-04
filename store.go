@@ -19,6 +19,7 @@ type IndexEntry struct {
 	Vector    []float32
 	Source    string // "" or "session" for chat; "docs" for markdown chunks
 	Heading   string // markdown heading path for doc chunks; "" for chat
+	Line      int    // 1-based heading line for doc chunks; 0 for chat
 }
 
 // FileMetadata tracks which files have been indexed.

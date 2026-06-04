@@ -38,18 +38,39 @@ func TestPrintDocsBlock(t *testing.T) {
 	out := captureStdout(t, func() {
 		searchQuery = "cron auth"
 		printDocsBlock("learnings/", []DocMatch{
-			{File: "/r/learnings/vercel.md", Heading: "Cron auth",
+			{File: "/r/learnings/vercel.md", Heading: "Cron auth", Line: 42,
 				Text: "every cron handler must guard if !secret to avoid Bearer undefined bypass", Similarity: 0.82},
+			{File: "/r/CLAUDE.md", Heading: "Rules", Text: "no line known here"}, // Line 0 → no :N
 		})
 	})
 	if !strings.Contains(out, "=== curated docs (learnings/) ===") {
 		t.Errorf("missing header:\n%s", out)
 	}
-	if !strings.Contains(out, "vercel.md § Cron auth") {
-		t.Errorf("missing file § heading:\n%s", out)
+	if !strings.Contains(out, "vercel.md:42 § Cron auth") {
+		t.Errorf("missing navigable file:line § heading:\n%s", out)
 	}
 	if !strings.Contains(out, "[0.82]") {
 		t.Errorf("missing similarity:\n%s", out)
+	}
+	// A hit with no known line must not print a bogus ":0".
+	if strings.Contains(out, "CLAUDE.md:0") || !strings.Contains(out, "CLAUDE.md § Rules") {
+		t.Errorf("Line==0 should omit the colon:\n%s", out)
+	}
+}
+
+func TestChunkMarkdownLines(t *testing.T) {
+	md := "intro text\n# H1\nbody one\n## H2\nbody two\n# H3\nbody three\n"
+	//      line1       l2    l3       l4     l5       l6     l7
+	chunks := chunkMarkdown([]byte(md))
+	want := map[string]int{"(intro)": 1, "H1": 2, "H1 › H2": 4, "H3": 6}
+	got := map[string]int{}
+	for _, c := range chunks {
+		got[c.Heading] = c.Line
+	}
+	for h, line := range want {
+		if got[h] != line {
+			t.Errorf("chunk %q: want line %d, got %d (all: %v)", h, line, got[h], got)
+		}
 	}
 }
 
@@ -95,8 +116,8 @@ func TestRunDocsOnly(t *testing.T) {
 		if !strings.HasPrefix(strings.TrimSpace(out), "=== curated docs (learnings/) ===") {
 			t.Errorf("docs block is not the sole output:\n%s", out)
 		}
-		if !strings.Contains(out, "vercel.md § Cron auth") {
-			t.Errorf("missing hit:\n%s", out)
+		if !strings.Contains(out, "vercel.md:1 § Cron auth") {
+			t.Errorf("missing navigable hit (file:line § heading):\n%s", out)
 		}
 	})
 

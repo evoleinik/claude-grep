@@ -19,6 +19,7 @@ type DocMatch struct {
 	Heading    string
 	Text       string
 	Similarity float32
+	Line       int // 1-based line of the heading in File (0 if unknown)
 }
 
 // docsCap bounds the docs block: surface the few canonical sections, not a dump.
@@ -50,7 +51,7 @@ func regexDocsSearch(pattern string, dirs []string, cap int) ([]DocMatch, error)
 			}
 			for _, c := range chunkMarkdown(data) {
 				if re.MatchString(c.Heading) || re.MatchString(c.Body) {
-					out = append(out, DocMatch{File: path, Heading: c.Heading, Text: c.Body})
+					out = append(out, DocMatch{File: path, Heading: c.Heading, Text: c.Body, Line: c.Line})
 					if len(out) >= cap {
 						return filepath.SkipAll
 					}
@@ -99,7 +100,7 @@ func semanticDocsSearch(query, repoRoot string, dirs []string, cap int) ([]DocMa
 	var out []DocMatch
 	for _, c := range cands {
 		out = append(out, DocMatch{
-			File: c.e.FilePath, Heading: c.e.Heading, Text: c.e.Preview, Similarity: c.sim,
+			File: c.e.FilePath, Heading: c.e.Heading, Text: c.e.Preview, Similarity: c.sim, Line: c.e.Line,
 		})
 	}
 	return out, nil
@@ -112,6 +113,7 @@ func semanticDocsSearch(query, repoRoot string, dirs []string, cap int) ([]DocMa
 func lexicalDocsSearch(query string, dirs []string, limit int) []DocMatch {
 	type chunkDoc struct {
 		file, heading, body string
+		line                int
 		toks                []string
 	}
 	var docs []chunkDoc
@@ -130,7 +132,7 @@ func lexicalDocsSearch(query string, dirs []string, limit int) []DocMatch {
 			}
 			for _, c := range chunkMarkdown(data) {
 				toks := tokenize(c.Heading + " " + c.Body)
-				docs = append(docs, chunkDoc{path, c.Heading, c.Body, toks})
+				docs = append(docs, chunkDoc{path, c.Heading, c.Body, c.Line, toks})
 				seen := map[string]bool{}
 				for _, t := range toks {
 					if !seen[t] {
@@ -184,7 +186,7 @@ func lexicalDocsSearch(query string, dirs []string, limit int) []DocMatch {
 	}
 	var out []DocMatch
 	for _, r := range ranked {
-		out = append(out, DocMatch{File: r.d.file, Heading: r.d.heading, Text: r.d.body})
+		out = append(out, DocMatch{File: r.d.file, Heading: r.d.heading, Text: r.d.body, Line: r.d.line})
 	}
 	return out
 }

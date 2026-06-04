@@ -61,7 +61,11 @@ func printDocsBlock(label string, docs []DocMatch) {
 		if d.Similarity > 0 {
 			sim = fmt.Sprintf("   [%.2f]", d.Similarity)
 		}
-		fmt.Printf("%s § %s%s\n", filepath.Base(d.File), d.Heading, sim)
+		loc := filepath.Base(d.File)
+		if d.Line > 0 {
+			loc = fmt.Sprintf("%s:%d", loc, d.Line) // navigable file:line pointer
+		}
+		fmt.Printf("%s § %s%s\n", loc, d.Heading, sim)
 
 		body := d.Text
 		const budget = 400
@@ -93,7 +97,7 @@ func docsToJSON(docs []DocMatch) []JSONMatch {
 	for _, d := range docs {
 		out = append(out, JSONMatch{
 			Source: "docs", File: d.File, Heading: d.Heading,
-			Text: d.Text, Similarity: d.Similarity,
+			Text: d.Text, Similarity: d.Similarity, Line: d.Line,
 		})
 	}
 	return out

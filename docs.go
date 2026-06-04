@@ -13,6 +13,7 @@ type DocChunk struct {
 	Heading string
 	Body    string
 	Ordinal int
+	Line    int // 1-based line of the section's heading (1 for the intro chunk)
 }
 
 // discoverDocsDir resolves the cwd repo and its curated-doc dirs.
@@ -109,6 +110,7 @@ func chunkMarkdown(data []byte) []DocChunk {
 	}
 	var stack []hnode
 	heading := "(intro)"
+	headingLine := 1 // line of the current heading; the intro starts at the top
 	var body strings.Builder
 
 	flush := func() {
@@ -120,11 +122,12 @@ func chunkMarkdown(data []byte) []DocChunk {
 		if len(text) > maxEmbedChars {
 			text = text[:maxEmbedChars]
 		}
-		chunks = append(chunks, DocChunk{Heading: heading, Body: text, Ordinal: len(chunks)})
+		chunks = append(chunks, DocChunk{Heading: heading, Body: text, Ordinal: len(chunks), Line: headingLine})
 	}
 
-	for _, ln := range lines {
+	for i, ln := range lines {
 		if lvl, txt := headingLevel(ln); lvl > 0 {
+			lineNo := i + 1 // capture before the inner loop shadows i
 			flush()
 			for len(stack) > 0 && stack[len(stack)-1].level >= lvl {
 				stack = stack[:len(stack)-1]
@@ -135,6 +138,7 @@ func chunkMarkdown(data []byte) []DocChunk {
 				parts[i] = h.text
 			}
 			heading = strings.Join(parts, " › ")
+			headingLine = lineNo
 			continue
 		}
 		body.WriteString(ln)
@@ -219,7 +223,7 @@ func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]flo
 		entries = append(entries, IndexEntry{
 			Source: "docs", Heading: c.Heading, FilePath: file,
 			MsgIndex: c.Ordinal, Role: "doc", Timestamp: ts,
-			Preview: c.Body, Vector: vec,
+			Preview: c.Body, Vector: vec, Line: c.Line,
 		})
 	}
 	return entries, nil
@@ -228,7 +232,7 @@ func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]flo
 // docEmbedVersion stamps the docs gob. Bump it whenever chunking or embed-input
 // logic changes — refreshDocsIndex then discards the stale vectors and rebuilds,
 // since file mtimes alone won't reflect a code change (the prefix-experiment trap).
-const docEmbedVersion = "v4-noindexfiles"
+const docEmbedVersion = "v5-doc-line"
 
 // refreshDocsIndex re-embeds only doc files whose mtime is newer than the index,
 // unless the embed-logic version changed (then it rebuilds everything).
