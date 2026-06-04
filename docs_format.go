@@ -2,9 +2,52 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+// runDocsOnly serves --docs-only: it skips the session scan and emits only the
+// curated-docs block (≤ docsCap hits), keeping output small enough to survive the
+// `head -N` an agent habitually pipes a session search through. Writes the block to
+// stdout (or JSON), diagnostics to stderr, and returns the process exit code.
+func runDocsOnly(cwd, pattern string, semantic, jsonOut, noDocs bool, maxResults int) int {
+	if noDocs {
+		fmt.Fprintln(os.Stderr, "error: --docs-only and --no-docs are contradictory")
+		return 2
+	}
+	_, dirs, ok := discoverDocsDir(cwd)
+	if !ok || len(dirs) == 0 {
+		fmt.Fprintf(os.Stderr, "no curated docs: %s has no learnings/ or docs/ dir\n", cwd)
+		return 1
+	}
+	searchQuery = pattern // drives bm25Compress in printDocsBlock
+	start := time.Now()
+	docs, engine := collectDocs(cwd, pattern, semantic, maxResults)
+	flags := "--docs-only"
+	if semantic {
+		flags += " -s"
+	}
+	if jsonOut {
+		flags += " --json"
+	}
+	logUsage(UsageEvent{
+		Pattern: pattern, Mode: "docs-only", Flags: flags,
+		Scope: "docs", DurationMs: time.Since(start).Milliseconds(),
+		DocsResults: len(docs), DocsEngine: engine,
+	})
+	if len(docs) == 0 {
+		fmt.Fprintf(os.Stderr, "no curated-docs match for %q in %s\n", pattern, docsLabel(dirs[0]))
+		return 1
+	}
+	if jsonOut {
+		encodeJSON(docsToJSON(docs), os.Stdout)
+	} else {
+		printDocsBlock(docsLabel(dirs[0]), docs)
+	}
+	return 0
+}
 
 // printDocsBlock renders the trailing curated-docs section.
 // label is the human dir name (e.g. "learnings/").

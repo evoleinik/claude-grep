@@ -40,6 +40,7 @@ func main() {
 	docsIndex := flag.Bool("docs", false, "with --index: (re)build the cwd repo's docs index")
 	benchDocsPath := flag.String("bench-docs", "", "run the labeled docs benchmark over a JSON corpus")
 	mineDocsQueries := flag.Bool("mine-docs-queries", false, "propose labeled docs-bench cases from usage.jsonl")
+	docsOnly := flag.Bool("docs-only", false, "search ONLY the cwd repo's curated docs (no session scan)")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `claude-grep — search Claude Code session history
@@ -73,6 +74,7 @@ Flags:
 
 Curated docs (searches the cwd repo's learnings/ or docs/ too):
   --no-docs            suppress the curated-docs block
+  --docs-only          search ONLY curated docs — no session scan, head-safe output
   --index --docs       build/refresh this repo's docs index
   --bench-docs FILE    run the labeled grep-vs-hybrid docs benchmark
   --mine-docs-queries  propose bench cases from usage.jsonl (review-ready JSON)
@@ -84,6 +86,7 @@ Examples:
   claude-grep -a -d 30 "deploy"       all projects, last 30 days
   claude-grep -H 4 "bug"              last 4 hours only
   claude-grep -s "that migration fix" semantic search by meaning + curated docs
+  claude-grep --docs-only "cold start" learnings/docs only (pairs with a head-piped session search)
   claude-grep --json "test" | jq .    pipe JSON to jq
 
 Exit codes:
@@ -164,6 +167,13 @@ Exit codes:
 		fmt.Fprintf(os.Stderr, "pattern %q matches everything — did you mean a different search term?\n", pattern)
 		fmt.Fprintf(os.Stderr, "  use -- to separate flags from pattern: claude-grep -- %q\n", pattern)
 		os.Exit(2)
+	}
+
+	// Docs-only mode: skip the session scan and emit just the curated-docs block, so
+	// the output stays small enough to survive the `head -N` an agent pipes a session
+	// search through (sharing output with session hits pushed learnings past the cut).
+	if *docsOnly {
+		os.Exit(runDocsOnly(mustGetwd(), pattern, *semantic, *jsonOut, *noDocs, *maxResults))
 	}
 
 	origPattern := pattern

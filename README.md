@@ -79,10 +79,24 @@ separate block, so one command covers both "what did we discuss" (sessions) and
 claude-grep "cron auth"          # sessions + a "=== curated docs ===" block
 claude-grep -s "cold start"      # hybrid doc hits: dense + keyword, RRF-fused
 claude-grep --no-docs "x"        # sessions only
+claude-grep --docs-only "x"      # curated docs only — no session scan, head-safe
 claude-grep --index --docs       # build/refresh this repo's docs index
 claude-grep --bench-docs bench/docs-queries.json   # grep-vs-hybrid benchmark
 claude-grep --mine-docs-queries > cand.json        # propose bench cases from real usage
 ```
+
+The bundled block appends *after* session hits, so a wide session search piped
+through `head -N` can truncate it. When you (or an agent) pipe `head`, split the
+work into two commands so learnings never get cut:
+
+```bash
+claude-grep -a -d 90 "x" | head -50   # sessions — truncate freely
+claude-grep --docs-only "x"           # learnings — short (≤5 hits), read in full
+```
+
+`--docs-only` skips the session scan entirely and emits just the curated-docs
+block (respects `-s` and `--json`). Exit 1 + a one-line reason on no match or when
+the cwd has no `learnings/`/`docs/` dir.
 
 Docs come from the current repo (`learnings/` then `docs/`, or set
 `CLAUDE_GREP_DOCS=dir1:dir2`) and ignore `-d`/`-a`. `-s` fuses a dense (embedding)
@@ -113,6 +127,7 @@ needs no index.
 | `--all` | Reindex everything | incremental |
 | `--usage` | Show usage stats (agent telemetry) | - |
 | `--no-docs` | Suppress the curated-docs block | off |
+| `--docs-only` | Search ONLY curated docs — no session scan, head-safe output | off |
 | `--docs` | With `--index`: (re)build the cwd repo's docs index | - |
 | `--bench-docs FILE` | Run the labeled grep-vs-hybrid docs benchmark | - |
 | `--mine-docs-queries` | Propose labeled bench cases from `usage.jsonl` (review-ready JSON) | - |
