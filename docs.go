@@ -17,8 +17,9 @@ type DocChunk struct {
 }
 
 // discoverDocsDir resolves the cwd repo and its curated-doc dirs.
-// Uses the CURRENT worktree root (not the session mainRepoPath substitution):
-// a feature branch may have edited learnings/, and those edits are what we want.
+// Canonicalizes a linked worktree to its main checkout (like the session scope):
+// curated docs are a near-identical branch copy, so all worktrees share ONE docs
+// index instead of each paying a cold from-scratch rebuild on first query.
 func discoverDocsDir(cwd string) (repoRoot string, dirs []string, ok bool) {
 	out, err := exec.Command("git", "-C", cwd, "rev-parse", "--show-toplevel").Output()
 	if err != nil {
@@ -27,6 +28,11 @@ func discoverDocsDir(cwd string) (repoRoot string, dirs []string, ok bool) {
 	repoRoot = strings.TrimSpace(string(out))
 	if repoRoot == "" {
 		return "", nil, false
+	}
+	// A linked worktree shares main's learnings/ + docs/; fold onto the main
+	// checkout so every worktree reads and writes the same docs index.
+	if main, ok := mainRepoPath(cwd); ok {
+		repoRoot = main
 	}
 
 	var candidates []string
