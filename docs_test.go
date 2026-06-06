@@ -77,6 +77,42 @@ func TestDiscoverDocsDirNotARepo(t *testing.T) {
 	}
 }
 
+// A linked worktree must canonicalize to the main checkout so every worktree
+// shares ONE docs index instead of paying a cold per-worktree rebuild. Pins the
+// mainRepoPath substitution in discoverDocsDir — reverting it would silently
+// reintroduce per-worktree .docs.gob files (~2min cold build on first query).
+func TestDiscoverDocsDirWorktreeSharesMain(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git not available")
+	}
+	repo := t.TempDir()
+	os.MkdirAll(filepath.Join(repo, "learnings"), 0o755)
+	os.WriteFile(filepath.Join(repo, "learnings", "a.md"), []byte("# H\nx\n"), 0o644)
+	runGit(t, repo, "init", "-q", "-b", "main")
+	runGit(t, repo, "config", "user.email", "test@test")
+	runGit(t, repo, "config", "user.name", "test")
+	runGit(t, repo, "config", "commit.gpgsign", "false")
+	runGit(t, repo, "add", ".")
+	runGit(t, repo, "commit", "-q", "-m", "init")
+
+	wt := filepath.Join(repo, ".claude", "worktrees", "feature")
+	os.MkdirAll(filepath.Dir(wt), 0o755)
+	runGit(t, repo, "worktree", "add", "-q", wt, "-b", "feature")
+
+	// learnings/ exists in both checkouts, so a missing canonicalization would
+	// still yield ok=true with the worktree root — assert it resolves to main.
+	gotRoot, dirs, ok := discoverDocsDir(wt)
+	if !ok || len(dirs) == 0 {
+		t.Fatalf("discoverDocsDir(worktree) failed: ok=%v dirs=%v", ok, dirs)
+	}
+	if resolveSymlinks(gotRoot) != resolveSymlinks(repo) {
+		t.Fatalf("worktree did not canonicalize to main: got %q want %q", gotRoot, repo)
+	}
+	if resolveSymlinks(gotRoot) == resolveSymlinks(wt) {
+		t.Fatal("worktree resolved to itself — per-worktree index regression")
+	}
+}
+
 func TestChunkMarkdown(t *testing.T) {
 	md := []byte("intro line\n\n# Title\nbody a\n\n## Cron auth\nguard if !secret\n### nested\ndeep\n")
 	chunks := chunkMarkdown(md)
