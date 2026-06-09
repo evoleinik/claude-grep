@@ -144,6 +144,7 @@ claude-grep --usage                    # how agents are using the tool
 | `--bench` | Run the recovery benchmark over a JSON array of queries | - |
 | `--bench-docs FILE` | Run the labeled grep-vs-hybrid docs benchmark | - |
 | `--mine-docs-queries` | Propose labeled bench cases from `usage.jsonl` | - |
+| `--stale-docs` | Audit curated docs for code refs that changed after the doc (exit 1 if any) | - |
 | `--version` | Show version | - |
 
 ### Exit codes
@@ -201,6 +202,25 @@ skips `node_modules` and gitignored paths). A `README.md`/`MEMORY.md` *inside*
 fusion — dense wins natural-language queries, keyword wins exact-term/identifier
 queries. The dense index self-heals on use (re-embeds only changed files, no cron); the
 keyword lane needs no index, so `-s` still returns hits when ollama is down.
+
+### Auditing doc staleness (`--stale-docs`)
+
+Retrieval surfaces a stale learning with the same confidence as a fresh one — and an
+agent acts on it. `--stale-docs` is a reflexion-model *divergence* check: for every
+curated doc, it compares the doc's git last-edit against the git last-edit of each code
+path the doc references, and flags refs that changed *after* the doc. A doc edited
+yesterday is never flagged; a doc that names `lib/foo.ts` where `foo.ts` moved 40 days
+later is.
+
+```bash
+claude-grep --stale-docs              # human report, exit 1 if any stale doc
+claude-grep --stale-docs --json       # machine-readable (for CI/cron)
+CLAUDE_GREP_DOCS=learnings claude-grep --stale-docs   # scope to one dir
+```
+
+High-churn files (`schema.prisma`, lockfiles) are ignored so an incidental mention
+doesn't fire; each hit names the exact `§ section` the stale ref appears under. Off the
+search hot path — a dedicated, cron/CI-able audit, not a per-query tax.
 
 ## Recovery ladder
 

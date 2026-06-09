@@ -41,6 +41,7 @@ func main() {
 	benchDocsPath := flag.String("bench-docs", "", "run the labeled docs benchmark over a JSON corpus")
 	mineDocsQueries := flag.Bool("mine-docs-queries", false, "propose labeled docs-bench cases from usage.jsonl")
 	docsOnly := flag.Bool("docs-only", false, "search ONLY the cwd repo's curated docs (no session scan)")
+	staleDocs := flag.Bool("stale-docs", false, "audit curated docs for code refs that changed after the doc (exit 1 if any)")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `claude-grep — search Claude Code session history
@@ -78,6 +79,7 @@ Curated docs (searches the cwd repo's learnings/ or docs/ too):
   --index --docs       build/refresh this repo's docs index
   --bench-docs FILE    run the labeled grep-vs-hybrid docs benchmark
   --mine-docs-queries  propose bench cases from usage.jsonl (review-ready JSON)
+  --stale-docs         audit curated docs for code refs that changed after the doc (exit 1 if any)
 
 Examples:
   claude-grep "worktree"              find mentions of worktree
@@ -121,6 +123,10 @@ Exit codes:
 	if *mineDocsQueries {
 		runMineDocsQueries(20)
 		return
+	}
+
+	if *staleDocs {
+		os.Exit(runStaleDocs(mustGetwd(), *jsonOut))
 	}
 
 	// Context: -C sets both if not individually set
