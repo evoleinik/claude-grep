@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
@@ -94,7 +96,7 @@ func TestStripOuterGroup(t *testing.T) {
 		{"(?:a|b)", "a|b"},
 		{"(?i:a|b)", "a|b"},
 		{"(a|b)(c|d)", "(a|b)(c|d)"}, // outer parens don't match
-		{"abc", "abc"},                // no parens
+		{"abc", "abc"},               // no parens
 		{"(abc)", "abc"},
 	}
 
@@ -211,10 +213,10 @@ func TestLongestLiteral(t *testing.T) {
 		input, want string
 	}{
 		{"openclaw", "openclaw"},
-		{"open.claw", "open"},           // dot splits it, "open" and "claw" are 4 each, "open" first
+		{"open.claw", "open"}, // dot splits it, "open" and "claw" are 4 each, "open" first
 		{"a.*long_literal", "long_literal"},
 		{".*", ""},
-		{"abc\\.def", "abc.def"},        // escaped dot is literal
+		{"abc\\.def", "abc.def"}, // escaped dot is literal
 	}
 
 	for _, tt := range tests {
@@ -253,5 +255,40 @@ func writeSession(t *testing.T, dir, name, ts, role, text string) {
 	})
 	if err := os.WriteFile(filepath.Join(dir, name), append(line, '\n'), 0644); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// Ties on a second-precision timestamp are common, and files are searched
+// concurrently, so without a total order the cap cuts by goroutine completion
+// order. Five identical searches once returned five different result sets.
+func TestSearchOrderIsDeterministicUnderTiedTimestamps(t *testing.T) {
+	dir := t.TempDir()
+	const ts = "2026-06-01T10:00:00" // identical across every file
+	for _, n := range []string{"aaa", "bbb", "ccc", "ddd", "eee", "fff"} {
+		writeSession(t, dir, n+"00000-1111-2222-3333-444444444444.jsonl", ts, "assistant",
+			"shared marker text in session "+n)
+	}
+	opts := SearchOpts{Role: "both", MaxResults: 3, MaxDays: 3650} // cap below the 6 matches
+
+	fingerprint := func() string {
+		m, _, err := regexSearch("shared marker", dir, opts)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(m) != 3 {
+			t.Fatalf("expected the cap to bind at 3, got %d", len(m))
+		}
+		var b strings.Builder
+		for _, x := range m {
+			b.WriteString(x.Message.FilePath + "#" + strconv.Itoa(x.Message.MsgIndex) + "|")
+		}
+		return b.String()
+	}
+
+	want := fingerprint()
+	for i := 0; i < 25; i++ {
+		if got := fingerprint(); got != want {
+			t.Fatalf("run %d differs:\n want %s\n got  %s", i, want, got)
+		}
 	}
 }

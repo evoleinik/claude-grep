@@ -134,8 +134,16 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 	}
 
 	// Sort by similarity descending
+	// Same reason as searchCore: equal similarities must not be ordered by
+	// index-iteration order, or the cap cuts arbitrarily between runs.
 	sort.Slice(candidates, func(i, j int) bool {
-		return candidates[i].similarity > candidates[j].similarity
+		if candidates[i].similarity != candidates[j].similarity {
+			return candidates[i].similarity > candidates[j].similarity
+		}
+		if candidates[i].entry.FilePath != candidates[j].entry.FilePath {
+			return candidates[i].entry.FilePath < candidates[j].entry.FilePath
+		}
+		return candidates[i].entry.MsgIndex < candidates[j].entry.MsgIndex
 	})
 
 	// Limit results

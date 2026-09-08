@@ -107,8 +107,21 @@ func searchCore(re *regexp.Regexp, prefilter [][]byte, gate [][]byte, searchPath
 	for r := range results {
 		allMatches = append(allMatches, r.matches...)
 	}
+	// Timestamps are second-precision and ties are common inside one session, so
+	// timestamp alone is not a total order. Files are searched concurrently, so
+	// without a tiebreak the winners of a tie came down to goroutine completion
+	// order: five identical searches returned five different result sets, and
+	// near the cap that silently drops real matches. FilePath+MsgIndex makes the
+	// order total and reproducible.
 	sort.Slice(allMatches, func(i, j int) bool {
-		return allMatches[i].Message.Timestamp > allMatches[j].Message.Timestamp
+		a, b := allMatches[i].Message, allMatches[j].Message
+		if a.Timestamp != b.Timestamp {
+			return a.Timestamp > b.Timestamp
+		}
+		if a.FilePath != b.FilePath {
+			return a.FilePath < b.FilePath
+		}
+		return a.MsgIndex < b.MsgIndex
 	})
 
 	total := len(allMatches)
