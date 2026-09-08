@@ -86,7 +86,24 @@ def build_subset(corpus, n_distractors, seed=13):
     random.Random(seed).shuffle(allf)
     return sorted(chosen) + allf[:n_distractors], targets
 
-def load_corpus_texts(files, targets, cap_distractor, seed=13):
+def chunk(text, size):
+    """Split a message into ~size-char pieces on sentence-ish boundaries.
+    A whole 2048-char message embeds to ONE vector, so a query matching one
+    sentence is diluted by everything around it. size=0 keeps whole messages."""
+    if not size or len(text) <= size:
+        return [text]
+    out, cur = [], ""
+    for part in re.split(r"(?<=[.!?\n])\s+", text):
+        if cur and len(cur) + len(part) > size:
+            out.append(cur); cur = part
+        else:
+            cur = (cur + " " + part).strip() if cur else part
+    if cur:
+        out.append(cur)
+    return out or [text]
+
+
+def load_corpus_texts(files, targets, cap_distractor, seed=13, chunk_chars=0):
     """Target sessions keep EVERY message — sampling one could drop the very
     message the query is supposed to recover. Distractor sessions are capped,
     because what discriminates is the number of distinct competing SESSIONS, and
@@ -101,7 +118,8 @@ def load_corpus_texts(files, targets, cap_distractor, seed=13):
         if k not in tset and cap_distractor and len(msgs) > cap_distractor:
             msgs = random.Random(seed + hash(k) % 10000).sample(msgs, cap_distractor)
         for t in msgs:
-            docs.append((k, t))
+            for c in chunk(t, chunk_chars):
+                docs.append((k, c))
     return docs
 
 def cached_vectors(model, docs):
@@ -140,13 +158,15 @@ def main():
     ap.add_argument("--cap-distractor-msgs", type=int, default=25,
                     help="max messages sampled per distractor session (0 = all)")
     ap.add_argument("--models", default="nomic-embed-text,embeddinggemma,mxbai-embed-large")
+    ap.add_argument("--chunk-chars", type=int, default=0,
+                    help="split messages into ~N-char chunks (0 = whole message, the current behaviour)")
     ap.add_argument("--corpus", default=str(pathlib.Path(__file__).parent / "queries-labeled.json"))
     a = ap.parse_args()
 
     corpus = [r for r in json.load(open(a.corpus)) if r.get("expect_session") or r.get("expect_project")]
     files, targets = build_subset(corpus, a.distractors)
     for r in corpus: r["_target"] = targets[r["query"]]
-    docs = load_corpus_texts(files, targets, a.cap_distractor_msgs)
+    docs = load_corpus_texts(files, targets, a.cap_distractor_msgs, chunk_chars=a.chunk_chars)
     print(f"subset: {len(files)} sessions ({len(corpus)} targets + {len(files)-len(corpus)} distractors), "
           f"{len(docs)} messages\n", file=sys.stderr)
 

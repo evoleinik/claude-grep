@@ -1,0 +1,46 @@
+# Retrieval experiments on a GPU. NEVER run these on box: measured 2026-09-08,
+# the same sweep is ~55 min locally against a few minutes here, and box's ollama
+# is shared with interactive claude-grep use.
+#
+#   sky launch -c cgx sky/bakeoff.yaml --idle-minutes-to-autostop 20 --yes
+#
+name: claude-grep-bakeoff
+
+resources:
+  accelerators: L4:1
+  cpus: 16+          # harness is CPU-bound around the GPU call; see reindex.yaml
+  cloud: gcp
+  disk_size: 200
+
+file_mounts:
+  /work-bin/claude-grep: ~/bin/claude-grep   # .gitignore hides it from a repo sync
+  /work: .
+  /transcripts: ~/.claude/projects
+  /out:
+    name: airshelf-cg-index-out
+    store: gcs
+    mode: MOUNT
+
+setup: |
+  set -euo pipefail
+  curl -fsSL https://ollama.com/install.sh | sh
+  sudo mkdir -p /etc/systemd/system/ollama.service.d
+  printf '[Service]\nEnvironment="OLLAMA_NUM_PARALLEL=16"\n' \
+    | sudo tee /etc/systemd/system/ollama.service.d/override.conf >/dev/null
+  sudo systemctl daemon-reload && sudo systemctl restart ollama
+  for i in $(seq 1 60); do curl -sf localhost:11434/api/tags >/dev/null && sleep 3 && break; sleep 2; done
+  ollama pull embeddinggemma
+  curl -sf -m 60 localhost:11434/api/embed \
+    -d '{"model":"embeddinggemma","input":"probe"}' | grep -q '"embeddings"'
+  echo "model verified"
+
+run: |
+  set -euo pipefail
+  mkdir -p ~/.claude && ln -sfn /transcripts ~/.claude/projects
+  cd /work
+  for C in 0 256 512 1024; do
+    echo "===== chunk_chars=$C ====="
+    python3 bench/model-bakeoff.py --distractors 150 --cap-distractor-msgs 25 \
+      --chunk-chars "$C" --models embeddinggemma 2>&1 | tail -4
+  done | tee /out/chunk-sweep.txt
+  echo OK > /out/SWEEP_DONE
