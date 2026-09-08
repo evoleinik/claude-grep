@@ -67,25 +67,35 @@ go vet ./...
 - Self-exclusion: automatically skips the current session file (most recently modified within 60s) to avoid self-referential results
 - JSON output (`--json`) preserves full uncompressed text
 
-### What gets indexed (decided 2026-09-08, do not re-open without a reason)
+### What gets indexed (measured 2026-09-08)
 
-`extractText` keeps ONLY content blocks of type `text`. `tool_use` and
-`tool_result` are deliberately never indexed and never regex-searchable, even
-though they hold most of the bytes in a transcript.
+`extractText` keeps content blocks of type `text`, `tool_use` and `tool_result`.
+Tool output IS indexed.
 
-That is a decision, not an oversight. Tool output is raw material — file
-contents, command results, search hits — which already lives on disk and in git.
-The conversation text is the reasoning about it, and reasoning is what you come
-back for. Indexing tool blocks would multiply the index for duplicated content
-and bury the decisions under their own inputs.
+That reverses a same-day decision made on reasoning rather than measurement. The
+argument for excluding it was good: tool output is 13x the text by volume, it is
+mostly `ls -l` dumps and file listings, and 5x more entries of noise looked
+certain to crowd out real conversation. Every part of that was true except the
+conclusion.
 
-The cost is real and worth knowing: a topic mentioned only in tool output cannot
-be found by any query. Measured on two bench sessions, 78% and 81% of a topic's
-mentions were in tool blocks. Enough survived in text for both to remain
-findable, but a topic that appears ONLY in tool output is invisible.
+On the 17-query corpus, adding tool output:
 
-This is why bench labels carry `expect_topic` and are validated against indexed
-text via `parseJSONL` rather than a raw grep of the jsonl.
+    text only        hit@1 11  hit@3 13  hit@10 14  MRR 0.709
+    text + tools     hit@1 13  hit@3 14  hit@10 16  MRR 0.808
+
+The two worst-ranked queries were exactly the ones whose topic lives mostly in
+tool output (decisionPack 21 -> 9, admin-merge 19 -> 8). The predicted crowd-out
+did not happen, because 512-char chunking and session-aggregate ranking already
+absorb a population imbalance — the same two mechanisms that fixed the archived
+crowd-out earlier that day.
+
+The lesson is not "index everything". It is that a volume argument alone does not
+predict ranking behaviour, and this is cheap to measure: `model-bakeoff.py
+--include-tools` on SkyPilot answers it in minutes.
+
+`flattenToolPayload` sorts object values before joining, because Go map order is
+random and an index that reordered between runs would embed identical input to
+different vectors.
 
 ### Benchmarking recall
 

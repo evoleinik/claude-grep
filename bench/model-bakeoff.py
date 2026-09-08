@@ -48,8 +48,10 @@ def cos(a, b):
     na = math.sqrt(sum(x*x for x in a)); nb = math.sqrt(sum(y*y for y in b))
     return d/(na*nb) if na and nb else 0.0
 
-def messages(path):
-    """Mirror parseJSONL: type user|assistant, text content only."""
+def messages(path, include_tools=False):
+    """Mirror parseJSONL: type user|assistant, text content only.
+    include_tools also pulls tool_use inputs and tool_result content, which are
+    13x the text volume, so this is a real population change, not an add-on."""
     out = []
     try: fh = open(path, errors="ignore")
     except OSError: return out
@@ -60,8 +62,15 @@ def messages(path):
         c = d.get("message", {}).get("content")
         if isinstance(c, str): t = c
         elif isinstance(c, list):
-            t = " ".join(x.get("text", "") for x in c
-                         if isinstance(x, dict) and x.get("type") == "text")
+            parts = []
+            for x in c:
+                if not isinstance(x, dict): continue
+                if x.get("type") == "text":
+                    parts.append(x.get("text", ""))
+                elif include_tools and x.get("type") in ("tool_use", "tool_result"):
+                    v = x.get("input") if x.get("type") == "tool_use" else x.get("content")
+                    parts.append(v if isinstance(v, str) else json.dumps(v)[:MAX_EMBED_CHARS])
+            t = " ".join(parts)
         else: continue
         if t.strip(): out.append(t[:MAX_EMBED_CHARS])
     return out
@@ -103,7 +112,7 @@ def chunk(text, size):
     return out or [text]
 
 
-def load_corpus_texts(files, targets, cap_distractor, seed=13, chunk_chars=0):
+def load_corpus_texts(files, targets, cap_distractor, seed=13, chunk_chars=0, include_tools=False):
     """Target sessions keep EVERY message — sampling one could drop the very
     message the query is supposed to recover. Distractor sessions are capped,
     because what discriminates is the number of distinct competing SESSIONS, and
@@ -114,7 +123,7 @@ def load_corpus_texts(files, targets, cap_distractor, seed=13, chunk_chars=0):
     docs = []  # (session_key, text)
     for f in files:
         k = session_key(f)
-        msgs = messages(f)
+        msgs = messages(f, include_tools)
         if k not in tset and cap_distractor and len(msgs) > cap_distractor:
             msgs = random.Random(seed + hash(k) % 10000).sample(msgs, cap_distractor)
         for t in msgs:
@@ -158,6 +167,8 @@ def main():
     ap.add_argument("--cap-distractor-msgs", type=int, default=25,
                     help="max messages sampled per distractor session (0 = all)")
     ap.add_argument("--models", default="nomic-embed-text,embeddinggemma,mxbai-embed-large")
+    ap.add_argument("--include-tools", action="store_true",
+                    help="also index tool_use inputs and tool_result content")
     ap.add_argument("--chunk-chars", type=int, default=0,
                     help="split messages into ~N-char chunks (0 = whole message, the current behaviour)")
     ap.add_argument("--corpus", default=str(pathlib.Path(__file__).parent / "queries-labeled.json"))
@@ -166,7 +177,7 @@ def main():
     corpus = [r for r in json.load(open(a.corpus)) if r.get("expect_session") or r.get("expect_project")]
     files, targets = build_subset(corpus, a.distractors)
     for r in corpus: r["_target"] = targets[r["query"]]
-    docs = load_corpus_texts(files, targets, a.cap_distractor_msgs, chunk_chars=a.chunk_chars)
+    docs = load_corpus_texts(files, targets, a.cap_distractor_msgs, chunk_chars=a.chunk_chars, include_tools=a.include_tools)
     print(f"subset: {len(files)} sessions ({len(corpus)} targets + {len(files)-len(corpus)} distractors), "
           f"{len(docs)} messages\n", file=sys.stderr)
 

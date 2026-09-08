@@ -47,7 +47,7 @@ const (
 	// indexVersion is appended to the model stamp so a CHUNKING change forces a
 	// rebuild too, not just a model change. Without it, re-chunked and
 	// whole-message vectors would silently coexist in one ranking.
-	indexVersion = "c512"
+	indexVersion = "c512t" // t = tool output indexed
 )
 
 // indexStamp identifies what produced the vectors. Model AND chunking, because

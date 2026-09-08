@@ -349,21 +349,81 @@ func extractText(raw map[string]json.RawMessage) string {
 			if t, ok := block["type"]; ok {
 				json.Unmarshal(t, &blockType)
 			}
-			if blockType != "text" {
-				continue
-			}
-			var text string
-			if t, ok := block["text"]; ok {
-				json.Unmarshal(t, &text)
-			}
-			if text != "" {
-				texts = append(texts, text)
+			switch blockType {
+			case "text":
+				var text string
+				if t, ok := block["text"]; ok {
+					json.Unmarshal(t, &text)
+				}
+				if text != "" {
+					texts = append(texts, text)
+				}
+			case "tool_use", "tool_result":
+				// Tool output IS indexed, decided on measurement 2026-09-08.
+				// It is 13x the text by volume and looks like noise (ls output,
+				// file listings), and the first instinct was to exclude it. The
+				// 17-query corpus disagreed: hit@1 11 -> 13, MRR 0.709 -> 0.808,
+				// and the two worst cases (decisionPack 21 -> 9, admin-merge
+				// 19 -> 8) were exactly the ones whose topic lives mostly here.
+				// The feared crowd-out does not happen because 512-char chunks
+				// and session-aggregate ranking already absorb the imbalance.
+				key := "content"
+				if blockType == "tool_use" {
+					key = "input"
+				}
+				raw, ok := block[key]
+				if !ok {
+					continue
+				}
+				if text := flattenToolPayload(raw); text != "" {
+					texts = append(texts, text)
+				}
 			}
 		}
 		return strings.TrimSpace(strings.Join(texts, " "))
 	}
 
 	return ""
+}
+
+// flattenToolPayload renders a tool_use input or tool_result content as plain
+// text. Both are free-form: a string, an array of blocks, or an object. The
+// aim is readable words for the embedder, not faithful JSON.
+func flattenToolPayload(raw json.RawMessage) string {
+	var str string
+	if json.Unmarshal(raw, &str) == nil {
+		return strings.TrimSpace(str)
+	}
+	var blocks []map[string]json.RawMessage
+	if json.Unmarshal(raw, &blocks) == nil {
+		var parts []string
+		for _, b := range blocks {
+			var t string
+			if v, ok := b["text"]; ok && json.Unmarshal(v, &t) == nil && t != "" {
+				parts = append(parts, t)
+			}
+		}
+		if len(parts) > 0 {
+			return strings.TrimSpace(strings.Join(parts, " "))
+		}
+	}
+	// Objects (a tool's input) keep their values; the JSON punctuation around
+	// them carries no meaning for an embedding.
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(raw, &obj) == nil {
+		var parts []string
+		for _, v := range obj {
+			var sv string
+			if json.Unmarshal(v, &sv) == nil {
+				parts = append(parts, sv)
+			} else {
+				parts = append(parts, string(v))
+			}
+		}
+		sort.Strings(parts) // map order is random; keep the index reproducible
+		return strings.TrimSpace(strings.Join(parts, " "))
+	}
+	return strings.TrimSpace(string(raw))
 }
 
 func extractSessionID(fpath string) string {

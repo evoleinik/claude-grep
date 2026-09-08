@@ -38,9 +38,12 @@ run: |
   set -euo pipefail
   mkdir -p ~/.claude && ln -sfn /transcripts ~/.claude/projects
   cd /work
-  for C in 0 256 512 1024; do
-    echo "===== chunk_chars=$C ====="
+  {
+    echo "===== text only (current, c512) ====="
     python3 bench/model-bakeoff.py --distractors 150 --cap-distractor-msgs 25 \
-      --chunk-chars "$C" --models embeddinggemma 2>&1 | tail -4
-  done | tee /out/chunk-sweep.txt
-  echo OK > /out/SWEEP_DONE
+      --chunk-chars 512 --models embeddinggemma 2>&1 | tail -4
+    echo "===== text + tool output (c512) ====="
+    python3 bench/model-bakeoff.py --distractors 150 --cap-distractor-msgs 25 \
+      --chunk-chars 512 --include-tools --models embeddinggemma 2>&1 | tail -4
+  } | tee /out/tools-sweep.txt
+  echo OK > /out/TOOLS_DONE
