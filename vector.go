@@ -88,9 +88,10 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 		if len(idx.Entries) == 0 {
 			continue
 		}
-		// Vectors from another model are not comparable — cosine against a
-		// different dimensionality silently returns 0, which would look like
-		// "no matches" rather than "stale index". Say so instead.
+		// Vectors from another model are not comparable. nomic-embed-text and
+		// embeddinggemma are BOTH 768-dim, so cosine does not error or return
+		// 0 — it returns plausible-looking garbage. That is worse than a hard
+		// failure, which is why this stamp is load-bearing rather than a nicety.
 		if idx.EmbedModel != embedModel {
 			staleModel = true
 			continue

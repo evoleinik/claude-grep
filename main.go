@@ -39,6 +39,8 @@ func main() {
 	noDocs := flag.Bool("no-docs", false, "suppress the curated-docs block")
 	docsIndex := flag.Bool("docs", false, "with --index: (re)build the cwd repo's docs index")
 	benchDocsPath := flag.String("bench-docs", "", "run the labeled docs benchmark over a JSON corpus")
+	reembedOrphans := flag.Bool("reembed-orphans", false, "re-embed indexes whose project is gone from disk")
+	apply := flag.Bool("apply", false, "with --reembed-orphans: actually write")
 	mineDocsQueries := flag.Bool("mine-docs-queries", false, "propose labeled docs-bench cases from usage.jsonl")
 	docsOnly := flag.Bool("docs-only", false, "search ONLY the cwd repo's curated docs (no session scan)")
 	staleDocs := flag.Bool("stale-docs", false, "audit curated docs for code refs that changed after the doc (exit 1 if any)")
@@ -78,6 +80,10 @@ Curated docs (searches the cwd repo's learnings/ or docs/ too):
   --docs-only          search ONLY curated docs — no session scan, head-safe output
   --index --docs       build/refresh this repo's docs index
   --bench-docs FILE    run the labeled grep-vs-hybrid docs benchmark
+  --reembed-orphans [--apply]
+                       re-embed indexes whose project no longer exists on disk
+                       (Claude Code deletes transcripts; the gob previews are
+                       then the only record). Run after any embedModel change.
 
 Bench corpus forms (--bench):
   ["query", ...]                                  unlabeled — reports found/layer only
@@ -113,6 +119,11 @@ Exit codes:
 
 	if *showUsage {
 		printUsageStats()
+		return
+	}
+
+	if *reembedOrphans {
+		runReembedOrphans(*apply)
 		return
 	}
 
