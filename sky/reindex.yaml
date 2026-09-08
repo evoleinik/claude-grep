@@ -1,0 +1,78 @@
+# Rebuild the claude-grep session index on a GPU.
+#
+# Replaces the hand-rolled gcloud path: SkyPilot does provisioning, the NAT and
+# firewall, file sync, zone/region retry on STOCKOUT, and teardown (--down).
+#
+# Measured 2026-09-08: embeddinggemma does ~128 embeds/s on one L4 against ~7/s
+# on box, so a ~60 min local rebuild lands in a few minutes.
+#
+#   sky launch -c cg sky/reindex.yaml --down
+#
+name: claude-grep-reindex
+
+resources:
+  accelerators: L4:1
+  # Pin the CPU side. SkyPilot picks the CHEAPEST instance satisfying the
+  # accelerator, which was g2-standard-4: 4 vCPUs, load 5.9, and the GPU sat
+  # idle waiting on JSONL parsing and gob writes. Measured 2026-09-08 —
+  # 41 msg/s on 4 vCPUs against 128/s on 32. This job is CPU-bound around a
+  # GPU call, so the accelerator alone does not describe what it needs.
+  cpus: 16+
+  cloud: gcp
+  disk_size: 200
+
+file_mounts:
+  # The binary is mounted from OUTSIDE the repo on purpose. SkyPilot's sync
+  # honours .gitignore, and .gitignore lists `claude-grep`, so mounting the repo
+  # silently omits the one file the job needs (cost a failed run 2026-09-08).
+  /work-bin/claude-grep: ~/bin/claude-grep
+  /work: .                        # repo, for bench corpora etc
+  /transcripts: ~/.claude/projects
+  /out:
+    name: airshelf-cg-index-out   # results land here, read back with gcloud storage
+    store: gcs
+    mode: MOUNT
+
+setup: |
+  set -euo pipefail
+  curl -fsSL https://ollama.com/install.sh | sh
+  sudo mkdir -p /etc/systemd/system/ollama.service.d
+  printf '[Service]\nEnvironment="OLLAMA_NUM_PARALLEL=16"\n' \
+    | sudo tee /etc/systemd/system/ollama.service.d/override.conf >/dev/null
+  sudo systemctl daemon-reload && sudo systemctl restart ollama
+  # Wait for the RESTARTED service, not the one it replaced. Racing this is how
+  # a pull failed silently on 2026-09-08 and 30432 embeds returned 404.
+  for i in $(seq 1 60); do curl -sf localhost:11434/api/tags >/dev/null && sleep 3 && break; sleep 2; done
+  ollama pull embeddinggemma
+  # Probe with a real call: "pull succeeded" is not the same as "will embed".
+  curl -sf -m 60 localhost:11434/api/embed \
+    -d '{"model":"embeddinggemma","input":"probe"}' | grep -q '"embeddings"'
+  echo "model verified"
+
+run: |
+  set -euxo pipefail
+  echo "=== preflight ==="
+  ls -ld /work /transcripts /out
+  ls -l /work-bin/claude-grep && /work-bin/claude-grep --version
+  echo "transcript projects: $(ls /transcripts | wc -l)"
+  df -h /tmp /transcripts | tail -2
+  curl -sf localhost:11434/api/tags | head -c 120; echo
+  NSHARD=16
+  # The indexer is single-threaded, so shard by project. Index gobs are one file
+  # per project, which makes them trivially mergeable afterwards.
+  mapfile -t P < <(ls /transcripts)
+  for i in $(seq 0 $((NSHARD-1))); do mkdir -p /tmp/s$i/.claude/projects; done
+  n=0; for p in "${P[@]}"; do cp -rl "/transcripts/$p" "/tmp/s$((n%NSHARD))/.claude/projects/$p" 2>/dev/null || cp -r "/transcripts/$p" "/tmp/s$((n%NSHARD))/.claude/projects/$p"; n=$((n+1)); done
+  pids=(); for i in $(seq 0 $((NSHARD-1))); do
+    HOME=/tmp/s$i /work-bin/claude-grep --index --all > /tmp/idx$i.log 2>&1 & pids+=($!)
+  done
+  rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done
+  if [ "$rc" -ne 0 ]; then echo "=== a shard failed ==="; for f in /tmp/idx*.log; do echo "-- $f"; tail -n 5 "$f"; done; exit 1; fi
+  mkdir -p /tmp/merged && cp /tmp/s*/.claude/search-index/*.gob /tmp/merged/ 2>/dev/null
+  echo "gobs: $(ls /tmp/merged | wc -l)  size: $(du -sh /tmp/merged | cut -f1)"
+  # Refuse to ship an empty result. The first GPU run produced 364 gobs of 1.6MB
+  # because every embed had 404'd, and merging that would have wiped the index.
+  SZ=$(du -sm /tmp/merged | cut -f1)
+  [ "$SZ" -ge 50 ] || { echo "REFUSING: merged index only ${SZ}MB, expected >=50MB"; exit 1; }
+  tar -czf /out/live-index.tgz -C /tmp/merged .
+  echo OK > /out/DONE
