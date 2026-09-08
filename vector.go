@@ -127,6 +127,11 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 		}
 		return nil, nil
 	}
+	// Some projects answered and others are still on the old model, i.e. a rebuild
+	// is in flight. Say so: partial results otherwise read as "not in my history".
+	if staleModel {
+		fmt.Fprintln(os.Stderr, "note: index rebuild in progress — searching only the projects already rebuilt")
+	}
 
 	// Sort by similarity descending
 	sort.Slice(candidates, func(i, j int) bool {
