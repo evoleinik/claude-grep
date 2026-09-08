@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -18,6 +19,7 @@ type BenchQuery struct {
 	Query         string `json:"query"`
 	ExpectSession string `json:"expect_session,omitempty"` // session id, or any prefix of one
 	ExpectProject string `json:"expect_project,omitempty"` // substring of the project dir
+	ExpectTopic   string `json:"expect_topic,omitempty"`   // regex that MUST appear in that session's indexed text
 }
 
 func (q BenchQuery) labeled() bool {
@@ -143,10 +145,49 @@ func validateLabels(queries []BenchQuery, searchDir string) []string {
 			}
 		}
 		if !found {
-			bad = append(bad, q.label()+"  <<"+q.Query)
+			bad = append(bad, q.label()+" (session gone)  <<"+q.Query)
+			continue
+		}
+		// A session existing is not enough. A label built by grepping the RAW
+		// file can match text the indexer never sees (tool_use/tool_result are
+		// skipped) or a substring inside another word — "Hari" matched
+		// "sharing", and that row silently scored working search as a miss.
+		// So the topic must appear in the text that actually gets indexed.
+		if q.ExpectTopic != "" && !topicInIndexedText(q, searchDir) {
+			bad = append(bad, q.label()+" (topic /"+q.ExpectTopic+"/ absent from indexed text)  <<"+q.Query)
 		}
 	}
 	return bad
+}
+
+// topicInIndexedText reports whether the label's topic regex appears in the
+// session's INDEXED text, i.e. what search can actually reach.
+func topicInIndexedText(q BenchQuery, searchDir string) bool {
+	re, err := regexp.Compile("(?i)" + q.ExpectTopic)
+	if err != nil {
+		return false
+	}
+	found := false
+	filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || found || !strings.HasSuffix(path, ".jsonl") {
+			return nil
+		}
+		if !q.isTarget(Message{SessionID: extractSessionID(path), Project: extractProject(path)}) {
+			return nil
+		}
+		data, rerr := os.ReadFile(path)
+		if rerr != nil {
+			return nil
+		}
+		for _, m := range parseJSONL(path, data) {
+			if re.MatchString(m.Text) {
+				found = true
+				break
+			}
+		}
+		return nil
+	})
+	return found
 }
 
 // runBenchRecords runs every corpus query through the live recovery ladder at a
@@ -224,7 +265,7 @@ func runBench(corpusPath string) {
 	}
 	queries := parseBenchCorpus(corpusPath)
 	if bad := validateLabels(queries, searchDir); len(bad) > 0 {
-		fmt.Fprintf(os.Stderr, "bench: CANNOT MEASURE — %d label(s) point at a session that no longer exists:\n", len(bad))
+		fmt.Fprintf(os.Stderr, "bench: CANNOT MEASURE — %d label(s) invalid (session gone, or topic not in indexed text):\n", len(bad))
 		for _, b := range bad {
 			fmt.Fprintf(os.Stderr, "  %s\n", b)
 		}

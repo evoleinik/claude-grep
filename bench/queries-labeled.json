@@ -1,36 +1,104 @@
 [
-  {"query": "the reserved GPU that sat unused for a day and a half and still cost nothing",
-   "expect_project": "vertex-ai-cost-anomaly", "expect_session": "fb18f2e1"},
-  {"query": "the field that wipes the accuracy column when products are re-imported",
-   "expect_project": "distracted-ramanujan", "expect_session": "7e8cf683"},
-  {"query": "why most of our merges went out by override instead of a real approval",
-   "expect_project": "lucid-shaw", "expect_session": "7a6462d7"},
-  {"query": "why a printer question showed up on a display product page",
-   "expect_project": "jovial-greider", "expect_session": "545b2789"},
-  {"query": "the advisor who wants a real sales number before the case study",
-   "expect_project": "catalog-count-mcp-pitch", "expect_session": "89894204"},
-  {"query": "the scary metric that turned out to be a measurement artifact",
-   "expect_project": "mainson-mugen-gmc-rankings", "expect_session": "67b354ee"},
-  {"query": "how we got Microsoft's assistant into the benchmark without any free credits",
-   "expect_project": "copilot-benchmarking-surface", "expect_session": "8c420468"},
-  {"query": "where the half terabyte of database billing was actually coming from",
-   "expect_project": "neon-transfer-spike", "expect_session": "d24d7fea"},
-  {"query": "the page that died on load because the database client shipped to the browser",
-   "expect_project": "ai-shelf-share-crash", "expect_session": "a2d77493"},
-  {"query": "making every trace follow one naming convention across the lanes",
-   "expect_project": "fuse-logs-naming-convention", "expect_session": "69c0759e"},
-  {"query": "checking the grader can still tell a good answer from an invented one",
-   "expect_project": "competent-taussig", "expect_session": "1f32f73d"},
-  {"query": "pulling referral numbers out of Google analytics and the daily grain trap",
-   "expect_project": "toshiba-content-queries", "expect_session": "f20bb5d6"},
-  {"query": "the grocery chain that shipped a public tool endpoint with no auth",
-   "expect_project": "mcp-product-search", "expect_session": "815c4522"},
-  {"query": "the shell eating part of a URL and returning an empty error body",
-   "expect_project": "youthful-fermi", "expect_session": "80181fa8"},
-  {"query": "one machine ending up stored under two different model names",
-   "expect_project": "nervous-bhabha", "expect_session": "77cb4d4e"},
-  {"query": "keeping the lease prices in our guides tied to a real source",
-   "expect_project": "business-value-strategy", "expect_session": "635f3612"},
-  {"query": "objects arriving as plain dictionaries on the far side of the activity boundary",
-   "expect_project": "gcp-startup-credits", "expect_session": "7261f97d"}
+  {
+    "query": "the reserved GPU that sat unused for a day and a half and still cost nothing",
+    "expect_project": "vertex-ai-cost-anomaly",
+    "expect_session": "fb18f2e1",
+    "expect_topic": "dedicatedResources|undeploy"
+  },
+  {
+    "query": "the field that wipes the accuracy column when products are re-imported",
+    "expect_project": "distracted-ramanujan",
+    "expect_session": "7e8cf683",
+    "expect_topic": "decisionPack"
+  },
+  {
+    "query": "why most of our merges went out by override instead of a real approval",
+    "expect_project": "lucid-shaw",
+    "expect_session": "7a6462d7",
+    "expect_topic": "admin merge|cap_clean"
+  },
+  {
+    "query": "why a printer question showed up on a display product page",
+    "expect_project": "jovial-greider",
+    "expect_session": "545b2789",
+    "expect_topic": "faq-category-scope|foreign_device"
+  },
+  {
+    "query": "the advisor who wants a real sales number before the case study",
+    "expect_project": "toshiba-case-study-sales",
+    "expect_session": "f5d9be5c",
+    "expect_topic": "\\bHari\\b"
+  },
+  {
+    "query": "the scary metric that turned out to be a measurement artifact",
+    "expect_project": "mainson-mugen-gmc-rankings",
+    "expect_session": "67b354ee",
+    "expect_topic": "Gemini blindspot"
+  },
+  {
+    "query": "how we got Microsoft's assistant into the benchmark without any free credits",
+    "expect_project": "copilot-benchmarking-surface",
+    "expect_session": "8c420468",
+    "expect_topic": "Work IQ"
+  },
+  {
+    "query": "where the half terabyte of database billing was actually coming from",
+    "expect_project": "neon-transfer-spike",
+    "expect_session": "d24d7fea",
+    "expect_topic": "AssessmentEvidence"
+  },
+  {
+    "query": "the page that died on load because the database client shipped to the browser",
+    "expect_project": "ai-shelf-share-crash",
+    "expect_session": "a2d77493",
+    "expect_topic": "use client|PrismaClient"
+  },
+  {
+    "query": "making every trace follow one naming convention across the lanes",
+    "expect_project": "fuse-logs-naming-convention",
+    "expect_session": "69c0759e",
+    "expect_topic": "langfuse-naming|trace name"
+  },
+  {
+    "query": "checking the grader can still tell a good answer from an invented one",
+    "expect_project": "competent-taussig",
+    "expect_session": "1f32f73d",
+    "expect_topic": "answer-judge|fabrication"
+  },
+  {
+    "query": "pulling referral numbers out of Google analytics and the daily grain trap",
+    "expect_project": "toshiba-content-queries",
+    "expect_session": "f20bb5d6",
+    "expect_topic": "GA4Traffic|daily grain"
+  },
+  {
+    "query": "the grocery chain that shipped a public tool endpoint with no auth",
+    "expect_project": "mcp-product-search",
+    "expect_session": "815c4522",
+    "expect_topic": "VkusVill"
+  },
+  {
+    "query": "the shell eating part of a URL and returning an empty error body",
+    "expect_project": "youthful-fermi",
+    "expect_session": "80181fa8",
+    "expect_topic": "generateContent"
+  },
+  {
+    "query": "one machine ending up stored under two different model names",
+    "expect_project": "nervous-bhabha",
+    "expect_session": "77cb4d4e",
+    "expect_topic": "resolve_model_slug"
+  },
+  {
+    "query": "keeping the lease prices in our guides tied to a real source",
+    "expect_project": "business-value-strategy",
+    "expect_session": "635f3612",
+    "expect_topic": "offer-ranges"
+  },
+  {
+    "query": "objects arriving as plain dictionaries on the far side of the activity boundary",
+    "expect_project": "gcp-startup-credits",
+    "expect_session": "7261f97d",
+    "expect_topic": "activity boundary|dataclass"
+  }
 ]
