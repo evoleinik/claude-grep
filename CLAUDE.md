@@ -67,6 +67,26 @@ go vet ./...
 - Self-exclusion: automatically skips the current session file (most recently modified within 60s) to avoid self-referential results
 - JSON output (`--json`) preserves full uncompressed text
 
+### What gets indexed (decided 2026-09-08, do not re-open without a reason)
+
+`extractText` keeps ONLY content blocks of type `text`. `tool_use` and
+`tool_result` are deliberately never indexed and never regex-searchable, even
+though they hold most of the bytes in a transcript.
+
+That is a decision, not an oversight. Tool output is raw material — file
+contents, command results, search hits — which already lives on disk and in git.
+The conversation text is the reasoning about it, and reasoning is what you come
+back for. Indexing tool blocks would multiply the index for duplicated content
+and bury the decisions under their own inputs.
+
+The cost is real and worth knowing: a topic mentioned only in tool output cannot
+be found by any query. Measured on two bench sessions, 78% and 81% of a topic's
+mentions were in tool blocks. Enough survived in text for both to remain
+findable, but a topic that appears ONLY in tool output is invisible.
+
+This is why bench labels carry `expect_topic` and are validated against indexed
+text via `parseJSONL` rather than a raw grep of the jsonl.
+
 ### Benchmarking recall
 
 `--bench` takes either form:
