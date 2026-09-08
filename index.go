@@ -33,7 +33,71 @@ const (
 	// ~5h, and keeps query embedding at 0.13s.
 	embedQueryPrefix = "task: search result | query: "
 	embedDocPrefix   = "title: none | text: "
+
+	// chunkChars splits a message before embedding. A whole message embeds to
+	// ONE vector, so a query matching a single sentence is diluted by the rest.
+	// Swept on the 17-query corpus (bench/model-bakeoff.py --chunk-chars):
+	//   whole message  hit@1  9  MRR 0.608
+	//   256 chars      hit@1  9  MRR 0.664
+	//   512 chars      hit@1 12  MRR 0.734   <- chosen
+	//   1024 chars     hit@1 10  MRR 0.635
+	// Re-sweep before changing it; the optimum is not monotonic.
+	chunkChars = 512
+
+	// indexVersion is appended to the model stamp so a CHUNKING change forces a
+	// rebuild too, not just a model change. Without it, re-chunked and
+	// whole-message vectors would silently coexist in one ranking.
+	indexVersion = "c512"
 )
+
+// indexStamp identifies what produced the vectors. Model AND chunking, because
+// either one changing makes existing vectors incomparable.
+var indexStamp = embedModel + "/" + indexVersion
+
+// splitForEmbedding cuts text into ~chunkChars pieces, preferring a sentence
+// or newline boundary so a chunk stays a coherent thought rather than a fixed
+// slice. Written by hand because Go's RE2 has no lookbehind.
+func splitForEmbedding(text string) []string {
+	if len(text) <= chunkChars {
+		return []string{text}
+	}
+	var out []string
+	start := 0
+	for start < len(text) {
+		end := start + chunkChars
+		if end >= len(text) {
+			out = append(out, strings.TrimSpace(text[start:]))
+			break
+		}
+		// Walk back to the last sentence end or newline inside this window,
+		// but never give up more than a third of it chasing one.
+		cut := -1
+		for i := end; i > start+chunkChars/3; i-- {
+			switch text[i] {
+			case '\n':
+				cut = i + 1
+			case '.', '!', '?':
+				if i+1 < len(text) && (text[i+1] == ' ' || text[i+1] == '\n') {
+					cut = i + 1
+				}
+			}
+			if cut > 0 {
+				break
+			}
+		}
+		if cut <= start {
+			cut = end // no boundary found: hard cut rather than emit nothing
+		}
+		if piece := strings.TrimSpace(text[start:cut]); piece != "" {
+			out = append(out, piece)
+		}
+		start = cut
+	}
+	if len(out) == 0 {
+		return []string{text}
+	}
+	return out
+}
 
 func lockPath() string {
 	return filepath.Join(indexDir(), "index.lock")
@@ -100,10 +164,10 @@ func runIndex(reindexAll bool) {
 		idx := loadIndex(project)
 		// A vector is only comparable to others from the same model, and the dims
 		// differ across models, so a model change invalidates the whole project.
-		if reindexAll || idx.EmbedModel != embedModel {
+		if reindexAll || idx.EmbedModel != indexStamp {
 			idx = &Index{Files: make(map[string]FileMetadata), Project: project}
 		}
-		idx.EmbedModel = embedModel
+		idx.EmbedModel = indexStamp
 
 		// Find JSONL files
 		var files []string
@@ -151,26 +215,31 @@ func runIndex(reindexAll bool) {
 					text = text[:maxEmbedChars]
 				}
 
-				vec, err := embedDoc(text)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "  embed error: %v\n", err)
-					continue
-				}
+				// One vector per CHUNK, not per message. The preview follows the
+				// chunk it belongs to, so a hit shows the matching passage rather
+				// than whatever happened to open the message.
+				for _, piece := range splitForEmbedding(text) {
+					vec, err := embedDoc(piece)
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "  embed error: %v\n", err)
+						continue
+					}
 
-				preview := msg.Text
-				if len(preview) > previewLen {
-					preview = preview[:previewLen]
-				}
+					preview := piece
+					if len(preview) > previewLen {
+						preview = preview[:previewLen]
+					}
 
-				idx.Entries = append(idx.Entries, IndexEntry{
-					SessionID: msg.SessionID,
-					MsgIndex:  msg.MsgIndex,
-					Role:      msg.Role,
-					Timestamp: msg.Timestamp,
-					Preview:   preview,
-					FilePath:  fpath,
-					Vector:    vec,
-				})
+					idx.Entries = append(idx.Entries, IndexEntry{
+						SessionID: msg.SessionID,
+						MsgIndex:  msg.MsgIndex,
+						Role:      msg.Role,
+						Timestamp: msg.Timestamp,
+						Preview:   preview,
+						FilePath:  fpath,
+						Vector:    vec,
+					})
+				}
 			}
 
 			idx.Files[fpath] = FileMetadata{

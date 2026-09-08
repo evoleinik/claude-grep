@@ -99,7 +99,7 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 		// embeddinggemma are BOTH 768-dim, so cosine does not error or return
 		// 0 — it returns plausible-looking garbage. That is worse than a hard
 		// failure, which is why this stamp is load-bearing rather than a nicety.
-		if idx.EmbedModel != embedModel {
+		if idx.EmbedModel != indexStamp {
 			staleModel = true
 			continue
 		}

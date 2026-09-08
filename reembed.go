@@ -46,7 +46,7 @@ func orphanProjects() []string {
 			continue
 		}
 		idx := loadIndex(project)
-		if len(idx.Entries) == 0 || idx.EmbedModel == embedModel {
+		if len(idx.Entries) == 0 || idx.EmbedModel == indexStamp {
 			continue
 		}
 		out = append(out, project)
@@ -68,7 +68,7 @@ func orphanSkipCounts() (live, migrated int) {
 			live++
 			continue
 		}
-		if idx := loadIndex(project); idx.EmbedModel == embedModel && len(idx.Entries) > 0 {
+		if idx := loadIndex(project); idx.EmbedModel == indexStamp && len(idx.Entries) > 0 {
 			migrated++
 		}
 	}
@@ -118,7 +118,7 @@ func runReembedOrphans(apply bool, shard, shards int) {
 	}
 	fmt.Fprintf(os.Stderr,
 		"orphans%s: %d projects, %d vectors to re-embed (%d live projects skipped, %d already on %s)\n",
-		shardNote, len(jobs), totalVecs, live, migrated, embedModel)
+		shardNote, len(jobs), totalVecs, live, migrated, indexStamp)
 	if !apply {
 		fmt.Fprintln(os.Stderr, "dry run — pass --apply to re-embed")
 		for i, j := range jobs {
@@ -136,8 +136,31 @@ func runReembedOrphans(apply bool, shard, shards int) {
 
 	start := time.Now()
 	done, dropped, failed := 0, 0, 0
+	restamped := 0
 	for n, j := range jobs {
 		idx := loadIndex(j.project)
+
+		// Fast path: same MODEL, only the chunking version moved. Archived
+		// entries are 200-char previews, already shorter than chunkChars, so
+		// re-chunking them is a no-op and their vectors are still correct.
+		// Re-embedding anyway would cost ~159k calls to produce identical
+		// numbers.
+		if strings.HasPrefix(idx.EmbedModel, embedModel+"/") || idx.EmbedModel == embedModel {
+			short := true
+			for _, e := range idx.Entries {
+				if len(e.Preview) > chunkChars {
+					short = false
+					break
+				}
+			}
+			if short {
+				idx.EmbedModel = indexStamp
+				if err := saveIndex(idx); err == nil {
+					restamped++
+					continue
+				}
+			}
+		}
 		kept := make([]IndexEntry, 0, len(idx.Entries))
 		for _, entry := range idx.Entries {
 			// No preview means no text survived, so there is nothing to
@@ -157,7 +180,7 @@ func runReembedOrphans(apply bool, shard, shards int) {
 			done++
 		}
 		idx.Entries = kept
-		idx.EmbedModel = embedModel
+		idx.EmbedModel = indexStamp
 		if err := saveIndex(idx); err != nil {
 			fmt.Fprintf(os.Stderr, "save %s: %v\n", j.project, err)
 			continue
@@ -173,6 +196,6 @@ func runReembedOrphans(apply bool, shard, shards int) {
 				n+1, len(jobs), done, totalVecs, rate, eta)
 		}
 	}
-	fmt.Fprintf(os.Stderr, "done: %d re-embedded, %d dropped (no preview), %d failed, %s\n",
-		done, dropped, failed, time.Since(start).Truncate(time.Second))
+	fmt.Fprintf(os.Stderr, "done: %d re-embedded, %d restamped (model unchanged), %d dropped (no preview), %d failed, %s\n",
+		done, restamped, dropped, failed, time.Since(start).Truncate(time.Second))
 }

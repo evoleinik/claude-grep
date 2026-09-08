@@ -34,7 +34,7 @@ func TestReembedOrphansSelectsOnlyDeadStaleProjects(t *testing.T) {
 	}
 	mk("live-proj", "nomic-embed-text")  // on disk → indexer's job, must be skipped
 	mk("dead-stale", "nomic-embed-text") // gone from disk, old model → the target
-	mk("dead-fresh", embedModel)         // gone from disk, already migrated → skip
+	mk("dead-fresh", indexStamp)         // gone from disk, already migrated → skip
 
 	got := orphanProjects()
 	if len(got) != 1 || got[0] != "dead-stale" {
