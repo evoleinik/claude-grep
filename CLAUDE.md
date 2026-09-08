@@ -83,6 +83,26 @@ cap and the ladder never reaches the vector layer. Label rows with
 the 1-based rank of that session. The gate has no magic threshold: the ladder
 must beat a plain OR-of-words regex over the same corpus.
 
+### Choosing an embedding model
+
+A full reindex is ~6h on box (CPU-bound, no GPU; concurrency plateaus at 4
+workers / ~8.4 embeds per second, so there is no local speedup left). Comparing
+models against the real index therefore costs most of a day each.
+
+```bash
+python3 bench/model-bakeoff.py --models embeddinggemma,mxbai-embed-large
+```
+
+It indexes a SUBSET — every labeled target session in full, plus N capped
+distractor sessions — and scores the same session-rank metric as the real bench.
+Minutes per model, and doc embeddings cache under ~/.cache/claude-grep-bakeoff
+so re-running the metric is free. Absolute ranks are optimistic against the full
+197k index because the subset is smaller; it is a RELATIVE comparison, which is
+what picking a model needs. `claude-grep --bench` stays the gate.
+
+Add a candidate as one row in that file's MODELS table: query prefix, doc
+prefix, and its OWN similarity floor. Never reuse another model's floor.
+
 ### Agent telemetry
 
 Usage is logged to `~/.claude/search-index/usage.jsonl` (one JSONL line per search).
