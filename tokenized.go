@@ -10,15 +10,21 @@ import (
 // Keeps symbol-y identifiers whole: "sp-ucp-manifest" is one token.
 var wordTokenRe = regexp.MustCompile(`[\p{L}\p{N}_-]+`)
 
-// extractWordTokens pulls de-duplicated, lowercased word tokens (length >= 2)
-// from a pattern, discarding regex metacharacters. Order is preserved.
+// extractWordTokens pulls de-duplicated, lowercased CONTENT tokens (length >= 2)
+// from a pattern, discarding regex metacharacters and stop words. Order is preserved.
+//
+// Stop words are dropped because every consumer AND-gates on these tokens at
+// SESSION-FILE granularity. Session files average tens of KB, so a file contains
+// "the"/"and"/"for" with near-certainty: keeping them made the gate admit almost
+// every session, and the OR surface then ranked by whichever common word hit
+// first. Reuses the BM25 stop list so the ladder and the hints tokenize alike.
 func extractWordTokens(pattern string) []string {
 	raw := wordTokenRe.FindAllString(pattern, -1)
 	seen := map[string]bool{}
 	var tokens []string
 	for _, w := range raw {
 		w = strings.ToLower(strings.Trim(w, "-"))
-		if len(w) < 2 || seen[w] {
+		if len(w) < 2 || seen[w] || stopWords[w] {
 			continue
 		}
 		seen[w] = true

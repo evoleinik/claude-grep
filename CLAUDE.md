@@ -49,6 +49,13 @@ go vet ./...
 - Cross-match content dedup: identical compressed text across sessions is collapsed
 - Near-miss hints: when regex finds nothing, extracts longest literal and does relaxed search to suggest simpler patterns
 - Auto-fallback: when regex finds 0 results and Ollama is running, automatically retries with semantic search
+- Ladder routing: regex → tokenized → semantic, but a tokenized result that FILLS
+  the result cap is held as a fallback rather than returned, so the vector layer
+  answers first. Returning it immediately scored hit@10 0/6 on paraphrase queries.
+  Preferring semantic outright is worse, not better: measured hit@1 3→0 on keyword
+  queries, so the cheap layer keeps winning when it actually discriminates
+- Tokenized tokens are stop-word filtered. The AND gate is per session FILE, and
+  files run tens of KB, so keeping "the"/"and"/"for" admitted nearly every session
 - Short-pattern warning: patterns with longest literal ≤3 chars get a stderr hint to use `-s` instead
 - Self-exclusion: automatically skips the current session file (most recently modified within 60s) to avoid self-referential results
 - JSON output (`--json`) preserves full uncompressed text
