@@ -140,27 +140,14 @@ func runReembedOrphans(apply bool, shard, shards int) {
 	for n, j := range jobs {
 		idx := loadIndex(j.project)
 
-		// Fast path: same MODEL, only the chunking version moved. Archived
-		// entries are 200-char previews, already shorter than chunkChars, so
-		// re-chunking them is a no-op and their vectors are still correct.
-		// Re-embedding anyway would cost ~159k calls to produce identical
-		// numbers.
-		if strings.HasPrefix(idx.EmbedModel, embedModel+"/") || idx.EmbedModel == embedModel {
-			short := true
-			for _, e := range idx.Entries {
-				if len(e.Preview) > chunkChars {
-					short = false
-					break
-				}
-			}
-			if short {
-				idx.EmbedModel = indexStamp
-				if err := saveIndex(idx); err == nil {
-					restamped++
-					continue
-				}
-			}
-		}
+		// Same MODEL, only the chunking version moved? Then an entry whose stored
+		// text is already shorter than chunkChars re-chunks to itself, so its
+		// vector is still correct and only the stamp needs updating. Judge this
+		// PER ENTRY: older tool versions stored much longer previews, and one of
+		// those in a project would otherwise condemn every short entry beside it
+		// to a pointless re-embed (133k calls where 24k are needed).
+		sameModel := idx.EmbedModel == embedModel || strings.HasPrefix(idx.EmbedModel, embedModel+"/")
+
 		kept := make([]IndexEntry, 0, len(idx.Entries))
 		for _, entry := range idx.Entries {
 			// No preview means no text survived, so there is nothing to
@@ -168,6 +155,11 @@ func runReembedOrphans(apply bool, shard, shards int) {
 			// would poison search with a silently incomparable vector.
 			if strings.TrimSpace(entry.Preview) == "" {
 				dropped++
+				continue
+			}
+			if sameModel && len(entry.Preview) <= chunkChars {
+				kept = append(kept, entry)
+				restamped++
 				continue
 			}
 			vec, err := embedDoc(entry.Preview)
