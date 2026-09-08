@@ -71,6 +71,17 @@ func TestBenchScoresRankNotJustFound(t *testing.T) {
 		"the vertex endpoint kept dedicatedResources allocated while idle")
 	writeSession(t, dir, "decoy000-1111-2222-3333-444444444444.jsonl", ts, "assistant",
 		"unrelated notes about shipping labels and printers")
+	// The bench drops the NEWEST session (a real run's own transcript contains
+	// every query it is about to score). Give it one to drop that is not under
+	// test, or the decoy disappears instead.
+	newest := "zzzznewest-1111-2222-3333-44444444.jsonl"
+	writeSession(t, dir, newest, ts, "assistant", "newest, expected to be excluded")
+	// mtime decides which file is "newest", and fixtures are written in the same
+	// instant, so set it explicitly rather than relying on write order.
+	future := time.Now().Add(time.Minute)
+	if err := os.Chtimes(filepath.Join(dir, newest), future, future); err != nil {
+		t.Fatal(err)
+	}
 
 	corpus := writeBenchCorpus(t, dir, []BenchQuery{
 		// Recovers the target session.

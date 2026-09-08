@@ -115,6 +115,13 @@ func sessionRank(q BenchQuery, matches []Match) int {
 	return 0
 }
 
+// benchExcludeProject drops the worktree this tool is developed in. Running the
+// bench writes every query string into that session as a tool_use input, and
+// tool output is indexed, so without this the corpus leaks into the index it is
+// scoring. Measured 2026-09-08: contaminated it read hit@1 0 where the true
+// figure was 9.
+const benchExcludeProject = "claude-grep"
+
 // validateLabels resolves every labeled row to a session file that exists on
 // disk. A label pointing at a deleted or aged-out session would otherwise score
 // as a plain miss, so the corpus would rot into a permanent red and nobody could
@@ -195,7 +202,14 @@ func topicInIndexedText(q BenchQuery, searchDir string) bool {
 func runBenchRecords(corpusPath, searchDir string) []BenchRecord {
 	queries := parseBenchCorpus(corpusPath)
 
-	opts := SearchOpts{Role: "both", MaxResults: 100, MaxDays: 365, ExcludeSelf: false}
+	// ExcludeSelf is MANDATORY here, not a nicety. Tool output is indexed, and
+	// running the bench puts every query string verbatim into this session's
+	// own transcript as a tool_use input. Without this the corpus leaks into
+	// the index it is measuring: measured 2026-09-08, all 17 queries matched
+	// the running session at the regex layer and scored 0, having read 0.61
+	// MRR minutes earlier.
+	opts := SearchOpts{Role: "both", MaxResults: 100, MaxDays: 365, ExcludeSelf: true,
+		ExcludeProject: benchExcludeProject}
 	recs := make([]BenchRecord, 0, len(queries))
 	for _, q := range queries {
 		start := time.Now()

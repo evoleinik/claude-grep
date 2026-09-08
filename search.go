@@ -58,6 +58,13 @@ type SearchOpts struct {
 	// mixing them made 100% of every top-100 archived and dropped the labeled
 	// bench from 0.43 MRR to 0.00. Search them deliberately with --archived.
 	IncludeArchived bool
+	// ExcludeProject drops any project whose name contains this substring.
+	// Needed because indexing tool output makes a session that RAN a query
+	// contain that query verbatim, so the session doing the measuring pollutes
+	// the index it measures. ExcludeSelf cannot cover this: it picks the newest
+	// file across all projects, which during a multi-minute run is usually some
+	// other active session.
+	ExcludeProject string
 }
 
 // regexSearch finds matches across session files using regex.
@@ -85,6 +92,15 @@ func searchCore(re *regexp.Regexp, prefilter [][]byte, gate [][]byte, searchPath
 	}
 	if opts.ExcludeSelf && len(files) > 0 {
 		files = excludeNewestFile(files)
+	}
+	if opts.ExcludeProject != "" {
+		kept := files[:0]
+		for _, f := range files {
+			if !strings.Contains(extractProject(f), opts.ExcludeProject) {
+				kept = append(kept, f)
+			}
+		}
+		files = kept
 	}
 
 	type fileResult struct{ matches []Match }

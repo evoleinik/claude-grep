@@ -85,6 +85,9 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 			}
 		}
 
+		if opts.ExcludeProject != "" && strings.Contains(project, opts.ExcludeProject) {
+			continue
+		}
 		if !opts.IncludeArchived {
 			if _, statErr := os.Stat(filepath.Join(projectsBase, project)); statErr != nil {
 				archivedSkipped++
