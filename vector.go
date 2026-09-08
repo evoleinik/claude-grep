@@ -26,6 +26,11 @@ import (
 // 0.35 sits under every measured gold and above the p90 of noise.
 const simFloor = 0.35
 
+type scored struct {
+	entry      IndexEntry
+	similarity float32
+}
+
 func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) {
 	// Check ollama
 	if !ollamaReachable() {
@@ -54,11 +59,6 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 	var cutoff time.Time
 	if opts.MaxDays > 0 {
 		cutoff = time.Now().AddDate(0, 0, -opts.MaxDays)
-	}
-
-	type scored struct {
-		entry      IndexEntry
-		similarity float32
 	}
 
 	var candidates []scored
@@ -157,6 +157,13 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 		return candidates[i].entry.MsgIndex < candidates[j].entry.MsgIndex
 	})
 
+	// Rank SESSIONS by the aggregate of their best chunks, not by their single
+	// best chunk. One lucky outlier chunk from an unrelated session otherwise
+	// outranks a session that is relevant throughout — and the reader scans
+	// sessions, not chunks. Sum of the top-3 rewards sustained relevance while
+	// staying fair to short sessions that only have one or two messages.
+	candidates = rankBySessionAggregate(candidates)
+
 	// Limit results
 	limit := opts.MaxResults
 	if limit <= 0 {
@@ -224,6 +231,54 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 	}
 
 	return matches, nil
+}
+
+// rankBySessionAggregate reorders chunks so that sessions appear in order of
+// their aggregate relevance, best chunk first within each session. Input must
+// already be sorted by similarity descending.
+func rankBySessionAggregate(in []scored) []scored {
+	const topK = 3
+	type grp struct {
+		key   string
+		score float32
+		items []scored
+	}
+	idx := map[string]int{}
+	var groups []grp
+	for _, c := range in {
+		k := c.entry.FilePath + "\x00" + c.entry.SessionID
+		i, ok := idx[k]
+		if !ok {
+			idx[k] = len(groups)
+			groups = append(groups, grp{key: k})
+			i = len(groups) - 1
+		}
+		g := &groups[i]
+		if len(g.items) < topK {
+			g.score += c.similarity
+		}
+		g.items = append(g.items, c)
+	}
+	sort.SliceStable(groups, func(a, b int) bool {
+		if groups[a].score != groups[b].score {
+			return groups[a].score > groups[b].score
+		}
+		return groups[a].key < groups[b].key // total order, see searchCore
+	})
+	// Emit at most topK chunks per session. Without this a few large sessions
+	// eat the result cap and push whole sessions past it: measured, regrouping
+	// alone moved four targets out of the top 100 entirely, one of them from
+	// rank 1. The reader wants many sessions with their best lines, not one
+	// session's every line.
+	out := make([]scored, 0, len(in))
+	for _, g := range groups {
+		n := len(g.items)
+		if n > topK {
+			n = topK
+		}
+		out = append(out, g.items[:n]...)
+	}
+	return out
 }
 
 func cosineSimilarity(a, b []float32) float32 {
