@@ -33,6 +33,7 @@ go vet ./...
 | `index.go` | Ollama embedding, incremental indexer |
 | `store.go` | Gob-based vector store on disk |
 | `vector.go` | Cosine similarity, semantic search |
+| `bench.go` | Session recovery bench: rank scoring + regex-baseline gate |
 
 ### Key design decisions
 
@@ -51,6 +52,22 @@ go vet ./...
 - Short-pattern warning: patterns with longest literal ≤3 chars get a stderr hint to use `-s` instead
 - Self-exclusion: automatically skips the current session file (most recently modified within 60s) to avoid self-referential results
 - JSON output (`--json`) preserves full uncompressed text
+
+### Benchmarking recall
+
+`--bench` takes either form:
+
+```bash
+claude-grep --bench bench/queries-labeled.json   # labeled: scores rank, can exit 1
+claude-grep --bench bench/queries.json           # unlabeled: found/layer only
+```
+
+An UNLABELED corpus only proves something came back. It reported 100% while
+hit@10 was 0/6, because the tokenized layer answers first with the 100-result
+cap and the ladder never reaches the vector layer. Label rows with
+`expect_session` (any prefix of the session id) and/or `expect_project` to score
+the 1-based rank of that session. The gate has no magic threshold: the ladder
+must beat a plain OR-of-words regex over the same corpus.
 
 ### Agent telemetry
 

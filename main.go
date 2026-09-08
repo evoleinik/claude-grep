@@ -70,7 +70,7 @@ Flags:
   --status      show index stats (with --index)
   --all         reindex everything (with --index)
   --usage       show usage stats (agent telemetry)
-  --bench FILE  run recovery benchmark over a JSON array of queries
+  --bench FILE  run recovery benchmark over a JSON corpus (see below)
   --version     show version
 
 Curated docs (searches the cwd repo's learnings/ or docs/ too):
@@ -78,6 +78,12 @@ Curated docs (searches the cwd repo's learnings/ or docs/ too):
   --docs-only          search ONLY curated docs — no session scan, head-safe output
   --index --docs       build/refresh this repo's docs index
   --bench-docs FILE    run the labeled grep-vs-hybrid docs benchmark
+
+Bench corpus forms (--bench):
+  ["query", ...]                                  unlabeled — reports found/layer only
+  [{"query":…, "expect_session":…}, ...]          labeled — scores RANK of that session
+  Labeled runs gate: the ladder must recover the target at least as well as a
+  plain OR-of-words regex, else exit 1. Sample: bench/queries-labeled.json
   --mine-docs-queries  propose bench cases from usage.jsonl (review-ready JSON)
   --stale-docs         audit curated docs for code refs that changed after the doc (exit 1 if any)
 

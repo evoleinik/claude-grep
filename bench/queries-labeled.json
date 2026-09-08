@@ -1,0 +1,14 @@
+[
+  {"query": "the reserved GPU that sat unused for a day and a half and still cost nothing",
+   "expect_project": "vertex-ai-cost-anomaly", "expect_session": "fb18f2e1"},
+  {"query": "the field that wipes the accuracy column when products are re-imported",
+   "expect_project": "distracted-ramanujan", "expect_session": "7e8cf683"},
+  {"query": "why most of our merges went out by override instead of a real approval",
+   "expect_project": "lucid-shaw", "expect_session": "7a6462d7"},
+  {"query": "why a printer question showed up on a display product page",
+   "expect_project": "jovial-greider", "expect_session": "545b2789"},
+  {"query": "the advisor who wants a real sales number before the case study",
+   "expect_project": "catalog-count-mcp-pitch", "expect_session": "89894204"},
+  {"query": "the scary metric that turned out to be a measurement artifact",
+   "expect_project": "mainson-mugen-gmc-rankings", "expect_session": "67b354ee"}
+]
