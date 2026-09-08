@@ -5,8 +5,10 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -71,6 +73,9 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 		excludeFile = findNewestSessionFile(searchPath)
 	}
 
+	// Collect the projects worth opening BEFORE doing any I/O, so the expensive
+	// part is a flat list a worker pool can chew through.
+	var todo []string
 	for _, e := range entries {
 		if filepath.Ext(e.Name()) != ".gob" {
 			continue
@@ -84,7 +89,6 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 				continue
 			}
 		}
-
 		if opts.ExcludeProject != "" && strings.Contains(project, opts.ExcludeProject) {
 			continue
 		}
@@ -94,43 +98,74 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 				continue
 			}
 		}
-		idx := loadIndex(project)
-		if len(idx.Entries) == 0 {
-			continue
-		}
-		// Vectors from another model are not comparable. nomic-embed-text and
-		// embeddinggemma are BOTH 768-dim, so cosine does not error or return
-		// 0 — it returns plausible-looking garbage. That is worse than a hard
-		// failure, which is why this stamp is load-bearing rather than a nicety.
-		if idx.EmbedModel != indexStamp {
-			staleModel = true
-			continue
-		}
+		todo = append(todo, project)
+	}
 
-		for _, entry := range idx.Entries {
-			// Skip current session
-			if excludeFile != "" && entry.FilePath == excludeFile {
-				continue
-			}
-			// Role filter
-			if opts.Role != "both" && entry.Role != opts.Role {
-				continue
-			}
+	// Decoding the gobs is the whole cost of a search: ~1.5GB of them once tool
+	// output is indexed, and it was being done on one core. Fan out over all of
+	// them — measured 8.4s p50 sequential.
+	workers := runtime.NumCPU()
+	if workers > len(todo) {
+		workers = len(todo)
+	}
+	if workers < 1 {
+		workers = 1
+	}
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	jobs := make(chan string, len(todo))
+	for _, p := range todo {
+		jobs <- p
+	}
+	close(jobs)
 
-			// Time filter
-			if !cutoff.IsZero() && entry.Timestamp != "" {
-				t, err := time.Parse("2006-01-02T15:04:05", entry.Timestamp)
-				if err == nil && t.Before(cutoff) {
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			var local []scored
+			localStale := false
+			for project := range jobs {
+				idx := loadIndex(project)
+				if len(idx.Entries) == 0 {
 					continue
 				}
+				// Vectors from another model are not comparable.
+				// nomic-embed-text and embeddinggemma are BOTH 768-dim, so
+				// cosine does not error or return 0 — it returns
+				// plausible-looking garbage. That is worse than a hard failure,
+				// which is why this stamp is load-bearing rather than a nicety.
+				if idx.EmbedModel != indexStamp {
+					localStale = true
+					continue
+				}
+				for _, entry := range idx.Entries {
+					if excludeFile != "" && entry.FilePath == excludeFile {
+						continue
+					}
+					if opts.Role != "both" && entry.Role != opts.Role {
+						continue
+					}
+					if !cutoff.IsZero() && entry.Timestamp != "" {
+						t, err := time.Parse("2006-01-02T15:04:05", entry.Timestamp)
+						if err == nil && t.Before(cutoff) {
+							continue
+						}
+					}
+					if sim := cosineSimilarity(queryVec, entry.Vector); sim > simFloor {
+						local = append(local, scored{entry: entry, similarity: sim})
+					}
+				}
 			}
-
-			sim := cosineSimilarity(queryVec, entry.Vector)
-			if sim > simFloor {
-				candidates = append(candidates, scored{entry: entry, similarity: sim})
+			mu.Lock()
+			candidates = append(candidates, local...)
+			if localStale {
+				staleModel = true
 			}
-		}
+			mu.Unlock()
+		}()
 	}
+	wg.Wait()
 
 	if len(candidates) == 0 {
 		if archivedSkipped > 0 {

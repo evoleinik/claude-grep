@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -106,7 +107,13 @@ func searchCore(re *regexp.Regexp, prefilter [][]byte, gate [][]byte, searchPath
 	type fileResult struct{ matches []Match }
 	results := make(chan fileResult, len(files))
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 8)
+	// Was a hardcoded 8. Indexing tool output made each file's parsed text much
+	// larger, so this walk went from cheap to a third of a query's latency.
+	fanout := runtime.NumCPU()
+	if fanout < 4 {
+		fanout = 4
+	}
+	sem := make(chan struct{}, fanout)
 	var pfSkipped int32
 
 	for _, f := range files {
