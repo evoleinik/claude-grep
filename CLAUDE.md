@@ -41,7 +41,14 @@ go vet ./...
 - Pre-filter with `bytes.Contains` before JSON parse (10x faster)
 - Gob encoding for index (fast serialize/deserialize in Go)
 - Concurrent file search with fan-out/fan-in pattern
-- Semantic search threshold: cosine similarity > 0.3
+- Embedding model: `embeddinggemma` with ASYMMETRIC prefixes (`embedQuery` / `embedDoc`).
+  Never call `embedRaw` directly — an unprefixed query measured 0.433 gold-rank MRR
+  against 0.708 prefixed. Changing `embedModel` invalidates every vector: the gob
+  carries `EmbedModel`, a mismatch forces a rebuild, and search says so rather than
+  silently returning nothing
+- Semantic threshold `simFloor` is MODEL-SPECIFIC and must be re-measured on every
+  model change (nomic ~0.55, mxbai ~0.62, embeddinggemma 0.35). Carrying one over
+  guts recall or floods it with noise
 - BM25 compression: terminal output shows query-relevant chunks, not blind head truncation
 - Sentence-level splitting: large paragraphs broken into sentences for finer BM25 granularity
 - Stop word filtering + suffix stemming: deploy matches deployed/deploying/deployment

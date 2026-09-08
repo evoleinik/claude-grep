@@ -10,6 +10,22 @@ import (
 	"time"
 )
 
+// simFloor is the minimum cosine for a candidate. It is MODEL-SPECIFIC and the
+// scales are not comparable: 0.55 was derived for nomic-embed-text, mxbai sits
+// near 0.62, embeddinggemma near 0.35. Carrying a floor across a model change
+// silently guts recall or floods it with noise, so re-measure on every change.
+//
+// Measured for embeddinggemma over 1200 query/distractor pairs plus 4 known-good
+// golds on the real index:
+//
+//	distractors p50 0.186, p90 0.278, p99 0.400, max 0.533
+//	gold        min 0.373, max 0.503
+//
+// Gold overlaps the distractor tail here, so the floor cannot separate on its own
+// — ranking does that, and the floor only stops a no-match query returning junk.
+// 0.35 sits under every measured gold and above the p90 of noise.
+const simFloor = 0.35
+
 func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) {
 	// Check ollama
 	if !ollamaReachable() {
@@ -17,7 +33,7 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 	}
 
 	// Embed the query
-	queryVec, err := embed(query)
+	queryVec, err := embedQuery(query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to embed query: %w", err)
 	}
@@ -46,6 +62,7 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 	}
 
 	var candidates []scored
+	staleModel := false
 
 	// Find the current session file to exclude
 	var excludeFile string
@@ -71,6 +88,13 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 		if len(idx.Entries) == 0 {
 			continue
 		}
+		// Vectors from another model are not comparable — cosine against a
+		// different dimensionality silently returns 0, which would look like
+		// "no matches" rather than "stale index". Say so instead.
+		if idx.EmbedModel != embedModel {
+			staleModel = true
+			continue
+		}
 
 		for _, entry := range idx.Entries {
 			// Skip current session
@@ -91,13 +115,16 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 			}
 
 			sim := cosineSimilarity(queryVec, entry.Vector)
-			if sim > 0.55 { // minimum threshold (0.3 was too low — nomic-embed-text baseline is high)
+			if sim > simFloor {
 				candidates = append(candidates, scored{entry: entry, similarity: sim})
 			}
 		}
 	}
 
 	if len(candidates) == 0 {
+		if staleModel {
+			return nil, fmt.Errorf("index was built with a different embedding model — rebuild: claude-grep --index --all")
+		}
 		return nil, nil
 	}
 

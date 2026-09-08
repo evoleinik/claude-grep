@@ -14,9 +14,25 @@ import (
 
 const (
 	ollamaURL     = "http://localhost:11434/api/embed"
-	embedModel    = "nomic-embed-text"
+	embedModel    = "embeddinggemma"
 	maxEmbedChars = 2048
 	previewLen    = 200
+
+	// embeddinggemma is asymmetric: query and document take DIFFERENT prefixes.
+	// Dropping them is not cosmetic, it costs most of the model's quality.
+	//
+	// Measured over 300 random distractors on 4 labeled queries — gold-rank MRR,
+	// then embed throughput on this box (batching gives no speedup, ollama
+	// serializes internally):
+	//   nomic-embed-text, no prefix (the old setup)  0.433   3.6/s
+	//   nomic-embed-text + its own prefixes          0.675   3.6/s
+	//   embeddinggemma + its prefixes                0.708  11.2/s
+	//   mxbai-embed-large + its prefix               0.786   1.8/s
+	// mxbai ranks best but costs ~31h to reindex 197k messages and adds 0.56s to
+	// every query. embeddinggemma is 64% better than the old setup, indexes in
+	// ~5h, and keeps query embedding at 0.13s.
+	embedQueryPrefix = "task: search result | query: "
+	embedDocPrefix   = "title: none | text: "
 )
 
 func lockPath() string {
@@ -82,9 +98,12 @@ func runIndex(reindexAll bool) {
 		projectPath := filepath.Join(projectsDir, project)
 
 		idx := loadIndex(project)
-		if reindexAll {
+		// A vector is only comparable to others from the same model, and the dims
+		// differ across models, so a model change invalidates the whole project.
+		if reindexAll || idx.EmbedModel != embedModel {
 			idx = &Index{Files: make(map[string]FileMetadata), Project: project}
 		}
+		idx.EmbedModel = embedModel
 
 		// Find JSONL files
 		var files []string
@@ -132,7 +151,7 @@ func runIndex(reindexAll bool) {
 					text = text[:maxEmbedChars]
 				}
 
-				vec, err := embed(text)
+				vec, err := embedDoc(text)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "  embed error: %v\n", err)
 					continue
@@ -211,7 +230,12 @@ type embedResponse struct {
 	Embeddings [][]float32 `json:"embeddings"`
 }
 
-func embed(text string) ([]float32, error) {
+// embedQuery and embedDoc are the two sides of an asymmetric embedding model.
+// Always go through one of them; embedRaw is the transport, not an entry point.
+func embedQuery(text string) ([]float32, error) { return embedRaw(embedQueryPrefix + text) }
+func embedDoc(text string) ([]float32, error)   { return embedRaw(embedDocPrefix + text) }
+
+func embedRaw(text string) ([]float32, error) {
 	body, err := json.Marshal(embedRequest{Model: embedModel, Input: text})
 	if err != nil {
 		return nil, err

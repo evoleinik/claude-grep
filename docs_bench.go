@@ -230,7 +230,7 @@ func runDocsIndexCmd(status bool) {
 		fmt.Fprintln(os.Stderr, "error: ollama not running — start with: ollama serve")
 		os.Exit(2)
 	}
-	if err := refreshDocsIndex(root, dirs, embed); err != nil {
+	if err := refreshDocsIndex(root, dirs, embedDoc); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(2)
 	}

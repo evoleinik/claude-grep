@@ -34,6 +34,7 @@ type Index struct {
 	Files           map[string]FileMetadata // keyed by filepath
 	Project         string
 	DocEmbedVersion string // docs index only: embed-logic version; mismatch forces full rebuild
+	EmbedModel      string // session index: model that produced Vector; mismatch forces full rebuild
 }
 
 // IndexStats holds aggregate index statistics.

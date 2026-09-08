@@ -10,7 +10,7 @@ import (
 )
 
 // seams for testing (default to the real functions)
-var embedQueryFn = embed
+var embedQueryFn = embedQuery
 var refreshDocsFn = refreshDocsIndex
 
 // DocMatch is a hit from the curated-docs lane.
@@ -70,7 +70,7 @@ func regexDocsSearch(pattern string, dirs []string, cap int) ([]DocMatch, error)
 // Lazily refreshes the per-repo index first (best-effort; needs ollama).
 func semanticDocsSearch(query, repoRoot string, dirs []string, cap int) ([]DocMatch, error) {
 	if ollamaReachable() {
-		_ = refreshDocsFn(repoRoot, dirs, embed) // best-effort; ignore errors
+		_ = refreshDocsFn(repoRoot, dirs, embedDoc) // best-effort; ignore errors
 	}
 	idx := loadDocsIndex(repoRoot)
 	if len(idx.Entries) == 0 {
@@ -89,7 +89,7 @@ func semanticDocsSearch(query, repoRoot string, dirs []string, cap int) ([]DocMa
 		if e.Source != "docs" {
 			continue
 		}
-		if sim := cosineSimilarity(qv, e.Vector); sim > 0.55 {
+		if sim := cosineSimilarity(qv, e.Vector); sim > simFloor {
 			cands = append(cands, scored{e, sim})
 		}
 	}

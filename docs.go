@@ -238,7 +238,7 @@ func buildDocEntries(file string, chunks []DocChunk, embedFn func(string) ([]flo
 // docEmbedVersion stamps the docs gob. Bump it whenever chunking or embed-input
 // logic changes — refreshDocsIndex then discards the stale vectors and rebuilds,
 // since file mtimes alone won't reflect a code change (the prefix-experiment trap).
-const docEmbedVersion = "v5-doc-line"
+const docEmbedVersion = "v6-embeddinggemma"
 
 // refreshDocsIndex re-embeds only doc files whose mtime is newer than the index,
 // unless the embed-logic version changed (then it rebuilds everything).

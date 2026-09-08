@@ -36,7 +36,7 @@ func TestTrackedDocFilesDiscovery(t *testing.T) {
 	write("app/sub/CLAUDE.md", "# Sub\nnestedclaudemarker content\n")
 	write("learnings/benchmarks.md", "# Bench\nrealcontentmarker here\n")
 	write("learnings/README.md", "# TOC\ntocmarker do not surface\n") // index, must stay excluded
-	write("vendor/lib/README.md", "# Vendor\nvendormarker\n")          // left untracked on purpose
+	write("vendor/lib/README.md", "# Vendor\nvendormarker\n")         // left untracked on purpose
 	// Track everything except the vendor README.
 	git("add", "README.md", "CLAUDE.md", "MEMORY.md", "app/sub/CLAUDE.md",
 		"learnings/benchmarks.md", "learnings/README.md")
@@ -84,8 +84,14 @@ func TestTrackedDocFilesDiscovery(t *testing.T) {
 	if d := find("nestedclaudemarker"); len(d) != 1 {
 		t.Errorf("nested CLAUDE.md not searchable: %+v", d)
 	}
-	if d := find("tocmarker"); len(d) != 0 {
-		t.Errorf("learnings/README.md TOC leaked into results: %+v", d)
+	// The TOC file must never be a RESULT. It must not assert "no results at all":
+	// a regex miss falls through to the semantic rescue, which always returns its
+	// nearest chunks. That the rescue returned nothing under an older embedding
+	// model was incidental to that model's similarity scale, not the property here.
+	for _, d := range find("tocmarker") {
+		if strings.HasSuffix(d.File, filepath.Join("learnings", "README.md")) {
+			t.Errorf("learnings/README.md TOC leaked into results: %+v", d)
+		}
 	}
 }
 
@@ -135,7 +141,7 @@ func TestSemanticDocsSearchRanksAndCaps(t *testing.T) {
 
 	embedQueryFn = func(string) ([]float32, error) { return []float32{1, 0}, nil }
 	refreshDocsFn = func(string, []string, func(string) ([]float32, error)) error { return nil }
-	defer func() { embedQueryFn = embed; refreshDocsFn = refreshDocsIndex }()
+	defer func() { embedQueryFn = embedQuery; refreshDocsFn = refreshDocsIndex }()
 
 	docs, err := semanticDocsSearch("how to auth cron", root, []string{"/fake/repo/learnings"}, 5)
 	if err != nil {
@@ -180,7 +186,7 @@ func TestCollectDocsRescuesMultiWordQuery(t *testing.T) {
 	// Simulate Ollama down so the rescue must come from the lexical (BM25) lane.
 	embedQueryFn = func(string) ([]float32, error) { return nil, fmt.Errorf("ollama down") }
 	refreshDocsFn = func(string, []string, func(string) ([]float32, error)) error { return nil }
-	defer func() { embedQueryFn = embed; refreshDocsFn = refreshDocsIndex }()
+	defer func() { embedQueryFn = embedQuery; refreshDocsFn = refreshDocsIndex }()
 
 	q := "ecommerce shopping agent price search"
 	if hit, _ := regexDocsSearch("(?i)"+q, []string{filepath.Join(repo, "learnings")}, 5); len(hit) != 0 {
