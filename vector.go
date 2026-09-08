@@ -63,6 +63,7 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 
 	var candidates []scored
 	staleModel := false
+	archivedSkipped := 0
 
 	// Find the current session file to exclude
 	var excludeFile string
@@ -84,6 +85,12 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 			}
 		}
 
+		if !opts.IncludeArchived {
+			if _, statErr := os.Stat(filepath.Join(projectsBase, project)); statErr != nil {
+				archivedSkipped++
+				continue
+			}
+		}
 		idx := loadIndex(project)
 		if len(idx.Entries) == 0 {
 			continue
@@ -123,6 +130,9 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 	}
 
 	if len(candidates) == 0 {
+		if archivedSkipped > 0 {
+			fmt.Fprintf(os.Stderr, "no live matches — %d archived projects (transcripts deleted) were not searched; add --archived\n", archivedSkipped)
+		}
 		if staleModel {
 			return nil, fmt.Errorf("index was built with a different embedding model — rebuild: claude-grep --index --all")
 		}

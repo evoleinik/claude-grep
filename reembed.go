@@ -75,7 +75,24 @@ func orphanSkipCounts() (live, migrated int) {
 	return
 }
 
-func runReembedOrphans(apply bool) {
+// shardFilter keeps every nth project starting at i, so N processes can run
+// concurrently over disjoint sets. The single-threaded job leaves box at half
+// capacity: measured 2026-09-08, adding 4 concurrent embed requests yielded
+// 7.8/s on top of the running job's own 7/s.
+func shardFilter(projects []string, shard, shards int) []string {
+	if shards <= 1 {
+		return projects
+	}
+	var out []string
+	for i, p := range projects {
+		if i%shards == shard {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+func runReembedOrphans(apply bool, shard, shards int) {
 	home, _ := os.UserHomeDir()
 	projectsBase := filepath.Join(home, ".claude", "projects")
 
@@ -87,7 +104,7 @@ func runReembedOrphans(apply bool) {
 	}
 	var jobs []job
 	totalVecs, live, migrated := 0, 0, 0
-	for _, project := range orphanProjects() {
+	for _, project := range shardFilter(orphanProjects(), shard, shards) {
 		idx := loadIndex(project)
 		jobs = append(jobs, job{project, len(idx.Entries)})
 		totalVecs += len(idx.Entries)
@@ -95,9 +112,13 @@ func runReembedOrphans(apply bool) {
 	live, migrated = orphanSkipCounts()
 	sort.Slice(jobs, func(i, j int) bool { return jobs[i].count > jobs[j].count })
 
+	shardNote := ""
+	if shards > 1 {
+		shardNote = fmt.Sprintf(" [shard %d/%d]", shard, shards)
+	}
 	fmt.Fprintf(os.Stderr,
-		"orphans: %d projects, %d vectors to re-embed (%d live projects skipped, %d already on %s)\n",
-		len(jobs), totalVecs, live, migrated, embedModel)
+		"orphans%s: %d projects, %d vectors to re-embed (%d live projects skipped, %d already on %s)\n",
+		shardNote, len(jobs), totalVecs, live, migrated, embedModel)
 	if !apply {
 		fmt.Fprintln(os.Stderr, "dry run — pass --apply to re-embed")
 		for i, j := range jobs {

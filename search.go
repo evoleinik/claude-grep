@@ -51,6 +51,13 @@ type SearchOpts struct {
 	After       int
 	ListOnly    bool
 	ExcludeSelf bool // exclude the current (most recent) session
+	// IncludeArchived pulls in projects whose transcripts Claude Code has
+	// deleted. They are OFF by default and that is not a preference: their
+	// vectors come from 200-char previews while live vectors come from up to
+	// 2048 chars, so a short query scores them higher. Measured 2026-09-08,
+	// mixing them made 100% of every top-100 archived and dropped the labeled
+	// bench from 0.43 MRR to 0.00. Search them deliberately with --archived.
+	IncludeArchived bool
 }
 
 // regexSearch finds matches across session files using regex.

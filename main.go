@@ -41,6 +41,9 @@ func main() {
 	benchDocsPath := flag.String("bench-docs", "", "run the labeled docs benchmark over a JSON corpus")
 	reembedOrphans := flag.Bool("reembed-orphans", false, "re-embed indexes whose project is gone from disk")
 	apply := flag.Bool("apply", false, "with --reembed-orphans: actually write")
+	archived := flag.Bool("archived", false, "also search projects whose transcripts Claude Code deleted")
+	shard := flag.Int("shard", 0, "with --reembed-orphans: this shard index")
+	shards := flag.Int("shards", 1, "with --reembed-orphans: total shards (run N processes over disjoint projects)")
 	mineDocsQueries := flag.Bool("mine-docs-queries", false, "propose labeled docs-bench cases from usage.jsonl")
 	docsOnly := flag.Bool("docs-only", false, "search ONLY the cwd repo's curated docs (no session scan)")
 	staleDocs := flag.Bool("stale-docs", false, "audit curated docs for code refs that changed after the doc (exit 1 if any)")
@@ -67,6 +70,9 @@ Flags:
   -B N          context messages before
   -A N          context messages after
   -s            semantic search (requires index)
+  --archived    also search projects whose transcripts were deleted (their
+                vectors come from 200-char previews, so they outrank live
+                full-text results — off by default for that reason)
   --json        JSON output
   --index       build/update vector index
   --status      show index stats (with --index)
@@ -123,7 +129,7 @@ Exit codes:
 	}
 
 	if *reembedOrphans {
-		runReembedOrphans(*apply)
+		runReembedOrphans(*apply, *shard, *shards)
 		return
 	}
 
@@ -277,13 +283,14 @@ Exit codes:
 	}
 
 	opts := SearchOpts{
-		Role:        role,
-		MaxResults:  *maxResults,
-		MaxDays:     *maxDays,
-		Before:      *ctxBefore,
-		After:       *ctxAfter,
-		ListOnly:    *listOnly,
-		ExcludeSelf: true,
+		Role:            role,
+		MaxResults:      *maxResults,
+		MaxDays:         *maxDays,
+		Before:          *ctxBefore,
+		After:           *ctxAfter,
+		ListOnly:        *listOnly,
+		ExcludeSelf:     true,
+		IncludeArchived: *archived,
 	}
 	if *maxHours > 0 {
 		opts.MaxAge = time.Duration(*maxHours) * time.Hour

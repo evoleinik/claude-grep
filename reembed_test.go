@@ -41,3 +41,24 @@ func TestReembedOrphansSelectsOnlyDeadStaleProjects(t *testing.T) {
 		t.Fatalf("want exactly [dead-stale], got %v", got)
 	}
 }
+
+func TestShardFilterPartitionsWithoutOverlap(t *testing.T) {
+	all := []string{"a", "b", "c", "d", "e", "f", "g"}
+	seen := map[string]int{}
+	for i := 0; i < 3; i++ {
+		for _, p := range shardFilter(all, i, 3) {
+			seen[p]++
+		}
+	}
+	if len(seen) != len(all) {
+		t.Fatalf("shards must cover every project: got %d of %d", len(seen), len(all))
+	}
+	for p, n := range seen {
+		if n != 1 {
+			t.Errorf("%s claimed by %d shards; concurrent writers would race on one gob", p, n)
+		}
+	}
+	if got := shardFilter(all, 0, 1); len(got) != len(all) {
+		t.Errorf("shards=1 must be a no-op, got %d", len(got))
+	}
+}
