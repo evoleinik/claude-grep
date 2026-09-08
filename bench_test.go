@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -106,5 +107,21 @@ func TestSessionBenchVerdictRedAndGreen(t *testing.T) {
 	// Unlabeled corpora must never gate.
 	if pass, _ := sessionBenchVerdict([]BenchRecord{{Query: "x", Found: true}}); !pass {
 		t.Errorf("unlabeled corpus must not be judged")
+	}
+}
+
+func TestValidateLabelsCatchesRot(t *testing.T) {
+	dir := t.TempDir()
+	writeSession(t, dir, "live0000-1111-2222-3333-444444444444.jsonl",
+		time.Now().Format("2006-01-02T15:04:05"), "assistant", "a real session")
+
+	bad := validateLabels([]BenchQuery{
+		{Query: "ok", ExpectSession: "live0000"},
+		{Query: "rotted", ExpectSession: "gone0000"},
+		{Query: "unlabeled has nothing to validate"},
+	}, dir)
+
+	if len(bad) != 1 || !strings.Contains(bad[0], "gone0000") {
+		t.Fatalf("expected exactly the rotted label, got %v", bad)
 	}
 }

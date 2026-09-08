@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -112,6 +113,42 @@ func sessionRank(q BenchQuery, matches []Match) int {
 	return 0
 }
 
+// validateLabels resolves every labeled row to a session file that exists on
+// disk. A label pointing at a deleted or aged-out session would otherwise score
+// as a plain miss, so the corpus would rot into a permanent red and nobody could
+// tell "quality regressed" from "the target is gone". Returns the bad labels.
+func validateLabels(queries []BenchQuery, searchDir string) []string {
+	var present []Message
+	filepath.Walk(searchDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".jsonl") {
+			return nil
+		}
+		present = append(present, Message{
+			SessionID: extractSessionID(path),
+			Project:   extractProject(path),
+		})
+		return nil
+	})
+
+	var bad []string
+	for _, q := range queries {
+		if !q.labeled() {
+			continue
+		}
+		found := false
+		for _, m := range present {
+			if q.isTarget(m) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			bad = append(bad, q.label()+"  <<"+q.Query)
+		}
+	}
+	return bad
+}
+
 // runBenchRecords runs every corpus query through the live recovery ladder at a
 // fixed scope. searchDir is the projects root (overridable for tests). No telemetry.
 func runBenchRecords(corpusPath, searchDir string) []BenchRecord {
@@ -183,6 +220,15 @@ func runBench(corpusPath string) {
 	searchDir, err := resolveSearchPath(true) // benchmark always runs at all-projects scope
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "bench: %v\n", err)
+		os.Exit(2)
+	}
+	queries := parseBenchCorpus(corpusPath)
+	if bad := validateLabels(queries, searchDir); len(bad) > 0 {
+		fmt.Fprintf(os.Stderr, "bench: CANNOT MEASURE — %d label(s) point at a session that no longer exists:\n", len(bad))
+		for _, b := range bad {
+			fmt.Fprintf(os.Stderr, "  %s\n", b)
+		}
+		fmt.Fprintln(os.Stderr, "  fix: relabel against a live session, or drop the row")
 		os.Exit(2)
 	}
 	recs := runBenchRecords(corpusPath, searchDir)
