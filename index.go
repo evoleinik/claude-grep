@@ -186,13 +186,20 @@ func runIndex(reindexAll bool) {
 			}
 
 			// Check if already indexed (and not modified)
+			startAt := 0
 			if meta, ok := idx.Files[fpath]; ok {
 				if !info.ModTime().After(meta.LastModified) {
 					totalSkipped++
 					continue
 				}
-				// File modified — remove old entries for this file
-				idx.Entries = removeEntriesForFile(idx.Entries, fpath)
+				// Append-only: keep what is already indexed and start after it.
+				// A shrunken file was rewritten, not appended to, so it cannot
+				// be trusted for incremental work and is rebuilt.
+				if meta.Messages > 0 && info.Size() >= meta.Size {
+					startAt = meta.Messages
+				} else {
+					idx.Entries = removeEntriesForFile(idx.Entries, fpath)
+				}
 			}
 
 			// Parse and index
@@ -207,9 +214,23 @@ func runIndex(reindexAll bool) {
 			}
 
 			sessionID := extractSessionID(fpath)
-			fmt.Fprintf(os.Stderr, "indexing: %s/%s (%d messages)\n", project, sessionID, len(messages))
+			if startAt > len(messages) {
+				// Fewer messages than last time despite a bigger file: the parse
+				// changed under us. Rebuild rather than guess.
+				idx.Entries = removeEntriesForFile(idx.Entries, fpath)
+				startAt = 0
+			}
+			newMsgs := messages[startAt:]
+			if len(newMsgs) == 0 {
+				idx.Files[fpath] = FileMetadata{FilePath: fpath, LastModified: info.ModTime(),
+					Messages: len(messages), Size: info.Size()}
+				totalSkipped++
+				continue
+			}
+			fmt.Fprintf(os.Stderr, "indexing: %s/%s (%d new of %d messages)\n",
+				project, sessionID, len(newMsgs), len(messages))
 
-			for _, msg := range messages {
+			for _, msg := range newMsgs {
 				text := msg.Text
 				if len(text) > maxEmbedChars {
 					text = text[:maxEmbedChars]
@@ -245,6 +266,8 @@ func runIndex(reindexAll bool) {
 			idx.Files[fpath] = FileMetadata{
 				FilePath:     fpath,
 				LastModified: info.ModTime(),
+				Messages:     len(messages),
+				Size:         info.Size(),
 			}
 			totalNew++
 		}

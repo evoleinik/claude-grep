@@ -26,6 +26,13 @@ type IndexEntry struct {
 type FileMetadata struct {
 	FilePath     string
 	LastModified time.Time
+	// Messages and Size make indexing INCREMENTAL. Transcripts are append-only,
+	// so a changed file usually just has new messages at the end; re-embedding
+	// the whole thing costs more every time the session grows. Size guards the
+	// assumption: if a file shrank, it was rewritten rather than appended to,
+	// and the file is rebuilt from scratch.
+	Messages int
+	Size     int64
 }
 
 // Index is the in-memory representation of a project's vector index.

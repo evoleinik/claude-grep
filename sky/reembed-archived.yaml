@@ -1,0 +1,65 @@
+# Re-embed ARCHIVED history (projects whose transcripts Claude Code deleted;
+# only their 200-char previews survive) onto the current index stamp.
+#
+#   sky launch -c cga sky/reembed-archived.yaml --down --yes
+#
+# Most entries only need the STAMP moved: a 200-char preview is already shorter
+# than chunkChars, so re-chunking is a no-op and the vector stays correct. Only
+# the ~24k entries whose preview exceeds chunkChars (written by older tool
+# versions that stored more text) get re-embedded.
+name: claude-grep-reembed-archived
+
+resources:
+  accelerators: L4:1
+  cpus: 16+
+  cloud: gcp
+  disk_size: 200
+
+file_mounts:
+  /work-bin/claude-grep: ~/bin/claude-grep   # .gitignore hides it from a repo sync
+  /archived: /tmp/arch
+  /out:
+    name: airshelf-cg-index-out
+    store: gcs
+    mode: MOUNT
+
+setup: |
+  set -euo pipefail
+  curl -fsSL https://ollama.com/install.sh | sh
+  sudo mkdir -p /etc/systemd/system/ollama.service.d
+  printf '[Service]\nEnvironment="OLLAMA_NUM_PARALLEL=16"\n' \
+    | sudo tee /etc/systemd/system/ollama.service.d/override.conf >/dev/null
+  sudo systemctl daemon-reload && sudo systemctl restart ollama
+  for i in $(seq 1 60); do curl -sf localhost:11434/api/tags >/dev/null && sleep 3 && break; sleep 2; done
+  ollama pull embeddinggemma
+  curl -sf -m 60 localhost:11434/api/embed \
+    -d '{"model":"embeddinggemma","input":"probe"}' | grep -q '"embeddings"'
+  echo "model verified"
+
+run: |
+  set -euo pipefail
+  NSHARD=16
+  D="$HOME/cgdata"   # explicit: "HOME=~/x cmd" is fragile as an assignment prefix
+  # The projects dir stays EMPTY on purpose: --reembed-orphans targets projects
+  # missing from disk, so with nothing there every shipped gob is an orphan.
+  # This is also why only ARCHIVED gobs are shipped — a live one sent here would
+  # be rewritten from truncated previews.
+  # Home-relative: the run block is not root, so /data at the filesystem
+  # root is not writable (cost a failed run 2026-09-09).
+  mkdir -p $D/.claude/projects $D/.claude/search-index
+  cp /archived/*.gob $D/.claude/search-index/
+  echo "gobs: $(ls $D/.claude/search-index | wc -l)"
+  HOME="$D" /work-bin/claude-grep --reembed-orphans 2>&1 | head -1
+
+  pids=(); for i in $(seq 0 $((NSHARD-1))); do
+    HOME="$D" /work-bin/claude-grep --reembed-orphans --apply --shard=$i --shards=$NSHARD > /tmp/a$i.log 2>&1 & pids+=($!)
+  done
+  rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done
+  if [ "$rc" -ne 0 ]; then for f in /tmp/a*.log; do echo "-- $f"; tail -n 5 "$f"; done; exit 1; fi
+
+  HOME="$D" /work-bin/claude-grep --reembed-orphans 2>&1 | head -1
+  SZ=$(du -sm $D/.claude/search-index | cut -f1)
+  echo "result: ${SZ}MB"
+  [ "$SZ" -ge 300 ] || { echo "REFUSING: only ${SZ}MB, expected >=300MB"; exit 1; }
+  tar -czf /out/archived-done.tgz -C $D/.claude/search-index .
+  echo OK > /out/ARCHIVED_DONE
