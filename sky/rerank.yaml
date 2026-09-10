@@ -1,0 +1,52 @@
+# Measure whether an LLM rerank of the top-20 sessions beats the current order.
+# Measurement only — nothing ships from this. Ceiling is hit@1 14/17, because
+# gold is present in the top-20 pool for 14 of 17 queries.
+#
+#   sky launch -c cgrr sky/rerank.yaml --down -y
+name: claude-grep-rerank
+
+resources:
+  accelerators: L4:1
+  cpus: 8+          # scorer is IO-bound on the model, but do not land on a 4-vCPU host
+  cloud: gcp
+  disk_size: 200
+
+workdir: .          # candidates.json + scorer live here, and sky exec re-syncs workdir
+
+file_mounts:
+  /out:
+    name: airshelf-cg-index-out
+    store: gcs
+    mode: MOUNT
+
+setup: |
+  set -euo pipefail
+  curl -fsSL https://ollama.com/install.sh | sh
+  # Serve many scoring calls at once. Without this ollama queues them and the
+  # GPU idles between requests, which is the same mistake as a one-core scan.
+  sudo mkdir -p /etc/systemd/system/ollama.service.d
+  printf '[Service]\nEnvironment="OLLAMA_NUM_PARALLEL=8"\nEnvironment="OLLAMA_MAX_LOADED_MODELS=1"\n' \
+    | sudo tee /etc/systemd/system/ollama.service.d/override.conf >/dev/null
+  sudo systemctl daemon-reload && sudo systemctl restart ollama
+  for i in $(seq 1 60); do curl -sf localhost:11434/api/tags >/dev/null && sleep 3 && break; sleep 2; done
+  ollama pull gemma3:27b
+  ollama pull gemma4:e4b
+  # "pull succeeded" is not "will answer"
+  curl -sf -m 300 localhost:11434/api/generate \
+    -d '{"model":"gemma3:27b","prompt":"reply with the number 7","stream":false}' \
+    | grep -q '"response"'
+  echo "models verified"
+
+run: |
+  set -euo pipefail
+  test -s bench/candidates.json
+  {
+    echo "baseline (no rerank)      hit@1 10  hit@3 11  hit@10 14  MRR 0.65"
+    echo "ceiling (perfect rerank)  hit@1 14"
+    for m in gemma3:27b gemma4:e4b; do
+      python3 bench/rerank-score.py --model "$m" --mode batched 2>/dev/null | tail -1
+    done
+    python3 bench/rerank-score.py --model gemma3:27b --mode per-candidate 2>/dev/null | tail -1
+  } | tee /out/rerank-results.txt
+  test -s /out/rerank-results.txt
+  echo OK > /out/RERANK_DONE

@@ -1,0 +1,1821 @@
+[
+ {
+  "query": "the reserved GPU that sat unused for a day and a half and still cost nothing",
+  "expect_project": "vertex-ai-cost-anomaly",
+  "expect_session": "fb18f2e1",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vertex-ai-cost-anomaly-974908",
+    "session": "fb18f2e1-14c",
+    "text": "Want me to run those? And this is the exact bug class that earns a gate: nothing in the repo notices an idle GPU endpoint, and a billing email found it 38 hours late."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nvidia-inception-approval-1004d0",
+    "session": "8cb91e47-c81",
+    "text": "Is there, like, anything? Can you just think about it? Like, okay. We have the resource. Uh-huh. What is there, like, any use? Any wild use can we brainstorm, like, based on everything that we've done"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-skypilot-workflow-exploration-c875cd",
+    "session": "55f50ebc-e2c",
+    "text": "Check the console balance before any burn; a drained pool bills cash silently\n(`learnings/ai-providers.md`, credits memory).\n\n## What we hold that a GPU can turn into product\n\n| Asset | Size | Today |"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-pricing-sku-enrichment-costs-3110f8",
+    "session": "315dc169-1d6",
+    "text": "- **Batch shape on GPU.** The $95 spec-fill was 32 spot A100s for 2h15m. The same 82,000 rows on\n  one GPU is 45 hours of wall clock for the same money. Cost is linear in rows, wall clock is not,\n  an"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gaming-video-card-selection-b60369",
+    "session": "90aa3c01-f1c",
+    "text": "- New at Amazon: $1,119.99\n- Used at eBay: $899.99 (20% savings)\n\n**Specs:** The PNY variant features 16GB GDDR7 memory, a 2572 MHz boost clock, and PCIe 5.0 support."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-skypilot-similar-tools-3ec61f",
+    "session": "aa87aaee-c49",
+    "text": "You're right, \"cheaper\" was wrong. Everything in that table bills the same GCP credit pool, so none of it saves money. Vertex is actually the most expensive per GPU hour of the four, because it adds a"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-device-expert-30day-bet-c07d51",
+    "session": "238e56d2-6e3",
+    "text": "and a NeMo distillation of the 32B extractor into 8B.\n\n**Why:** our H100 supply is GCE spot with quota=1 in three regions and routine stockouts, so the\nextraction backlog is serial. Dedicated capacity"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-cyble-demo-improvements-29e176",
+    "session": "ce4bfb82-cde",
+    "text": "With the holdback list empty, the case that actually bites today is a product carrying **no SKU at all** in its golden record. Seven of Cyble's 27 catalog rows have none, including `cyble-vision`, the"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-skypilot-crypto-mining-revenue-7f3708",
+    "session": "1a2b5f46-258",
+    "text": "The credits are worth 30 to 100 times more running inference than running a miner.\n\nSources: [RedSwitches 2026 GPU mining guide](https://www.redswitches.com/blog/best-gpus-for-mining-in-2026/), [WhatT"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vercel-startup-credits-d03962",
+    "session": "95888a06-54c",
+    "text": "**The build-CPU story was invented.** The `ignoreCommand` misfiring, bot commits triggering rebuilds across projects, the 04:30 edge-snapshot \u2014 I looked at zero deployments. I took repo details I al"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-offline-model-experiment-0fd51d",
+    "session": "839a2ea9-419",
+    "text": "All three tuning at 13:16 UTC. Singapore got a GPU within two minutes of submission, Europe has been tuning 33 minutes, Gemini 5 hours. No checkpoint from any yet. Waiting."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "e7865a7e-e31",
+    "text": "A GPU spot exchange and a healthcare pricing exchange are category-scale, and both are timing-dependent in exactly the way the filter demanded \u2014 mandated rate transparency is recent, and fragmented "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-shaped-prospect-list-87d52f",
+    "session": "35319985-cbe",
+    "text": "**Dedicated GPU rental** (Latitude.sh, Hetzner H100 / GH200, Runpod Secure Cloud, AWS EC2 G6e via Antler Activate) \u2014 we control the box; provider cannot read prompts or completions. Alternative prim"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "-- which is a day of a lane doing nothing on an unattended box. It\n     -- happened twice during the 2026-08-19 rollout and both times a human\n     -- had to requeue by hand. The heartbeat is written "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vertex-ai-cost-anomaly-259ad2",
+    "session": "7ce37a50-797",
+    "text": "This email is exactly the class of thing the repo's cost walls exist for \u2014 let me check what actually ran on Vertex around Aug 10 before answering, because the answer depends on **which SKU** caused"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-skypilot-skill-creation-c7c5fe",
+    "session": "2e8a96f2-e7c",
+    "text": "3   -     spec-fill-3   1x[A100:1][Spot]  20 mins ago  20m 33s        18m 46s       0            RUNNING   -         -     \n2   -     spec-fill-2   1x[A100:1][Spot]  21 mins ago  21m 43s        20m 2s"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-serene-chandrasekhar-395072",
+    "session": "544e808e-a79",
+    "text": "The spend tripwire that started this is green (`exit 0`, `$17.21 / $50.00`), the two stranded runs from this morning are priced and visible, and every consumer that halts on it \u2014 including the resea"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-epic-dirac-9beef1",
+    "session": "9a73cfa7-65d",
+    "text": "tuning returns a hosted adapter and bills hosting by the hour. Azure ML needs the same GPU\nquota ticket that stalled the H100. Azure stays the judge.\n\n```mermaid\nflowchart LR\n  A[(MerchantPageChunk<br"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-benchmarking-openai-azure-credits-b794e9",
+    "session": "ac1eb58f-e1b",
+    "text": "Two things shipped today, plus the decisions that led there.\n\n**The problem.** The OpenAI org that runs our ChatGPT benchmark hit zero credits ($7,000 in grants used up, ~$1,066 a month at the measure"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-demo-prep-closures-4e6a7b",
+    "session": "defb108c-698",
+    "text": "Sysadmin Day\", \"Printer keeps getting stuck\" \u2014 which would then be asked to\nChatGPT/Gemini and scored for brand presence. Benchmarking those measures\nnothing, and the resulting SOV would have gone t"
+   }
+  ]
+ },
+ {
+  "query": "the field that wipes the accuracy column when products are re-imported",
+  "expect_project": "distracted-ramanujan",
+  "expect_session": "7e8cf683",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-skypilot-workflow-exploration-c875cd",
+    "session": "55f50ebc-e2c",
+    "text": "- `scripts/spec-fill/import_results.py:181` Importer purges valid prior receipts when a rerun model output has no kept fields\n\n## Product review (advisory)\n\n_n/a \u2014 focused blocker verification only."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dos-zone-games-browser-8fcebc",
+    "session": "10beb384-184",
+    "text": "* `bootstrap_vendor_catalog.py` REPLACES `sources` on re-import, which would\n  * silently wipe backfilled receipt entries \u2014 that wipe is exactly what reds\n  * this gate.\n  */\n export const FLOORS: R"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-frosty-hodgkin-52b636",
+    "session": "86f97205-aae",
+    "text": "Root cause this guards: the column is populated only by `scripts.specs.extract`\n(no cron writer), and a re-import can null it (cf. the \"NEVER include\ndecisionPack in product.update()\" column-wipe gotc"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-quirky-lamport-aec6a7",
+    "session": "13418325-52f",
+    "text": "\u25cf buildProductData \u203a still maps the core Shopify fields\n  \u25cf syncMerchantProducts publish filter \u203a imports only the publicly-live product\n  \u25cf syncMerchantProducts publish filter \u203a soft-dele"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-airshelf-mcp-publishing-a03c4c",
+    "session": "8cec2dcf-e1c",
+    "text": "Two new tests pin the regression scenario, an unverified row with a higher import score losing to a claim-backed one, and the deliberate choice that a cheaper unverified row does not beat a receipted "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-catalog-count-mcp-pitch-85b877",
+    "session": "89894204-e36",
+    "text": "`get_product` returns field keys verbatim to buyers, so that's a customer-visible label change, not data hygiene. It goes out on a quiet day described as what it is.\n\nI'll report the sweep when it fin"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nvidia-inception-approval-1004d0",
+    "session": "8cb91e47-c81",
+    "text": "| Arbitrary source URLs treated as datasheet truth | `fields.py:authoritative_source` requires the manufacturer's own host or a certification registry. Real rows it now rejects: `copiersonsale.com` fo"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "My reconciliation query only counted inserts, because the upsert refreshes `updatedAt` but not `scrapedAt`. Re-measured, the counts are accurate \u2014 sharp 75 of 75, fuji-xerox 29 of 29, oki 25 of 25.\n"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vibrant-galileo-fb1a28",
+    "session": "bb2c237f-655",
+    "text": "old US imports, inflating the product count and diluting field fill by 18\n  points. Anchor rows now need AU host + the quality floor.\n\nBrand denominators are explicit and sourced, including two brands"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-happy-nash-63ebb5",
+    "session": "fbf30fc5-143",
+    "text": "Only import products that are ACTIVE **and** published to the online store (`onlineStoreUrl` non-null), and soft-delete ones that become unpublished.\n\nVerification available: a live read-only Shopify "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gracious-bohr-652c00",
+    "session": "0295c753-ac4",
+    "text": "680:| `AccuracyRun` | The Accuracy pillar's immutable truth snapshot + measurement, per audit. `runIdentity @unique` makes measurement retry-safe by identity; `truthSnapshot`/`truthSnapshotHash` freez"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "Re-run properly, targeting line 359 with an explicit assertion that the feed actually changed:\n\n| Mutation | `product_detail` produced | Gate |\n|---|---|---|\n| `pdp_slug` dropped | keys absent | exit "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nervous-bhabha-b3d339",
+    "session": "77cb4d4e-9c8",
+    "text": "**Two rules, and the second one is why the first stays clean.** (1) The data check above. (2) A source check, `writers_missing_resolver()`: every file that INSERTs a `CatalogProduct` must CALL `resolv"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-shopify-multi-category-golden-record-1b6476",
+    "session": "655eac26-f42",
+    "text": "scrape_country: au        # optional; routes the Bright Data exit node\nproducts:\n  - category: <category-slug>\n    model_name: <Name>\n    datasheet_url: https://vendor.com/products/<sku>\n    product_p"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-score-pages-funnel-map-00d6f8",
+    "session": "0ea5a1b2-dca",
+    "text": "The scan already fetches their product pages and parses Product JSON-LD; it just throws the *values* away and keeps the field names. Two small changes (ask one product-specific question; keep the pric"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dominos-technical-questions-96ebe1",
+    "session": "ffe48f64-c5e",
+    "text": "IDENTITY_RECEIPT_NOTE,\n  projectCatalogGoldenRecord,\n} from '@/lib/catalog/field-trust';\nimport { reconcileSourcedSpecs } from '@/lib/specs/reconcile';\nimport { projectCommercialObservation } from '@/"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-elegant-noyce-5ecfde",
+    "session": "635f3a7c-de7",
+    "text": "**`CatalogProduct.specs` is a derived column owned by `scripts/specs/extract.py`** \u2014 it rewrites every row from the spec vocabulary and empties it for categories that have none. It wiped my receipts"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-sweet-satoshi-b32700",
+    "session": "19edf204-dbf",
+    "text": "Prod-faithful now: `mpn` and `global_code` match **zero** rows \u2014 the old list effectively knew only `manufacturer_part_number`. Rewriting fixtures to mirror prod exactly."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-korea-demo-lg-ingestion-901557",
+    "session": "7742f1f4-cda",
+    "text": "import { spawn } from 'node:child_process'\nimport { randomUUID } from 'node:crypto'\nimport {\n  AccuracyRunStatus,\n  AccuracyVerdict,\n  Prisma,\n} from '@prisma/client'\nimport { prisma } from '@/lib/db'"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competitor-feature-analysis-5e1922",
+    "session": "f28a1c2f-f66",
+    "text": "- **Schema Mapping**: Normalizes data to user-defined schemas rather than supplier formats\n- **Quality Scoring**: \"Every SKU carries quality scores. Gaps, conflicts, and low-confidence values are flag"
+   }
+  ]
+ },
+ {
+  "query": "why most of our merges went out by override instead of a real approval",
+  "expect_project": "lucid-shaw",
+  "expect_session": "7a6462d7",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-admin-merge-pr-workflow-3832ce",
+    "session": "ea11169e-6f1",
+    "text": "## Why\n\nThe gate almost never opens on its own, so admin merge is the only exit.\n\nOf your last 100 merged PRs, 58 had no approving review at all. Those are the ones you clicked through. The reason is "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dos-zone-games-browser-8fcebc",
+    "session": "10beb384-184",
+    "text": "All green and approved on its own, so no override. Merging."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-pr-merge-process-8abc3a",
+    "session": "3371e5e3-e2b",
+    "text": "Looked at your last 30 merged PRs plus the approver workflow. 13 of 30 were merged by hand. Of the ten I checked, they split into three causes, and only one of them is real.\n\n## What's actually happen"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ui-fixes-markdown-format-a50c03",
+    "session": "116f8c5b-76f",
+    "text": "Three things you should know about how this merged:\n\n**I used `--admin` to bypass branch protection.** The normal merge was refused for `required review not yet approved`. The graph bot had completed "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-quizzical-roentgen-74e6e5",
+    "session": "6096eec2-f8d",
+    "text": "**The merge used admin override.** `graph-approve` withheld auto-approval because the PR edits `.github/workflows/`, which it treats as the review surface. The review itself was clean \u2014 0 findings o"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-shopify-agentic-catalog-357e4c",
+    "session": "2d19491d-c7d",
+    "text": "It already merged \u2014 auto-merge fired once graph-review approved and the checks went green."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-relaxed-mendeleev-bc3986",
+    "session": "c7cb12b1-cfc",
+    "text": "Normal merge is blocked by the approval requirement. Using admin merge, which is the only path here."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-learning-definition-history-186f97",
+    "session": "18fb26c2-540",
+    "text": "The merge bypassed only the approval, which was withheld for a mechanical reason rather than an unresolved finding: `cap_clean` reads the last complete review, and that was a stale pass against the pr"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-cyble-demo-improvements-29e176",
+    "session": "ce4bfb82-cde",
+    "text": "I did not merge. The approvals are not there.\n\nBoth PRs still read `REVIEW_REQUIRED` with zero reviews recorded. I checked the reviews API directly, not just the summary field, and both return `none`."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-bold-goodall-7ff29b",
+    "session": "d78a008e-38a",
+    "text": "It'll merge cleanly if you approve it soon; leave it a day and I expect another conflict."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-loving-germain-ba48fd",
+    "session": "b5b930ff-6ee",
+    "text": "I read your instruction as bypassing the *approval* block, not the *checks*, so I pushed the rebase and merged once all 10 were green on the exact tree that landed. That wait also earned the clean rev"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-scan-5xx-errors-f06205",
+    "session": "3d322a7e-907",
+    "text": "Graph review came back clean: **zero findings, blocker-free**, and it auto-approved. All 15 checks green, 4 skipped.\n\nThat created the risk I'd guarded against \u2014 an approved, fully green PR sitting "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-fuse-logs-naming-convention-d49ac4",
+    "session": "69c0759e-ec7",
+    "text": "I deliberately did not push. The cap notice warned that a commit here dismisses the existing approval and moves the PR away from merge, and its trailing \"push a fix\" line is the boilerplate footer it "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dominos-technical-questions-96ebe1",
+    "session": "ffe48f64-c5e",
+    "text": "That merge commit is a new head, so the clean-cap approval from the previous head no longer applies and the graph review lane gets another pass. That was unavoidable, since the alternative was leaving"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-serene-chandrasekhar-395072",
+    "session": "544e808e-a79",
+    "text": "Approved, zero failures, 10 checks still running. Auto-merge is armed, so it lands on its own when they finish. My watcher is still active and I'll confirm the merge."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-silly-chaum-18e116",
+    "session": "490c76aa-770",
+    "text": "I'm stopping short of the merge, and I want to be direct about why.\n\n**Every check is green** \u2014 all 7 required contexts, plus `graph-review`, `fallow-audit`, all Vercel projects. Nothing failing, no"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-notification-webhook-loop-7cf6b3",
+    "session": "487608b2-1a8",
+    "text": "approve and merge it"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "**The one thing blocking merge: a human approval.** The graph-review lane hit its cap (two reviews ran, both blocker-free), and after-cap pushes require a human to approve \u2014 my review-batch push dis"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-eis-reports-backport-ac663e",
+    "session": "215f3803-a80",
+    "text": "Auto-merge is armed, so approval + green checks completes the merge; I won't push anything further unless a check genuinely fails (a new push would dismiss your approval).\n\nIf CI on `fd5576f` goes red"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-build-error-main-84a445",
+    "session": "47beb7ba-37a",
+    "text": "Auto-merge is armed and every check is green or still running with zero failures, so it'll merge the moment you approve:\n\n```bash\ngh pr review 1346 --repo airshelf/airshelf --approve\n```"
+   }
+  ]
+ },
+ {
+  "query": "why a printer question showed up on a display product page",
+  "expect_project": "jovial-greider",
+  "expect_session": "545b2789",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-business-value-strategy-863eda",
+    "session": "635f3612-7aa",
+    "text": "This feature only needs lease ranges on seven MFP PDPs and their category listing; these unrelated snapshot mutations publish product advice outside that scope.\n  - Failure: A buyer searches \u201cbest p"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "1f32f73d-c61",
+    "text": "Bare \"printer\" falls through to the `laser-printer` rule, so the query was *routed* to laser \u2014 and every photo machine we own (SELPHY CP1500, PIXMA, imagePROGRAF PRO) lives in `inkjet-printer` and w"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "8e14b70f-315",
+    "text": "Bare \"printer\" falls through to the `laser-printer` rule, so the query was *routed* to laser \u2014 and every photo machine we own (SELPHY CP1500, PIXMA, imagePROGRAF PRO) lives in `inkjet-printer` and w"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-jovial-greider-a60ea9",
+    "session": "545b2789-153",
+    "text": "This feature only needs lease ranges on seven MFP PDPs and their category listing; these unrelated snapshot mutations publish product advice outside that scope.\n  - Failure: A buyer searches \u201cbest p"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vigilant-euler-810349",
+    "session": "60bf0f19-155",
+    "text": "So they are accessories and consumables filed under printer categories \u2014 correctly invisible as\nproducts, but they inflate any \"printers we have\" count taken from a category filter. `hp/\nofficejet-p"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-airshelf-mcp-publishing-a03c4c",
+    "session": "8cec2dcf-e1c",
+    "text": "Only two printer brands have a merchant who can answer:\n\n- HP, 323 printers, ACTIVE\n- Toshiba, 251 printers, ACTIVE\n- everything else has nobody: Epson 391, Xerox 232, Canon 202, Brother 182, Ricoh 13"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-relaxed-mendeleev-bc3986",
+    "session": "c7cb12b1-cfc",
+    "text": "and one of the PDPs it links to fetched and confirmed 200.\n\n| Vendor | Was | Now |\n|---|---|---|\n| Brother | `/products/categoryList/*` \u2014 9 URLs, all 404 | `/c/shop/printers/*`, 15 PDPs a page |\n| K"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-aa6235",
+    "text": "Two of the three \"historical\" sample questions (`\"Which printer has the lowest power consumption for an office?\"`, `\"How much does a 40 ppm colour printer cost?\"`) are generic office-copier questions "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-offline-model-experiment-0fd51d",
+    "session": "839a2ea9-419",
+    "text": "Q: i need a fast scan and printing MFD || It picked a specific model and gave product details instead of asking a clarifying question abo\nQ: BV420D vs BV410D (4-inch vs 2-inch width) || It invents ide"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-quirky-tu-90db33",
+    "session": "5642e53e-f2f",
+    "text": "This doc diagnoses why by diffing the cited pages against ours, and ships the minimal fix:\nan answer-first spec block generated into the PDP body for 5 target machines, published through the\nnormal `A"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-commerce-agents-opportunities-c1332e",
+    "session": "5b2fb6af-083",
+    "text": "The model asked for `category=\"Printers & Scanners\"` with `attributes={\"dpi\": \"600\"}`. The catalog knows only its own category slugs and spec vocabulary, so both searches returned nothing and the agen"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-multi-agent-workflows-c1215e",
+    "session": "7c078c26-e9d",
+    "text": "### Raised by four readers\n### Raised by three readers\n### Raised by two readers\n----\n### (a) A sentence or completed field could answer honestly\n\nThese are owner decisions, definitions, or declared r"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "Two different machines on two different timelines, stacked. Worth fixing when you want it.\n\n## The useful discovery\n\nThat per-store row saying phomemo wrote 92 products with proof contradicted what I "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "category              | questionType | count \n-----------------------------------+--------------+-------\n office printer lease Australia    | generic      |    65\n Barcode Label Printers            | "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-score-pages-funnel-map-00d6f8",
+    "session": "14224d90-d56",
+    "text": "Your questions have been answered: \"What should the email actually buy?\"=\"The specifics, not more proof (Recommended)\" selected preview:\nFREE\n  50/100 \u00b7 1% cited \u00b7 who AI quotes instead\n  \u2192 you ha"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-device-expert-30day-bet-c07d51",
+    "session": "238e56d2-6e3",
+    "text": "answer: You can usually remove the prompt either by disabling Department Code Management in the device administrator settings, or by saving the authorised code in the printer driver if the control is "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "Two of the three \"historical\" sample questions (`\"Which printer has the lowest power consumption for an office?\"`, `\"How much does a 40 ppm colour printer cost?\"`) are generic office-copier questions "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-epic-dirac-9beef1",
+    "session": "9a73cfa7-65d",
+    "text": "it, every answer traceable to a page?\" && \\\nE add --text \"A. OEM SDK/chip for printers and MFPs (HP, Toshiba, Kyocera, Ricoh): the manual-bound model runs on the device's own ARM board and answers fro"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-agitated-euclid-6e40dc",
+    "session": "8cfa1fd8-c71",
+    "text": "| Interactive flat panels | 10 questions, all classroom/education or size+price. |\n| Print management / MFP software | **0 questions.** 9 catalog products uncovered. |\n| \"Photocopier\" (the AU colloqui"
+   },
+   {
+    "project": "wf_d8cccb8d-dec",
+    "session": "agent-ab2003",
+    "text": "\\\"parsed\\\": {\\n    \\\"category\\\": \\\"laser-printer\\\",\\\n\n### P17b_hostile_spec_keys  http=200  1.2s  bytes=4849\n   {   \"query\": \"printer\",   \"tier3\": {     \"tier\": 3,     \"status\": \"declined\",     \"reaso"
+   }
+  ]
+ },
+ {
+  "query": "the advisor who wants a real sales number before the case study",
+  "expect_project": "toshiba-case-study-sales",
+  "expect_session": "f5d9be5c",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-case-study-sales-1b556f",
+    "session": "f5d9be5c-54f",
+    "text": "If you can get him to put a figure on it, even directionally, that's a much stronger line to lead with.\n\nHappy to help rework the case study once you've got numbers back from Toshiba. Just don't want "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-business-value-strategy-863eda",
+    "session": "3e20e2ad-054",
+    "text": "The OEM's verified product truth. Specs with receipts. Only the OEM can bless it.\n2. The dealer's real price. Dated, per city, per model. Only the dealer can lawfully publish it, and OEMs are forbidde"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ai-traffic-measurement-a25aff",
+    "session": "06fb1cc9-b1e",
+    "text": "can you check the real sales leads vs test and if it's worth to mention"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "34f1749a-f88",
+    "text": "That is the failure mode that kills concierge companies, and it is invisible while it feels like success.\n\nI would write those three numbers down before the first buyer conversation, not after.\n\nOne l"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "The substantive work still queued behind it: **one real $10 test purchase**, then filtering the 176 prospects to the ~30-50 the instrument measures honestly, then outreach leading with each one's actu"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-score-pages-funnel-map-00d6f8",
+    "session": "daa02d98-3d4",
+    "text": "| Label | Value | Question |\n  |---|---|---|\n  | Agent-ready | `58 / 100` | Can AI agents read and transact with you? |\n  | Asked by name | `2 of 3` | Do you show up when buyers ask about your brand? "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-demo-prep-closures-4e6a7b",
+    "session": "defb108c-698",
+    "text": "It is the one with a real, addressable gap and a story that survives\ncontact with the customer. Brother is worth a conversation only if they bite on accuracy \u2014 and\nthat conversation needs their cata"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "1f32f73d-c61",
+    "text": "That is the failure mode that kills concierge companies, and it is invisible while it feels like success.\n\nI would write those three numbers down before the first buyer conversation, not after.\n\nOne l"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-eloquent-mayer-ff910c",
+    "session": "2d85e5b9-324",
+    "text": "Real volumes remove the padding. The same numbers also produce our whole pitch. Ghost volume and the debt shadow are computed FROM the meter data. Skip the step and we degrade into generic quote-shopp"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "66234137-ff1",
+    "text": "That's a real test and it costs hours.\n\nAsking Toshiba what happened to eight leads tests something better: whether what we already deliver produces revenue for a customer who already pays us. Same co"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-musing-raman-7a1c6f",
+    "session": "1975c818-3fe",
+    "text": "141 prospects in one state, and no buyer asked to pay yet. Big problem now, unproven business now. That gap is what the concierge test exists to close.\n\nWant the two remaining angles? The mechanism ha"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-exciting-lederberg-15eb31",
+    "session": "0fc292d5-34c",
+    "text": "Draft a priced prepayment ask for a multi-brand industrial-automation distributor, using the codex lane's verified catalog sample as the offer. Context: the extension thesis (docs/strategy/2026-06-06-"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "So question coverage \u2014 not content capacity \u2014 is the binding constraint, exactly as you said.\n\nOn the second half (traffic/leads as the sellable): the 2026-08-03 decision doc already settled the h"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-epic-dirac-9beef1",
+    "session": "9a73cfa7-65d",
+    "text": "**Three conversations to book.**\n\n1. Toshiba Business Australia, the person who owns service escalations. Ask for one\n   product family, a frozen set of about 150 real dealer questions, and a paid 90-"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-path-to-1m-arr-116baf",
+    "session": "fbf7d003-892",
+    "text": "B[\"Lead-capture agent<br/>live at Cyble + Toshiba, 0 leads on Black Box\"]\n    C[\"ACO sealed quote<br/>live with Cyble\"]\n    A --> B --> C\n  end\n  CS --> CRM[\"CRM draft\"]\n  C --> CRM\n  CRM -.->|\"resear"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-north-star-metrics-75850e",
+    "session": "6b1e93de-8ed",
+    "text": "Toshiba has 4 real leads in 30 days, but `QUALIFIED` just means the form was filled, and none of the 494 conversations carry an AI referrer while GA4 shows 258 AI-assistant sessions in the same window"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ao-content-sales-strategy-f0b4e6",
+    "session": "6ac5ebf4-11c",
+    "text": "One sentence fixes it: lead with 73/2,210, then \"on the single question where you appear most, you're named in 45% of answers \u2014 and cited zero times.\"\n\n**2. The anonymous \"global electronics custome"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-airshelf-demand-engine-c1d27a",
+    "session": "2aebf4c3-ee2",
+    "text": "A[\"Answer<br/>28 articles live for Black Box\"]\n    B[\"Lead-capture agent<br/>live at Cyble + Toshiba, 0 leads on Black Box\"]\n    C[\"ACO sealed quote<br/>live with Cyble\"]\n    A --> B --> C\n  end\n  CS "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-peakro-ai-overview-ec7f47",
+    "session": "e6daecc6-0b6",
+    "text": "Ask two dealers whether e-automate or GreatAmerica already tells them the lease-end date. If yes, the radar stays an internal sales aid for Toshiba AU and nothing more. The one idea still worth a conv"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-multi-agent-workflows-c1215e",
+    "session": "7c078c26-e9d",
+    "text": "If the dossier leads with a real buyable pan, the buyer panel faces its first honest chance to move off 0/5 since baseline \u2014 and whatever they say, the loop's next move writes itself from their word"
+   }
+  ]
+ },
+ {
+  "query": "the scary metric that turned out to be a measurement artifact",
+  "expect_project": "mainson-mugen-gmc-rankings",
+  "expect_session": "67b354ee",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "There's a sharper reason in our own files: `learnings/maison-gemini-blindspot.md` is a worked example of a scary Maison metric that turned out to be a **measurement artifact** from exactly this kind o"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "Your scar: you once shipped a public before/after\ncomparison where the \"before\" was measured on one question set and the \"after\" on a different\none \u2014 a customer's analyst caught it, the claim had to"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-frosty-hodgkin-52b636",
+    "session": "86f97205-aae",
+    "text": "Not a measurement agreeing with the thing measured, but a **consumer agreeing with a producer's bug** \u2014 reader and writer aligned by accident rather than by contract.\n\n## My rule was wrong\n\nI'd sugg"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "1f32f73d-c61",
+    "text": "risk map widened from measurement\nTests:       1 failed, 411 passed, 412 total"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "8e14b70f-315",
+    "text": "risk map widened from measurement\nTests:       1 failed, 411 passed, 412 total"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-model-benchmark-measurement-9b6974",
+    "session": "8bc7fe6e-621",
+    "text": "Both measurement mysteries closed and committed ([799a2d0](https://github.com/airshelf/airshelf/commit/799a2d081b3adacfb0ad9ed9ab75adb4b0343f1c)):\n\n1. The 44-vs-55 gap was never a bug. [PR #1852](http"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-admiring-edison-8baed0",
+    "session": "b47dd72b-096",
+    "text": "The measurement and the thing it measured failed together, which is why nothing alerted for a week.\n- **`scripts/ax-claim-ping.ts`** could never contact a domain scanned after 2026-07-22 \u2014 i.e. exac"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a8438f",
+    "text": "comparison where the \"before\" was measured on one question set and the \"after\" on a different\none \u2014 a customer's analyst caught it, the claim had to be retracted, and your VP ate the\napology call. S"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-learning-definition-history-186f97",
+    "session": "18fb26c2-540",
+    "text": "It inherited that shape by accident from the 2026-01-12 CLAUDE.md size cleanup, which kept the production-critical items inline and dumped the rest into `learnings/`. The files drifted past that shape"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-multi-agent-workflows-c1215e",
+    "session": "5833046b-f6e",
+    "text": "The real number in production was **117**.\n\nThe measurement built its input like this:\n\n    prov = dict(fact); prov[\"source_type\"] = \"catalog\"     # copies source/sources across\n\nThe pipeline does not"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "0a6881ce-439",
+    "text": "measurement and 41% reject third-party AI metrics. Both attack the same assumption: that\nAI visibility converts, and that a ve"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nvidia-inception-approval-1004d0",
+    "session": "8cb91e47-c81",
+    "text": "Balanced on totals it gave val 28 wrong claims, which is not a measurement of the only metric this model exists for.\n\n## Residual error\n\nFive surviving INCORRECT read by hand: four genuine, one a prop"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "Worth naming the meta-lesson, because it's the same discipline the bench itself taught us: **the measurement instrument needs the same hygiene as the thing measured.** Session reuse in a QA harness is"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-catalog-count-mcp-pitch-85b877",
+    "session": "89894204-e36",
+    "text": "That's the real answer, and the brand metric is flattering it badly. Let me measure it honestly:"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-score-pages-funnel-map-00d6f8",
+    "session": "14224d90-d56",
+    "text": "It explains why 25% on structured output matters more than 0% on protocols, which is otherwise counterintuitive. But it's also jargon, and it exposes our rubric internals to a stranger.\n\nThe gate's fo"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-elegant-noyce-5ecfde",
+    "session": "635f3a7c-de7",
+    "text": "Codex stayed in scope and mutation-tested its own guard. Now my adversarial review \u2014 the metric's integrity rests entirely on `not_published` being unfakeable:"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-demo-prep-closures-4e6a7b",
+    "session": "defb108c-698",
+    "text": "Now it's clear, and it's a failure of my own approach:\n\n| cohort | answers | mentions | **mention rate** | answers citing own domain |\n|---|---|---|---|---|\n| curated 36 | 36 | 25 | **69.4%** | 6 |\n| "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-north-star-metrics-75850e",
+    "session": "6b1e93de-8ed",
+    "text": "Same class as Defect 2 in the spec I just wrote: changing how a metric is produced makes every judgement of it stale, not just the metric. I left the options on the PR, cheapest being to just document"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-hermes-self-improvement-loop-7654d5",
+    "session": "3a2939d1-f65",
+    "text": "Someone spent real time measuring 1711 of 3415, and a summary doesn't replace it. My prompt told the loop to keep entries concise, and it followed that instruction straight into deleting evidence. My "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dos-zone-games-browser-8fcebc",
+    "session": "10beb384-184",
+    "text": "The pattern that kept working was calling the live API instead of reasoning about the code, which caught a wrong measurement, a five-times-slower regression, and now a ranking failure that no test wou"
+   }
+  ]
+ },
+ {
+  "query": "how we got Microsoft's assistant into the benchmark without any free credits",
+  "expect_project": "copilot-benchmarking-surface",
+  "expect_session": "8c420468",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-copilot-benchmarking-surface-121b0a",
+    "session": "8c420468-2b4",
+    "text": "we need to add copilot as benchmarking surface. do we have free credits for it"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-objective-gates-eefb9b",
+    "session": "3bdd13ae-85c",
+    "text": "On Azure it now runs on sponsored credits, so it costs nothing in cash.\n\nTo make it free by construction you would have to either run a small embedding model yourself on box and re-embed all 4,518 pro"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-benchmarking-openai-azure-credits-b794e9",
+    "session": "ac1eb58f-e1b",
+    "text": "I think we need to switch our benchmarking from OpenAI credits to the Azure credits. And can you check how much OpenAI credits we still have left?"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-musing-curie-792434",
+    "session": "572aa71c-f9d",
+    "text": "Investigation done. The number is real, there's no cheaper API, and the urgent problem is this Saturday.\n\n## What the $70 was\n\nMicrosoft meters Work IQ per answer: ~25 credits (~$0.25) each \u2014 genera"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ai-credits-quota-exhausted-c0955c",
+    "session": "522fa470-824",
+    "text": "First real run, Sept 1 2026: Toshiba only, 279 questions \u2192 **7,009 credits = $70.09**\n(`Microsoft Copilot Studio / Pay As You Go Copilot Credit`, $0.01/credit, on Azure\nsubscription 1). That is **~2"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-smu-partnership-66c368",
+    "session": "9e0afd7d-ba7",
+    "text": "A well-scoped, publishable benchmark artifact for students, with our pipeline as the substrate.\n\nWhat we bring: multi-provider AI-answer data (share-of-voice time series, roughly 500k citation records"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "But I think the AI studio is also on free credits. That's the thing. Like, the current benchmarking."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-azure-gcp-spend-31361b",
+    "session": "484ba6b7-1ba",
+    "text": "**`MS Bing Services / Grounding with Bing - Search`, $14 per 1,000 searches** \u2014 and Bing\nis the ONE meter on the airshelf Sponsorship with `isAzureCreditEligible: false`. It ran\n$90.01 of real cash "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-bright-data-costs-compare-51ea0d",
+    "session": "117429de-e35",
+    "text": "First real run, Sept 1 2026: Toshiba only, 279 questions \u2192 **7,009 credits = $70.09**\n(`Microsoft Copilot Studio / Pay As You Go Copilot Credit`, $0.01/credit, on Azure\nsubscription 1). That is **~2"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-business-value-strategy-863eda",
+    "session": "635f3612-7aa",
+    "text": "What the assistant literally answers on a cost question bash -c 'source .env.prod && psql \"$DIRECT_DATABASE_URL\" -At -c \"\nselect regexp_replace(left(r.\\\"responseText\\\", 2200), E'\"'\"'\\\\n+'\"'\"', '\"'\"' '"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-gemini-spend-5ba093",
+    "session": "ec9d53bf-bd7",
+    "text": "Microsoft prices credits at $0.01 and comparable Copilot answers meter at 1\u20132 credits, so I'll quote both."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "GCP is what runs the live benchmark's AI calls.\n\nWhen a visitor clicks \"Run a live check,\" we ask Gemini ~5 buyer questions with Google Search grounding. We call Gemini **via Vertex AI (Google Cloud)*"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "Worth re-checking in the GCP console before any plan leans on those credits. Not urgent here, since no amount of GCP credit buys AI Overview data.\n\n## One correction on \"instead of Gemini\"\n\nDon't repl"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dominos-technical-questions-96ebe1",
+    "session": "ffe48f64-c5e",
+    "text": "Model calls go to the assistant providers we benchmark (OpenAI, Google, Microsoft, Anthropic) under their API terms, with no personal data in the request.''','''- **Where, precisely.** Data at rest is"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-epic-dirac-9beef1",
+    "session": "9a73cfa7-65d",
+    "text": "Sell the verified training corpus, the manual-bound tuning recipe and the eval harness as a 'no-guess certification' service to OEMs building their own assistants, not the model or the device integrat"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-device-expert-30day-bet-c07d51",
+    "session": "238e56d2-6e3",
+    "text": "Cost: roughly 4x more tool-result tokens per site-search call, on Azure credits.\n\n## Verification\n\n`cd telegram && bun test test/site-search.test.ts test/tools.test.ts` (62 pass), `npx tsc --noEmit -p"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "0a6881ce-439",
+    "text": "| Distribution | Edge delivery, sitemaps, IndexNow, MCP and catalog endpoints so assistants can reach it |\n\n**The benchmark is the targeting system, not the product.** It tells us which guide to write"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nvidia-inception-approval-1004d0",
+    "session": "8cb91e47-c81",
+    "text": "The corpus exists now. [PR #1977](https://github.com/airshelf/airshelf/pull/1977).\n\n## What was built\n\nThree scripts in [scripts/claim-labels/](scripts/claim-labels/README.md). `mine.py` pairs stored "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-summarizer-slack-categorization-4dd53c",
+    "session": "5a661454-eea",
+    "text": "\u25e6 *New* Added Microsoft Copilot as fourth benchmark provider\n```\n\nOne judgment call worth knowing: I made the model drop generated bookkeeping commits entirely rather than tag them `*Docs*`. If you'"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-question-generation-keywords-15649e",
+    "session": "e6696b04-b6a",
+    "text": "`aeo/mine-generic-questions.py` (911 lines) mines in this order: Google Autocomplete (free),\nGoogle People Also Ask (fragile scrape), Reddit post titles (scrape), Gemini expansion. Optional\n`--bing-va"
+   }
+  ]
+ },
+ {
+  "query": "where the half terabyte of database billing was actually coming from",
+  "expect_project": "neon-transfer-spike",
+  "expect_session": "d24d7fea",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-neon-transfer-spike-5647a6",
+    "session": "d24d7fea-516",
+    "text": "Found the likely culprit table: `AssessmentEvidence` is 530 GB of the 536 GB prod DB. Now checking what read it yesterday."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ci-process-slowness-7f520c",
+    "session": "bd27d17e-d9e",
+    "text": "Then per-connection bandwidth, but 4-way parallel gave 1.34x, not 4x.\n\nIt's just moving 567 MB. The table is 408,141 rows, not the ~2,900 the file's own header comment still claims.\n\nWhat actually wor"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dos-zone-games-browser-8fcebc",
+    "session": "10beb384-184",
+    "text": "Found the actual asset. It is 160 GB and nobody can reach it.\n\n## The evidence archive is real\n\n```\n/var/airshelf/catalog     160 GB     937,642 files\n```\n\nContent-addressed by sha256, one file per ra"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-catalog-count-mcp-pitch-85b877",
+    "session": "89894204-e36",
+    "text": "Writing rows to the DB is not the same as serving them \u2014 this is the gap nobody has checked.\n\n## Background\n\nProd `CatalogProduct` grew from 2,882 to ~122,884 rows in one session (branch `claude/cat"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-benchmarking-openai-azure-credits-b794e9",
+    "session": "ac1eb58f-e1b",
+    "text": "And at $1.50 per 1,000 we could run 10\u00d7 the current openai volume (200k records, $293) for less than a third of today's bill, which opens per-country runs for Toshiba AU, Samsung SG and the others.\n\n"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-business-value-strategy-863eda",
+    "session": "635f3612-7aa",
+    "text": "Kyocera and GDS in Toshiba's cost answers, month by month bash -c 'source .env.prod && psql \"$DIRECT_DATABASE_URL\" -At -F\" | \" -c \"\nwith r as (\n  select r.id, r.\\\"createdAt\\\", r.\\\"responseText\\\" t fro"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "Here are the real numbers.\n\n## Azure: $17,562 this month\n\nVirtually all of it is \"Foundry Models\" \u2014 the Azure OpenAI deployment codex runs on ($17,499; the other $63 is Bing). So \"codex is $0\" was o"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-database-connection-collect-prices-0311f4",
+    "session": "b276d72b-13e",
+    "text": "\"**5,449,670 rows / 2,124 MB** in prod with one writer (`lib/citation-bench/logger.ts`) and zero readers, \"\n \"growing ~16k rows/day since 2025-12-01; its only historical consumer, `scripts/backfill-po"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-scan-5xx-errors-f06205",
+    "session": "3d322a7e-907",
+    "text": "**Caveat on the bill you asked for:** the total is console-only, so what I gave you is the workload cost from the live rate card, not the invoice. If you want the actual monthly number I'd need you to"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-skypilot-workflow-exploration-c875cd",
+    "session": "55f50ebc-e2c",
+    "text": "| Joinable to an archive file (evidence_key, URL, or slug in URL) | 238,244 |\n| \u2026whose file is a vendor SITEMAP, so holds no spec | 125,369 |\n| \u2026with their own product page | 36,870 |\n| \u2026reachab"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "1f32f73d-c61",
+    "text": "Then we measured our own database directly, rather than trusting anyone's assumptions about what we hold.\n\nSome of those jobs were deliberately hostile. Six of them were told to kill the idea and not "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "8e14b70f-315",
+    "text": "Then we measured our own database directly, rather than trusting anyone's assumptions about what we hold.\n\nSome of those jobs were deliberately hostile. Six of them were told to kill the idea and not "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-gemini-spend-5ba093",
+    "session": "ec9d53bf-bd7",
+    "text": "There's a `billing_export` BigQuery dataset. Querying August by service and SKU."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vertex-ai-cost-anomaly-974908",
+    "session": "fb18f2e1-14c",
+    "text": "SELECT DATE(usage_start_time) day, sku.description sku,\n         ROUND(SUM(cost),2) gross,\n         ROUND(SUM(cost)+SUM(IFNULL((SELECT SUM(c.amount) FROM UNNEST(credits) c),0)),2) net\n  FROM `inspired"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-azure-gcp-spend-31361b",
+    "session": "484ba6b7-1ba",
+    "text": "dollar figure is machine-verifiable**: Azure `StartupSponsorship $100,000 USD, 2026-07-15 \u2192 2028-07-15`\n(`billingProperty/default`, `quotaId Sponsored_2016-01-01`, no payment method on file).\n\n**Tha"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vertex-ai-cost-anomaly-259ad2",
+    "session": "7ce37a50-797",
+    "text": "So the formula is: 288 checks \u00d7 6 questions \u00d7 ~1.7 attempt inflation \u00d7 ~11 searches/answer \u2248 **30,000 billed search queries**. Grounding is the largest line item on many Vertex bills for exactly "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nvidia-inception-approval-1004d0",
+    "session": "8cb91e47-c81",
+    "text": "dollar figure is machine-verifiable**: Azure `StartupSponsorship $100,000 USD, 2026-07-15 \u2192 2028-07-15`\n(`billingProperty/default`, `quotaId Sponsored_2016-01-01`, no payment method on file).\n\n**Tha"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vercel-budget-alert-6012dd",
+    "session": "08167a83-b37",
+    "text": "Current billing period (Aug 7 - Sep 5), ON-DEMAND only: $266.40\n  $  252.08  94.6%  Build CPU Minutes\n  $    4.48   1.7%  Fluid Provisioned Memory\n  $    4.39   1.6%  Observability Events\n  $    2.37 "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-aeo-aco-brand-scorecards-8751c4",
+    "session": "8d045ada-edf",
+    "text": "What exactly got cited on Samsung's edge bash -c 'source .env.prod && psql \"$DIRECT_DATABASE_URL\" -c \"\nSELECT b.\\\"createdAt\\\"::date, b.\\\"aiProvider\\\", c.url\nFROM \\\"Citation\\\" c\nJOIN \\\"AiResponse\\\" ar "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-sibel-visibility-context-71e0f5",
+    "session": "f71c8bbc-85e",
+    "text": "Who gets cited on Cyble cost queries cat > /tmp/cy22.sql <<'SQL'\n\\pset pager off\nwith resp as (\n  select r.id, r.query, r.\"responseText\" rt from \"AiResponse\" r join \"BenchRun\" b on b.id=r.\"benchRunId\""
+   }
+  ]
+ },
+ {
+  "query": "the page that died on load because the database client shipped to the browser",
+  "expect_project": "ai-shelf-share-crash",
+  "expect_session": "a2d77493",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ai-shelf-share-crash-00b1bd",
+    "session": "a2d77493-2c9",
+    "text": "That module also imports `getQueryCoverageData`,\n  which imports `prisma` from `@/lib/db`. A value import compiles to a runtime\n  require of the WHOLE module, so webpack bundled the Prisma singleton f"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-infallible-lalande-d37c92",
+    "session": "85133ac0-0df",
+    "text": "`WorkerLog` dropped as genuinely dead, `MerchantPage` correctly left alone and now declared in a rebased PR, prod was clean of both, and no dev gate was built \u2014 the reasoning for that last call is o"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "So the honest status: **built, merged, deployed, and rendering real data \u2014 but I have not seen it load in a browser at the production URL while signed in as a super admin.** That's the one step I ca"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-build-error-main-84a445",
+    "session": "47beb7ba-37a",
+    "text": "Because production builds run `prisma db push` without `--accept-data-loss`, every deploy since then died on the data-loss warning \u2014 six in a row, including the daily loop decision log, the edge sna"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-access-logs-usage-review-b74811",
+    "session": "b5c7a2dd-e7f",
+    "text": "This means any developer running `prisma db push` on dev either destroys 5.4M rows or has to work around it with manual ALTER statements (which is what happened on 2026-09-02 while adding AiCrawlerHit"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "Progress that's real this time: **zero browser errors** in the live run \u2014 no socket failure, no EROFS, no missing Chromium. All four layers are cleared.\n\nStill zero successful browser fetches, but t"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-commerce-agents-opportunities-c1332e",
+    "session": "5b2fb6af-083",
+    "text": "236:**The same cold-start also aborts build-time prerender.** A page with `generateStaticParams` + a bare `prisma.*` call runs its DB query during `next build` \"Generating static pages\"; a cold **pool"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mystifying-hugle-0534ac",
+    "session": "89dc6187-9b5",
+    "text": "Prod carries `links` (BASE TABLE, 0 rows) and `page_links` (a VIEW over it), neither declared in `prisma/schema.prisma`. Because `links` is empty, the gate printed `empty table \"links\" \u2014 next deploy"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-catalog-count-mcp-pitch-85b877",
+    "session": "89894204-e36",
+    "text": "abb1 died silently after reading its sitemaps. Relaunching all five shards at a modest limit \u2014 smaller runs are more robust than one giant one."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-unruffled-lamport-c82c52",
+    "session": "ccda169f-aa8",
+    "text": "The table `links` was EMPTY, but the view `page_links` depended on it, so `prisma db push` failed with:\n\n    ERROR: cannot drop table links because other objects depend on it\n    DETAIL: view page_lin"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-chatbot-expansion-567682",
+    "session": "d3c6dadf-9ce",
+    "text": "Your model is only in `claude/toshiba-chatbot-expansion-567682`, so from main's schema it reads as a stray table. Prisma's data-loss wall protects it while it has rows, but `--accept-data-loss` bypass"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-suspicious-cray-6a745f",
+    "session": "9a914409-203",
+    "text": "route.fulfill({ status: 404, contentType: 'text/html', body: '<!doctype html><html><body>Not Found</body></html>' })\n  );\n\n  page.on('console', (m) => console.log(`[${m.type()}] ${m.text()}`));\n  page"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-database-connection-collect-prices-0311f4",
+    "session": "b276d72b-13e",
+    "text": "Push branch and open PR git push -q -u origin claude/database-connection-collect-prices-0311f4 2>&1 | tail -3; gh pr create --title \"fix: drop the write-only WorkerLog sink that raced the lambda freez"
+   },
+   {
+    "project": "-home-eo-src-convstor--claude-worktrees-epic-kirch-c437e3",
+    "session": "2b49e5a2-6b0",
+    "text": "triggerUncaughtException(\n    ^\n\npage.goto: net::ERR_CONNECTION_REFUSED at https://127.0.0.1:5173/e2e/test.html\nCall log:\n  - navigating to \"https://127.0.0.1:5173/e2e/test.html\", waiting until \"load\""
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-etail-conference-landing-c4b64a",
+    "session": "96b610b7-fb9",
+    "text": "CONSOLE: Failed to load resource: the server responded with a status of 400 (Bad Request)\nCONSOLE: Failed to load resource: the server responded with a status of 400 (Bad Request)\nPAGEERROR: ChunkLoad"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dashboard-mcp-interface-eee73b",
+    "session": "253b61a7-3b0",
+    "text": "Running \"LOSS=$(test \"$VERCEL_ENV\" = production || echo --accept-data-loss); npx prisma generate && node scripts/guard-db-push.js && bash scripts/db-push.sh $LOSS && next build\"\nPrisma schema loaded f"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-commerce-agents-blueprint-f284c1",
+    "session": "460a3f00-9b2",
+    "text": "Browser QA of the storefront feature hit this by accident: while the Anthropic org credit balance is exhausted, every widget chat turn on the raw Anthropic path fails with no reply to the visitor and "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-fallout2-ce-browser-port-6a608e",
+    "session": "ad641fc1-440",
+    "text": "| It boots in a browser | runtime initialized, `callMain([])` returned 1, the engine's own no-dat"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-objective-gates-eefb9b",
+    "session": "3bdd13ae-85c",
+    "text": "bash -c 'source .env.prod && psql \"$DIRECT_DATABASE_URL\" -c \"select pg_terminate_backend(24056)\"'\n```\n\nI did not run it. It rolls back one four-day-old catalog insert, and the fleet writer that owns i"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-admiring-edison-8baed0",
+    "session": "b47dd72b-096",
+    "text": "up after 3s\n=== /d/<domain> rendered LOCALLY against PROD DB ===\n  charava.com                        status=200\n  tikitoro.com                       status=200\n  tucokids.com                       st"
+   }
+  ]
+ },
+ {
+  "query": "making every trace follow one naming convention across the lanes",
+  "expect_project": "fuse-logs-naming-convention",
+  "expect_session": "69c0759e",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-fuse-logs-naming-convention-d49ac4",
+    "session": "69c0759e-ec7",
+    "text": "Enforce a Langfuse trace naming convention across all emitters plus a live gate. Convention: trace name = `<lane>:<operation>`, both segments lowercase kebab, exactly one colon, no run ids / timestamp"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a0ef2b",
+    "text": "1\t# Langfuse trace naming convention\n2\t\n3\t**Date:** 2026-08-15\n4\t**Status:** PLANNING\n5\t\n6\t## Summary\n7\t\n8\tLangfuse's Trace Name facet is unusable because three of our five emitters bake run identity "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-hermes-self-improvement-loop-7654d5",
+    "session": "3a2939d1-f65",
+    "text": "--- c63900a40 ---\n+- **Keep Langfuse trace names stable:** use `<lane>:<operation>` and put run identity in `sessionId`, filters in `tags`, and detail in `metadata`; reject names with IDs or timestamp"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-quizzical-roentgen-74e6e5",
+    "session": "6096eec2-f8d",
+    "text": "Every named trace must carry one of the five runtime environments below; missing, `default`, and unknown values breach. Empty names from cancelled traces are skipped and counted. Pagination fails clos"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-adversarial-agent-setup-32b296",
+    "session": "32c4c3d7-f8e",
+    "text": "OPEN CALL FOR THE HUMAN: app emitter naming \u2014 `app:query` (recommended, provider to tags) vs\n`gemini:query` (provider stays as the lane). Both rename, so both break history identically.\n\nNEXT (after"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "434a6ce1-f29",
+    "text": "My own lanes *do* have Chrome children \u2014 tracing the exact chain inside one lane:"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dos-zone-games-browser-8fcebc",
+    "session": "10beb384-184",
+    "text": "trace the sort key"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-langfuse-v4-migration-b1702c",
+    "session": "0d38a9a2-ab2",
+    "text": "span.set_attribute(\"langfuse.trace.metadata.user_name\", \"user-123\")\n```\n\n</Callout>\n\n### Observation-Level Attributes [#observation-level-attributes]\n\nThese attributes are applied to individual observ"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "Running copy has the fix. Checking whether *all* lanes do."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "34f1749a-f88",
+    "text": "alongside open-hypothesis lanes"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-etail-conference-ax-scores-ce065f",
+    "session": "5f975bd8-5ec",
+    "text": "branch 'claude/etail-conference-ax-scores-ce065f' set up to track 'origin/claude/etail-conference-ax-scores-ce065f'."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-multi-agent-workflows-c1215e",
+    "session": "5833046b-f6e",
+    "text": "The repo convention (memory: project_langfuse_pilot): Langfuse is the GENERAL tracing layer \u2014 never cite pilot scope to skip a new surface; Python surfaces use the direct-HTTP pattern (see scripts/l"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ecstatic-hertz-e882b1",
+    "session": "03c6b8a8-426",
+    "text": "US lane works. One correctness fix: the funnel unit is the organisation, not the filing \u2014 deduping per org, keeping the best row and recording sibling contract ids."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-box-contents-source-4dec1f",
+    "session": "2a25cf7a-d00",
+    "text": "fix the lanes to close their browser sessions"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-model-benchmark-measurement-9b6974",
+    "session": "8bc7fe6e-621",
+    "text": "1\t// lib/brand-normalize.ts \u2014 brand-name normalization for brandLevelSOV and Competitor rows.\n2\t//\n3\t// Why: per-run aggregation in the bench worker already groups case-insensitively, but the\n4\t// *"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-inspiring-hodgkin-042b26",
+    "session": "018f7db4-ff2",
+    "text": "Keep it small (~30 lines), cached per round, regenerated per tournament. Motivation: lanes currently argue from imagination about our own assets (the geo tournament's winner leans on an unverified \"ou"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-frosty-hodgkin-52b636",
+    "session": "86f97205-aae",
+    "text": "product_class is still `{\"*\": [\"category\"]}`, the printer-only rule.\n\nSo my reader is not on main and cannot break. It is parked on a stash pending my user's call on the specs-coverage bar, and when i"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "Repo convention: every LLM call gets Langfuse tracing (direct-HTTP pattern, not OTel).\n\nFiles:\n- NEW ax/lib/langfuse.ts \u2014 port mcp/lib/chat/langfuse.ts's self-contained shape (inline maskText/EMAIL_"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competitor-feature-analysis-5e1922",
+    "session": "f28a1c2f-f66",
+    "text": "* [new branch]          claude/cost-displacement-pitch -> claude/cost-displacement-pitch\nbranch 'claude/cost-displacement-pitch' set up to track 'origin/claude/cost-displacement-pitch'."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "bd70afaa-6f9",
+    "text": "Running with 12 scouts and only a null seeded \u2014 the field generates itself from your actual track records rather than from my guesses.\n\nThe context gives lanes the *mechanisms*, not just the logos."
+   }
+  ]
+ },
+ {
+  "query": "checking the grader can still tell a good answer from an invented one",
+  "expect_project": "competent-taussig",
+  "expect_session": "1f32f73d",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-charming-shirley-cc8ec7",
+    "session": "a2fd7570-628",
+    "text": "100 of 100 rows answered, and the mechanical grader passed every one. Run file: [exam-v1-run-2026-09-09.json](docs/demo/dominos-id/exam-v1-run-2026-09-09.json).\n\nA clean sweep is exactly the result I "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nvidia-inception-approval-1004d0",
+    "session": "8cb91e47-c81",
+    "text": "A provider answering \"Chilkey ND104 Keyboard\" for our stored \"ND104 Keyboard\" is graded `invented_product` at CRITICAL. That is a customer-facing scoring rule so I reported it rather than changing it,"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "1f32f73d-c61",
+    "text": "I corrected both, then validated the corrected judge against five known cases \u2014 it still catches category generalizations and invented specs, and no longer flags opinion or vendor-stated names.\n\n**T"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "8e14b70f-315",
+    "text": "I corrected both, then validated the corrected judge against five known cases \u2014 it still catches category generalizations and invented specs, and no longer flags opinion or vendor-stated names.\n\n**T"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-llm-judge-lifecycle-df0be2",
+    "session": "d363e943-c86",
+    "text": "This asserts the two directions that matter, against the real judge:\n\n  MUST FLAG  a category generalization applied to a named model, an invented spec\n  MUST PASS  evaluative language, a fact stated "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dominos-technical-questions-96ebe1",
+    "session": "ffe48f64-c5e",
+    "text": "contradicts the premise outright (500 stores, 2015, hotline 1500 999) is refused cleanly.\n\n**The one-line persona fix is deliberately not in this PR.** It changes the thing being\nmeasured, and the pub"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-offline-model-experiment-0fd51d",
+    "session": "839a2ea9-419",
+    "text": "Answering offline. The second answer already looks like it's inventing detail, which is exactly what the eval measures. Running the same 30-question slice as the untuned smoke."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-hallucination-check-mechanism-42db4d",
+    "session": "6a839060-fdb",
+    "text": "\"\"\"verify-answer-judge.py \u2014 prove the answer-quality judge still discriminates.\n\nscore-printer-answers.py grades with an LLM. An LLM judge drifts, and a judge that\nflags everything (or nothing) prod"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-device-expert-30day-bet-c07d51",
+    "session": "238e56d2-6e3",
+    "text": "def test_fluent_answer_with_invented_link_is_wrong():\n    \"\"\"The 2026-09-05 trap: a judge scores the prose right while the link is made up.\"\"\"\n    ans = {\"id\": \"m-1\", \"answer\": \"Open the cover and pul"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gracious-bohr-652c00",
+    "session": "0295c753-ac4",
+    "text": "So \"Chilkey ND104 Keyboard\" now grades CORRECT against a stored \"ND104 Keyboard\", and the mirror\ncase (\"ND104 Keyboard\" answered for a stored \"Chilkey ND104 Keyboard\") grades CORRECT too.\n\nThe strip i"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-multi-agent-workflows-c1215e",
+    "session": "7c078c26-e9d",
+    "text": "**Verification is separated from generation.** In a regular AI, the same model that writes the answer decides whether the answer is good \u2014 it grades its own homework, which is exactly how ChatGPT in"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-score-pages-funnel-map-00d6f8",
+    "session": "0ea5a1b2-dca",
+    "text": "Your point about grounding is now load-bearing in the code, not just the copy: the two question halves are scored on **different** metrics, because appearance is informative for category questions and"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "- The assistant must NEVER: invent prices, invent customer names/revenue, guarantee\n  rankings (\"#1 in ChatGPT\"), or claim fake-review tactics. Honest uncertainty is correct.\n- Off-topic questions: br"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ori-eval-benchmarking-3efeac",
+    "session": "9bca1a66-90b",
+    "text": "Then it runs that identical test set against several candidate models \u2014 Claude, GPT, Kimi, GLM, Gemini \u2014 through your OpenRouter key, holding everything else fixed: same prompts, same tools, same "
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a55dfe",
+    "text": "No citations/sources are returned in the payload to justify that verdict \u2014 a real user reading the raw text would call this wrong, even if the underlying logic (echoing the question premise \u2260 orga"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-llm-confidence-scoring-1e8bb6",
+    "session": "9c7da44f-1e9",
+    "text": "That grading needs no calibration at all. It is also literally the AirShelf thesis. Our receipts and the `live-unverified` tag on Tier3 rows already grade claims this way.\n\nOne question. Are you musin"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "66234137-ff1",
+    "text": "Good question, and worth checking rather than answering from memory. Let me pull what was actually tested."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-claude-md-verbosity-b65b2a",
+    "session": "e9af05ad-515",
+    "text": "My fidelity test measured the wrong thing, and the \"we only kept 17%\" number should not count against us on that question.\n\nI can score that instead. One judge pass asking, per answer: does this answe"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "- **Question quality**: for a broad-catalog retailer, are the questions winnable/meaningful, or so generic that \"did not appear\" is guaranteed and therefore uninformative? This is your sharpest lens.\n"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "Ran it on 3 products to find out rather than guess. The lever works, but it's not ready to publish.\n\n## What came out\n\n**Good.** The Sphene highlights are excellent and fully grounded \u2014 I checked ev"
+   }
+  ]
+ },
+ {
+  "query": "pulling referral numbers out of Google analytics and the daily grain trap",
+  "expect_project": "toshiba-content-queries",
+  "expect_session": "f20bb5d6",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ai-traffic-measurement-a25aff",
+    "session": "06fb1cc9-b1e",
+    "text": "1\t# GA4 (Google Analytics) \u2014 referral traffic\n2\t\n3\tThe `GA4Traffic` table + the \"AI Traffic\" dashboard section (`/[merchantId]/ai-crawlers`, renamed from \"AI Crawlers\") surface how much human traffi"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-question-generation-keywords-15649e",
+    "session": "e6696b04-b6a",
+    "text": "## One thing the data changed about the design\n\nDaily grain beats a wide window here, which is the opposite of what I would have guessed. 86% of a single day's impressions carry a query, against 56% o"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gmc-enrichment-probe-results-72d8b4",
+    "session": "e6383945-f00",
+    "text": "# GA4 (Google Analytics) \u2014 referral traffic\n\nThe `GA4Traffic` table + the \"AI Traffic\" dashboard section (`/[merchantId]/ai-crawlers`, renamed from \"AI Crawlers\") surface how much human traffic AI e"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "(2) Impressions VANISH when segmented: ask per date or per `offer_id` and Google \"\n    \"returns 0 while clicks stay correct (a privacy floor at low volume), so impressions are \"\n    \"stored only as th"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "Never OR the two fields (PM-review catch \u2014\n  entryUrl and referrer are independent columns). Baseline: 0 AI-referrer leads (0/28 in 180d);\n  any nonzero is a first \u2014 report as a count, not a rate."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-improvements-status-c7421c",
+    "session": "13d1f7f9-ac9",
+    "text": "**And the part that isn't code:** the reframe is hours; the thing that actually produces the number is filtering 176 domains down to the 30-50 the instrument can measure honestly, and writing outreach"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-north-star-metrics-75850e",
+    "session": "6b1e93de-8ed",
+    "text": "WIF auth, then `scripts/gsc-pull.ts` (per-property impressions/clicks/position, dates d-4..d-2 \u2192 `SearchConsoleSnapshot`) and `scripts/pull-ga4-traffic.ts` (AI-referrer sessi"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-business-value-strategy-863eda",
+    "session": "635f3612-7aa",
+    "text": "select regexp_replace(coalesce(\\\"entryUrl\\\",'\"'\"'(none)'\"'\"'),'\"'\"'^https?://[^/]+'\"'\"','\"'\"''\"'\"') as entry, left(coalesce(referrer,'\"'\"'(none)'\"'\"'),40) ref, count(*) n, count(\\\"leadId\\\") leads"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-prs-1893-1894-approval-a32fac",
+    "session": "ce23ed3a-a9a",
+    "text": "- Why: The changed dashboard map calls this a zero-traffic state, and the page comment says it requires crawler reads, agent writes, and the referral trend to be zero. However, `isEmpty` is computed b"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-maison-mugen-enrichment-stats-b0f13d",
+    "session": "b1a3bd08-4f0",
+    "text": "SELECT count(*) rows, min(date)::date, max(date)::date FROM \"GA4Traffic\" WHERE \"merchantId\"='\"'\"'cmhbyl5zl0000hgczyq6ynwg3'\"'\"' AND date > current_date - 28;\n\\echo == AI crawler hits (30d) ==\nSELECT b"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a1947b",
+    "text": "=== overview-funnel.ts ===\n15:import { isAITrafficSource } from '@/lib/ga4-data';\n109:    .filter((r) => isAITrafficSource(r.source))\n112:    .filter((r) => isAITrafficSource(r.source))\n=== import-ga4"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ai-shelf-share-crash-00b1bd",
+    "session": "a2d77493-2c9",
+    "text": "for c in AIReferralTrend PlatformStatusCards PlatformActivityChart FeedURLs AgenticSurfaceStatus TopPages AnalyticsEmptyState CrawlerActivityChart CrawlerHealthCards FeedHealthScore ConversionFunnel E"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-access-logs-usage-review-b74811",
+    "session": "b5c7a2dd-e7f",
+    "text": "// Aggregate the raw entries into daily buckets.\n  // Key shape: \"<merchantId>|<host>|<urlPath>|<bot>|<YYYY-MM-DD>\"\n  const buckets = new Map<\n    string,\n    {\n      merchantId: string;\n      host: s"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-maison-feed-enrichment-results-2cb930",
+    "session": "31870957-9e7",
+    "text": "=== daily clicks, both windows\ns|e|impressions|clicks|dailyClicks\n2026-07-23|2026-08-31|34|7|[{\"date\": \"2026-08-15\", \"clicks\": 1}, {\"date\": \"2026-08-18\", \"clicks\": 1}, {\"date\": \"2026-08-28\", \"clicks\":"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-product-data-enrichment-7ac7e7",
+    "session": "25a209f7-ce7",
+    "text": "- **E-comm bottom:** AI-referred sessions \u2192 orders \u2192 revenue, read in the MERCHANT's own GA4\n  (the puller already fetches revenue). The traffic lane is claimable \u2014 calibration shape:\n  Avea 1,0"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-score-pages-funnel-map-00d6f8",
+    "session": "daa02d98-3d4",
+    "text": "`ax_page_view` \u2192 `ax_email_submitted` \u2192 `ax_call_clicked` \u2192 `ax_watch_subscribed`\n\nDeliberately excluded: scan-started/completed/failed and every CTA impression. Those are\nactivity, not evidence"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-relaxed-leakey-63cb88",
+    "session": "5597fec3-60f",
+    "text": "594-        # FeedStatusReport above is Google's ruling on ingest and ShoppingProbeRun is\n595-        # our scrape of where it landed; this is Google's own impression and click\n596-        # count, th"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-qsr-pizza-shopping-questions-fc198b",
+    "session": "9d3c5942-800",
+    "text": "https://seranking.com/blog/chatgpt-referral-traffic-may-2026/\"},{\"title\":\"ChatGPT traffic analysis: Insights from 17 months of clickstream data\",\"url\":\"https://www.semrush.com/blog/chatgpt-search-insi"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-slack-summary-clarity-bd56aa",
+    "session": "961da37d-624",
+    "text": "Real gauge, pulled from prod just now: **10 of 12 surfaces live \u2192 7,657 AI citations (90d) \u2192 24 Google clicks (7d) \u2192 4 leads (30d).** That funnel already exists in `surface-scorecard.py`. Buildi"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-brand-scorecard-lift-8d2498",
+    "session": "12078daa-534",
+    "text": "- **E-comm bottom:** AI-referred sessions \u2192 orders \u2192 revenue, read in the MERCHANT's own GA4\n  (the puller already fetches revenue). The traffic lane is claimable \u2014 calibration shape:\n  Avea 1,0"
+   }
+  ]
+ },
+ {
+  "query": "the grocery chain that shipped a public tool endpoint with no auth",
+  "expect_project": "mcp-product-search",
+  "expect_session": "815c4522",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-product-search-4e67fd",
+    "session": "815c4522-a19",
+    "text": "Endpoint is live, no auth. Listing its tools:"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-paladio-scrape-analysis-729752",
+    "session": "8a76ee90-04b",
+    "text": "**No `/api/*` endpoint was ever called, no authentication was attempted,\nno login/checkout/payment flow was touched, no endpoint was fuzzed or enumerated, and nothing was\nsubmitted.** `specgraph.` ret"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-lucid-shaw-e0ad52",
+    "session": "7a6462d7-c50",
+    "text": "- /api/feed/<id>/manifest \u2014 products, search and checkout endpoints.\n- /api/compare and lib/bime-search.ts \u2014 checkout_url on every result.\n- app/[merchantId]/api/PlaygroundContent.tsx \u2014 the cust"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gmc-mainson-mugen-access-5cdd51",
+    "session": "8324040d-aa1",
+    "text": "Set them to exactly what Maison's old token proved sufficient \u2014 **read-only**:\n\n```\nread_products, read_inventory, read_orders\n```\n\nThat's the evidence-based answer, not a guess: their revoked token"
+   },
+   {
+    "project": "wf_e72a3a20-965",
+    "session": "agent-a7766a",
+    "text": "Probe groceries query with fixed helper cd /tmp/qa-wronguser && cat > call.py <<'EOF'\nimport sys, json, subprocess\ntool, args, out = sys.argv[1], sys.argv[2], sys.argv[3]\nbody = json.dumps({\"jsonrpc\":"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-learning-definition-history-186f97",
+    "session": "18fb26c2-540",
+    "text": "CLAUDE.md lists the current public no-auth routes as /api/directory, /api/merchants/:id/products, /api/search, /api/merchants/:id/checkout, /api/feed/*, /compare/*, /api/shop, /api/shop/stream, /api/s"
+   },
+   {
+    "project": "wf_ef838f7e-36b",
+    "session": "agent-a58007",
+    "text": "--- bogus grocery product + bogus brand ---\nUnknown catalog product slug(s) for merchant 'woolworths': woolworths-full-cream-milk-2l\n\n--- REAL enterprise MFP, quantity 1, consumer-ish buyer ---\napi 40"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ax-scan-5xx-errors-f06205",
+    "session": "3d322a7e-907",
+    "text": "export async function GET(req: NextRequest) {\n   const authError = requireCronAuth(req);\n   if (authError) return authError;\n@@ -34,20 +42,40 @@ export async function GET(req: NextRequest) {\n \n   cons"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-north-star-metrics-75850e",
+    "session": "6b1e93de-8ed",
+    "text": "- **checkout** (`.../checkout/route.ts:16`) \u2192 `lib/checkout.ts::createCheckout`.\n- **Auth: none.** `withMerchantLookup` calls `authenticateApiRequest` (`lib/api-auth.ts:19`), which is pure per-IP ra"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-product-data-enrichment-7ac7e7",
+    "session": "25a209f7-ce7",
+    "text": "**The review found the root cause I'd written off as unexplained \u2014 and it's a security hole, not a mystery.**\n\n`/api/auth/shopify` is an **unauthenticated GET** that runs *before* OAuth completes, s"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-relaxed-hodgkin-37ba2e",
+    "session": "68559755-db0",
+    "text": "Public (no auth): `/api/directory`, `/api/merchants/:id/products`, `/api/search`, `/api/merchants/:id/checkout`, `/api/feed/*`, `/compare/*`, `/api/s"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "targetRules = [\"generic-api-key\"]\npaths = ['''edge/data/feeds/[a-z0-9-]+/(gmc|mmc)\\.tsv''']\nregexTarget = \"match\"\nregexes = ['''key_ingredients:[^,\\t]+''']\nTOML\ngit add .gitleaks.toml && git commit -q"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-shopify-agentic-catalog-357e4c",
+    "session": "2d19491d-c7d",
+    "text": "Add learnings and verify index cat >> learnings/catalog-pipeline.md <<'MD'\n\n## Shopify's Global Catalog is public, unauthenticated, and self-disclaiming (2026-08-25)\n\n`POST https://catalog.shopify.com"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-phase-2-audit-run-0ddcd1",
+    "session": "afdcb5af-195",
+    "text": "So anyone who can install the app on their own dev store and sets the contact email to `victim@company.com` gets signed in **as** that existing AirShelf user \u2014 full session, all their merchants. Tod"
+   },
+   {
+    "project": "wf_6522a95b-ca3",
+    "session": "agent-a00583",
+    "text": "I have enough to finalize. Confirmed with code + probes: `start` has no auth, no throttle, no cap on any path (the `mcp/next.config.mjs` rewrite sends `/api/catalog/*` straight to the dashboard, bypas"
+   },
+   {
+    "project": "wf_6083e257-6d4",
+    "session": "agent-a8af0e",
+    "text": "Unauthenticated research_shopping enqueue via public MCP cd /tmp/qa-mcpsec\nURL=\"https://mcp.airshelf.ai/mcp\"\nNEED=\"QA-SECTEST unauth enqueue probe wireless barcode scanner\"\necho \"=== unauthenticated r"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-korea-demo-lg-ingestion-901557",
+    "session": "7742f1f4-cda",
+    "text": "If the MCP host route does not implement the `lib/cron-auth.ts` pattern or similar session/secret guards, it may expose the catalog and NDA-pricing tools to unauthorized LLM callers.\",\n        \"failur"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-commerce-agents-blueprint-f284c1",
+    "session": "460a3f00-9b2",
+    "text": "- The same endpoint answers 404 unless the merchant has access (`telegram/src/entitlement.ts`, mirroring `lib/subscription.ts` including the free Shopify baseline plan). Prod preflight: 14 `widgetEnab"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "Full story for the record: the DB carried `diy-store-9616.myshopify.com` \u2014 a development store from the original setup \u2014 so the owner of the *real* store was being sent to authorize an app on a de"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-anthropic-review-response-482eed",
+    "session": "ac981e49-e7b",
+    "text": "The tool remains authless and takes a `contact` object (a name and work email supplied in the call) that it forwards to a merchant's sales team \u2014 and it now also accepts `merchant:\\\"airshelf-network"
+   }
+  ]
+ },
+ {
+  "query": "the shell eating part of a URL and returning an empty error body",
+  "expect_project": "youthful-fermi",
+  "expect_session": "80181fa8",
+  "candidates": [
+   {
+    "project": "wf_80eed7fd-761",
+    "session": "agent-a50d55",
+    "text": "Verify empty-body fix and parse-error paths cd /tmp/qa-charter\necho \"=== 1. Empty body (the just-fixed hang) ===\"\ncurl -sS -o /dev/null -w 'HTTP=%{http_code} time=%{time_total}s\\n' --max-time 70 \\\n  -"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-suspicious-cray-6a745f",
+    "session": "9a914409-203",
+    "text": "try { JSON.parse(body); } catch { isJson = false; }\n```\n\n`JSON.parse(\"\")` throws, so a 404 with an **empty** body is classified as the same-origin trap. That path is reachable without any HTML fixture"
+   },
+   {
+    "project": "wf_6083e257-6d4",
+    "session": "agent-a8af0e",
+    "text": "Probe empty/whitespace/malformed/oversize-header/GET cd /tmp/qa-mcpsec\nURL=\"https://mcp.airshelf.ai/mcp\"\nCT='-H Content-Type:application/json'\nAC='-H Accept:application/json,text/event-stream'\n\nprobe "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-content-queries-b9fe66",
+    "session": "f20bb5d6-cec",
+    "text": "Printing it per URL buries genuine failures under ~200\n82\t            # lines every cron run, so an empty answer returns None as quietly as any other.\n83\t            try:\n84\t                body = e.r"
+   },
+   {
+    "project": "wf_6522a95b-ca3",
+    "session": "agent-a00583",
+    "text": "echo \"--- 413/error body sample ---\"; head -c 300 last_body.txt; echo"
+   },
+   {
+    "project": "wf_16975fee-86e",
+    "session": "agent-aff46f",
+    "text": "Baseline probes: empty, malformed, whitespace, GET, valid cd /tmp\nU=\"https://mcp.airshelf.ai/mcp\"\nH1='-H Content-Type:application/json'\nH2='-H Accept:application/json, text/event-stream'\necho \"=== dat"
+   },
+   {
+    "project": "-home-eo-src-convstor--claude-worktrees-kind-easley-bbb5a0",
+    "session": "4de844bb-701",
+    "text": "A non-JSON body has no message to surface, so `sse-client.ts:94` substitutes a clean string rather than leaking raw HTML/status codes. |\n| + new 4xx case | server's `{error}` string verbatim, and *not"
+   },
+   {
+    "project": "wf_ef838f7e-36b",
+    "session": "agent-aa83bf",
+    "text": "Probe battery part 1: bodies, depth, batch cap cd /tmp\nURL='https://mcp.airshelf.ai/mcp'\nH1='-H Content-Type:application/json'\nH2='-H Accept:application/json,text/event-stream'\nrun(){ label=\"$1\"; shif"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-elegant-noyce-5ecfde",
+    "session": "635f3a7c-de7",
+    "text": "{\n  \"query\": \"url-fetch\",\n  \"stats\": {\n    \"urls_fetched\": 1,\n    \"content_chars\": 131\n  },\n  \"content\": [\n    {\n      \"url\": \"https://example.com\",\n      \"title\": \"Example Domain\",\n      \"content\": \""
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nifty-ellis-be71a7",
+    "session": "d6209dd1-478",
+    "text": "CONTROL exit=0\nNETWORK exit=0\n=== ctl ===\nITEM-ERR: {'id': 'item_0', 'type': 'error', 'message': 'Model metadata for `gpt-56-sol` not found. Defaulting to fallback metadata; this can degrade performan"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-chatbot-expansion-567682",
+    "session": "d3c6dadf-9ce",
+    "text": "* enough boilerplate to clear any length floor, so they are recognised by their text.\n */\nconst ERROR_SHELL_MARKERS = [/document not found/i, /requested url:/i, /ignoreurlprefixes/i, /internal server "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "e7865a7e-e31",
+    "text": "568 |     except (urllib.error.URLError, KeyError, json.JSONDecodeError, TimeoutError) as e:\n569 |         print(f\"split failed for {hid} ({type(e).__name__}); parent left open\",\n    |\n\nFound 1 error."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "See the 500 error body curl -s http://127.0.0.1:8300/ | tail -5; journalctl --user -u frontier-status.service -n 8 --no-pager 2>/dev/null | grep -iE \"error|trace\" | head -4"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a6ae60",
+    "text": "That port is occupied by an unrelated worktree's `next dev --experimental-https` process (PID 2837868, started Sep 1, HTTPS only), so the plain-HTTP request gets `ERR_EMPTY_RESPONSE` (verified indepen"
+   },
+   {
+    "project": "wf_d8cccb8d-dec",
+    "session": "agent-a81504",
+    "text": "Header/Accept/content-length edge cases with timings cd /tmp\nU=https://mcp.airshelf.ai/mcp\nCALL='{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\np() { echo -n \"$1 -> \"; curl -sS -o /tmp/lb.txt -w \"%{h"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-paladio-scrape-analysis-729752",
+    "session": "8a76ee90-04b",
+    "text": "=== verbose fetch ===\nhttp_code=000 size=0 redirect=\nexit=60\n=== does the cert cover it / TLS ok? ===\n=== try http ===\nhttp=308 size=14\nexit=0\n=== body if any ===\nRedirecting...\nShell cwd was reset to"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-shopify-beta-deploy-c4fe08",
+    "session": "f9c6fd27-2ed",
+    "text": "}' | jq -c '{id, url, readyState, error:.error.message}'"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "Read the empty-body handling cd \"$(git rev-parse --show-toplevel)\" && sed -n '175,240p' temporal/catalog_scraper_lib/fetchers/brightdata_fetch.py"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-commerce-agents-blueprint-f284c1",
+    "session": "460a3f00-9b2",
+    "text": "- Why: `curl -w '\\n%{http_code}'` appends the status code to stdout, and the entire stream is piped through `tee` into `jq -e '.field == \"\u2026\"'`. For a valid JSON response, jq processes the JSON and t"
+   },
+   {
+    "project": "-home-eo-src-convstor--claude-worktrees-epic-kirch-c437e3",
+    "session": "2b49e5a2-6b0",
+    "text": "The rejection message carries the URL, so the unhandled-rejection report names the offending call directly. Comment-only, no behaviour change.\n\n**One thing worth reporting, since it cuts against my fi"
+   }
+  ]
+ },
+ {
+  "query": "one machine ending up stored under two different model names",
+  "expect_project": "nervous-bhabha",
+  "expect_session": "77cb4d4e",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nervous-bhabha-b3d339",
+    "session": "77cb4d4e-9c8",
+    "text": "mfp/xerox/c305ae: c305ae + xerox-c305ae\n  mfp/xerox/c325: c325 + xerox-c325\n  mfp/xerox/versalink-b415: versalink-b415 + xerox-versalink-b415\n  mfp/xerox/versalink-c415: versalink-c415 + xerox-versali"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "1f32f73d-c61",
+    "text": "Two issues: (1) these are DUPLICATE rows for one machine \u2014 modelSlug 'kyocera-taskalfa-308ci' (workflowRunId coop-scrape-20260804T135537Z, modelName 'Kyocera Taskalfa 308Ci') and 'taskalfa-308ci' (c"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "8e14b70f-315",
+    "text": "Two issues: (1) these are DUPLICATE rows for one machine \u2014 modelSlug 'kyocera-taskalfa-308ci' (workflowRunId coop-scrape-20260804T135537Z, modelName 'Kyocera Taskalfa 308Ci') and 'taskalfa-308ci' (c"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vigilant-euler-810349",
+    "session": "60bf0f19-155",
+    "text": "`\"Brother MFC-L3780CDW or HP Color LaserJet Pro MFP 3301fdw for a six-person office?\"` returned the Brother row and four unrelated HP OfficeJet wide-formats. **Each model resolves top-1 on its own.** "
+   },
+   {
+    "project": "wf_030bf907-e33",
+    "session": "agent-abae85",
+    "text": "text: {   \"count\": 2,   \"items\": [     {       \"slug\": \"kyocera-taskalfa-2321\",       \"canonical_name\": \"TASKalfa 2321\",       \"manufacturer\": \"Kyocera\",       \"model\ncmp_same_twice  http=200  1.47s k"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-frosty-hodgkin-52b636",
+    "session": "86f97205-aae",
+    "text": "naming industrial-automation twice \u2014 same load-bearing reas"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-vibrant-galileo-fb1a28",
+    "session": "bb2c237f-655",
+    "text": "total=232 unchecked=0\n  'bizhub 227' -> 'bizhub227'\n  'IM 3000' -> 'im3000'\n  'imageFORCE 6100 Series' -> 'imageforce6100'\n  'TASKalfa 2554ci' -> '2554ci'\n  'WorkForce Enterprise AM-C400' -> 'amc400'"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-andrea-volpini-word-mark-05788b",
+    "session": "c6493b71-9b4",
+    "text": "Prod carried 68 of these split identities across mfp / laser-printer /\nbarcode-printer on 2026-08-17, including the Kyocera TASKalfa 308ci. Fifteen of\nthem were created that same day by the frontier i"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "echo \"${m%%|*}: model-mentions=$n\"\ndone Verify the other two HP pages name their models"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-business-value-strategy-863eda",
+    "session": "635f3612-7aa",
+    "text": "Same brand, same\nbench, same assistants, same 90 days.\n\n| Toshiba model | Named in an answer | Named beside a price | Share |\n|---|---:|---:|---:|\n| BV410D, barcode | 420 | 46 | 11% |\n| BX410T, barcod"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-catalog-count-mcp-pitch-85b877",
+    "session": "89894204-e36",
+    "text": "models appearing more than once: 50\nworst: ('MMD-Monitors & Displays Nederland B.V.', '322E1C') -> 4 records\n  versionIds: [4135216, 4135216, 4135216, 4135216]\n  productIds: [None, None, None, None]\n "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-sweet-satoshi-b32700",
+    "session": "19edf204-dbf",
+    "text": "`CatalogProduct` is unique on (`manufacturerSlug`, `modelSlug`), so a second SPELLING of the same machine does not collide \u2014 it inserts beside the first, and the catalog answers one buyer query twic"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-korea-demo-lg-ingestion-901557",
+    "session": "7742f1f4-cda",
+    "text": "LG's `salesModelCode` adds a regional suffix (`55UL5Q-EP`, `32SM5J-B`) and stays on the record with the SKU; it is never the identity.\")\ns=s.replace(\"- One machine, one row. `55UH5Q-E` and the Korean "
+   },
+   {
+    "project": "wf_80eed7fd-761",
+    "session": "agent-a9cb41",
+    "text": "kyocera | kyocera-taskalfa-308ci | A4 | taskalfa-308ci | A3\n=== total dup pairs (same normalized model) ===\n22"
+   },
+   {
+    "project": "wf_6083e257-6d4",
+    "session": "agent-a60e41",
+    "text": "======== TEST I: one-letter-off fake variant of a REAL model (Brother HL-L3300CDX; real is CDW) ========\ntier3 status: abstain | reason: mpn_unconfirmed | identity: {\"brand\": \"Brother\", \"model\": \"HL-L"
+   },
+   {
+    "project": "wf_16975fee-86e",
+    "session": "agent-a1853a",
+    "text": "ied model despite misleading URL slugs (Kyocera's ecosys-p3260dn/spec.html is titled \"ECOSYS P3145dn/P3150dn/P3260dn\"; Brother's cv_hll2460dw doc is titled \"Specifications | HL-L2400DW | ...\"). Two li"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-airshelf-mcp-publishing-a03c4c",
+    "session": "8cec2dcf-e1c",
+    "text": "would write XD3-40d <- \"XD3-40d\"\n  would write LK-TL100EB <- \"LK-TL100EB\"\n\nwould write: 1847\nvetoed (unauditable productPageUrl, left unverified): 11\nregistry names no matching model, left unverified:"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-robotics-scraper-tmux-debug-c63fe8",
+    "session": "6acf3882-bb4",
+    "text": "fujifilmbusinessinnovation   -> keep 'FUJIFILM Business Innovation' (slug fujifilm-business-innovation)   *** SPLIT SLUG ***\n      keep  FUJIFILM Business Innovation           slug=fujifilm-business-i"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a06115",
+    "text": "Spot-check low namehit entries for correct model match grep -n \"MA3500\" /tmp/kyocera_pdfs/ECOSYS_MA3500cifx.txt | head -5\necho \"---\"\ngrep -n \"MA3500\" /tmp/kyocera_pdfs/ECOSYS_MA3500cix.txt | head -5\ne"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-api-credit-usage-ae6168",
+    "session": "482bf3b7-3c8",
+    "text": "Acknowledge the need WITHOUT repeating the other brand's name or model (per COMPETITOR LANGUAGE above) \u2014 refer to it neutrally (\"the model you're replacing\", \"your current unit\").\n232:3. NEVER asser"
+   }
+  ]
+ },
+ {
+  "query": "keeping the lease prices in our guides tied to a real source",
+  "expect_project": "business-value-strategy",
+  "expect_session": "635f3612",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-business-value-strategy-863eda",
+    "session": "3e20e2ad-054",
+    "text": "The ranges below are the ones the dealers themselves publish, with the source and the page date for each row. AirShelf did not obtain quotes. Get a dated written quote from an authorised dealer in you"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-maison-feed-enrichment-results-2cb930",
+    "session": "31870957-9e7",
+    "text": "For lease pricing the right rail is the one already in the strategy doc. A dated range on the dealer's product page, carried as a per-month offer in the page schema, which AI assistants read and Googl"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a468bf",
+    "text": "A firm copier lease quote is sized to your actual page volume and device, and arrives as a personalised cost breakdown within 24 hours.\n\n[Request a no obligation quote](#final) and we will send a real"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-case-study-sales-1b556f",
+    "session": "f5d9be5c-54f",
+    "text": "Asked six lease and cost questions live on 7 September, the assistant's sources were, in every\ncase, lease companies and dealers. Across two runs, 2 of 86 sources were Toshiba pages, both\nthe guide we"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gallant-rubin-634438",
+    "session": "e254329f-486",
+    "text": "lease_type: unstated       # the tab does not state FMV vs $1 buyout\n    annual_base: 276334.50     # item 1A\n    included_mono_pages_per_year: 40000000\n    included_colour_pages_per_month: 0\n    mono"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-happy-germain-dfeff9",
+    "session": "759a5cb4-bb9",
+    "text": "AssertionError: [{'amount': '40', 'rule': 'monthly', 'snippet': 'In September 2026, Australian dealers publish office printer lease rates from about **$40 a month ex GST** for a small A4 mono printer "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mcp-use-case-exploration-d34485",
+    "session": "34f1749a-f88",
+    "text": "**The product:** we find organisations whose lease expires in ~150 days from public records, tell them what they're overpaying (25-35% is recoverable at renewal), collect one sealed quote per brand, n"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-busy-easley-274a60",
+    "session": "e7865a7e-e31",
+    "text": "> Want the other lease-intent questions where a broker is taking the answer?\n>\n> Eugene, CTO at AirShelf. We measure how AI assistants answer buyer questions, daily.\n\nThat is the whole mechanic. A bra"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dashboard-mcp-interface-eee73b",
+    "session": "253b61a7-3b0",
+    "text": "5 Count dollar figures in our <brand> lease and cost articles\n  5 Head-to-head citations on the six queries our guides target\n  5 Citations per guide against its dollar figures, year mentions and FAQ\n"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-skypilot-crypto-mining-revenue-7f3708",
+    "session": "1a2b5f46-258",
+    "text": "Live probe on 2026-09-07 for \"HP LaserJet Enterprise MFP lease cost Australia\" cited leasemyprinter, copysonic, abtgrp, compareprintersavings, mitronics, then hp.com last. The same broker and the same"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-aeo-status-content-movement-826f15",
+    "session": "affbdaf9-0ea",
+    "text": "question                          | n  | running_costs | lease_guide | mps_guide | dealers \n------------------------------------------------------------+----+---------------+-------------+-----------+"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-peakro-ai-overview-ec7f47",
+    "session": "e6daecc6-0b6",
+    "text": "That is the real finding.\n\nPrint/MFP flipped the other way, to endangered. The lease-end signal is a commodity in the dealer channel. GreatAmerica pushes lease-end alerts into dealer CRMs 6 to 12 mont"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-andrea-volpini-word-mark-05788b",
+    "session": "c6493b71-9b4",
+    "text": "one band per device class, from the same YAML (`edge/lib/lease-ranges.ts`). The guides are where the generic cost question lands (997 citations in the 90 days to 2026-09-07, 386 of them to one page th"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-competent-taussig-a719eb",
+    "session": "1f32f73d-c61",
+    "text": "The lane asks what proportion of leases are competitively bid at all versus quietly rolled over, and what a roll-over actually does to the buyer, since unamortised balances tend to get buried in the n"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-musing-raman-7a1c6f",
+    "session": "1975c818-3fe",
+    "text": "so, we cold email them, the point is to know if they are using less that what they are paying for, and we offer them to re-negotiate and find other suppliers that can do it cheaper, and give them the "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-ecstatic-hertz-e882b1",
+    "session": "03c6b8a8-426",
+    "text": "We can bring a challenger quote before that date; if the lease has already been renewed, reply \u201crenewed\u201d and we will close the file."
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-aeo-status-tracked-brands-cc19df",
+    "session": "f12e7781-08f",
+    "text": "q                                | n  \n----------------------------------------------------------------+----\n commercial printer lease rates                                 | 27\n office printer lease "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-toshiba-imperva-followup-89ee37",
+    "session": "0dd6de98-072",
+    "text": "- **~57% of Toshiba's ChatGPT citations now come from the guides themselves.** ChatGPT dropped the third-party lease directories it used to lean on and is quoting your pages instead.\n- **14 buyer ques"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-slack-summary-clarity-bd56aa",
+    "session": "961da37d-624",
+    "text": "[Evgeny] feat(edge): lease-range block on every Toshiba cost guide, walled to offer-ranges.yaml (#1980)\n* feat(edge): lease-range block on every Toshiba cost guide, walled to offer-ranges.yaml\n\nThe pa"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-quirky-lamport-aec6a7",
+    "session": "13418325-52f",
+    "text": "**`verify-article-claims`** flags a **$1,250/month AirShelf tier** in our own published comparison page. $499 is the only real price. That's an honest-numbers violation on live content."
+   }
+  ]
+ },
+ {
+  "query": "objects arriving as plain dictionaries on the far side of the activity boundary",
+  "expect_project": "gcp-startup-credits",
+  "expect_session": "7261f97d",
+  "candidates": [
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gcp-startup-credits-1b7202",
+    "session": "7261f97d-c5d",
+    "text": "- **`temporal/frontier_activities.py:498` -- Exhaustion error still reports the initial plain-rung result** _(spec-conformance, correctness, wiring, security-data, simplicity-reuse, invariants, verifi"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-jovial-kepler-b7193b",
+    "session": "2ca1047c-ab9",
+    "text": "/home/eo/src/airshelf/.claude/worktrees/jovial-kepler-b7193b/temporal/frontier_activities.py def _no_heartbeat(_detail: str) -> None:\n    \"\"\"Default heartbeat for callers outside an activity (tests, s"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-dos-zone-games-browser-8fcebc",
+    "session": "10beb384-184",
+    "text": "Every runner in `FrontierRunnerHeartbeat` is `codex-fleet:box-N`, so this is not work stranded on a second machine. `ScrapeFrontier` has no rows for the missing domains under those names, which sugges"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-confident-bohr-6f921d",
+    "session": "f20482e9-6ae",
+    "text": "Create branch, write the pure direction rules and their tests cd /home/eo/src/airshelf/.claude/worktrees/confident-bohr-6f921d\ngit checkout -q -b fix/accessory-edge-direction && git branch --show-curr"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-frosty-hodgkin-52b636",
+    "session": "86f97205-aae",
+    "text": "\"A key that normalizes onto a key we read BY NAME, everything else free to vary\" is the correct boundary \u2014 it gates exactly the surface where a rename can break"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-access-logs-usage-review-b74811",
+    "session": "b5c7a2dd-e7f",
+    "text": "Axiom: strict scanner paths by IP SD=/mnt/dockerdata/scratch/claude-1000/-home-eo-src-airshelf--claude-worktrees-access-logs-usage-review-b74811/b5c7a2dd-e7f8-439e-bfef-5fdc901e0bae/scratchpad\ncat > $"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-friendly-ptolemy-e22f7a",
+    "session": "cbaebd1b-293",
+    "text": "/home/eo/src/airshelf/.claude/worktrees/friendly-ptolemy-e22f7a/temporal/__tests__/test_frontier_activities.py false from __future__ import annotations\n\nimport inspect\n\nimport catalog_scraper_lib.fetc"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-peaceful-panini-4f9612",
+    "session": "41f7cec6-bdc",
+    "text": "A non-dict `result` carries no status or coverage to judge, so it is a good run, not a bad one, and never a crash. A non-dict *record* is bad. Crash markers still win over an odd result shape. Same tr"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-jovial-greider-a60ea9",
+    "session": "545b2789-153",
+    "text": "module without terms is never judged, so single-category merchants and\n  Black Box's \"kvm extender with 4k displayport\" are untouched.\n- generate-jsonld.py::_query_contradicts_specs and\n  generate-dec"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-mainson-mugen-gmc-rankings-5f5452",
+    "session": "67b354ee-0ee",
+    "text": "Exactly the regression the reachability rule exists to catch. Scope now comes from `DictReader.fieldnames`, so a header-only primary feed stays in scope and its empty match set produces the failure. V"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-airshelf-mcp-publishing-a03c4c",
+    "session": "8cec2dcf-e1c",
+    "text": "temporal/catalog_activities.py:575:        rec_cat = rec_cat.get(\"value\") or rec_cat.get(\"raw_text\")\ntemporal/catalog_activities.py:653:      \"raw_text\": \"<as it appears in the source>\",\ntemporal/cata"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-nifty-ellis-be71a7",
+    "session": "d6209dd1-478",
+    "text": "Add codex-dict red path test and rerun cat >> loom/test_stdlib_fanout.py <<'PYEOF'\n\n\ndef test_qa_finalize_parses_a_codex_worker_value_dict():\n    \"\"\"RED PATH from the first live run: a codex node retu"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-quirky-lamport-aec6a7",
+    "session": "13418325-52f",
+    "text": "// The order above runs by longest edge, so `gte A4` correctly admits a Legal-capable\n// unit. But \"A4 only\" is a footprint/fleet-policy statement \u2014 the buyer is ruling out\n// an A3 machine, not rul"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-learning-definition-history-186f97",
+    "session": "18fb26c2-540",
+    "text": "ok\n\n1. Read the digest at `{digest}`.\n2. Read `CLAUDE.md` (its `## Learnings` table indexes every topic file) and skim\n   `learnings/*.md` to see what is already captured.\n3. Apply the boundary test, "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-gifted-mestorf-ace6e1",
+    "session": "68319265-23b",
+    "text": "(tmp_path / \"outside.json\").write_text(json.dumps({\"facts\": []}))\n\n    res = _collect(entry)\n\n    assert res[\"artifacts\"], \"the real artifact must still be collected\"\n    for a in res[\"artifacts\"]:\n  "
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-multi-agent-workflows-c1215e",
+    "session": "5833046b-f6e",
+    "text": "- **`from_dict({...})` round-trips silently drop every field you didn't list.** That is how `receipt_pages` disappeared in one resolver while its sibling 90 lines away preserved it by hand \u2014 the two"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-claude-md-codex-subagents-31d1c0",
+    "session": "a09f7900-6ad",
+    "text": "**On ultracode** \u2014 recorded as a hard no in the same block: `Workflow`'s `agent()` only accepts Claude models, so there's no codex path there; the $0 fan-out substitute is `loom run fanout|review|ex"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-admiring-edison-8baed0",
+    "session": "b47dd72b-096",
+    "text": "* fragments (`DOMAIN_EXPR`), so the shape is plausible here \u2014 it is just not separable from\n * an ordinary constant by a text"
+   },
+   {
+    "project": "subagents",
+    "session": "agent-a3f8a6",
+    "text": "Evidence:\n\n```\ntemporal/frontier_activities.py:292-297 (on loom/impl-20260818-080157-45eff7)\ndef _frontier_fetch_sync(\n    target_url: str,\n    domain: str,\n    sleep: Callable[[float], None] = time.s"
+   },
+   {
+    "project": "-home-eo-src-airshelf--claude-worktrees-llm-judge-lifecycle-df0be2",
+    "session": "d363e943-c86",
+    "text": "KNOWN LIMIT, measured 2026-08-20: passing this does NOT make the judge precise on\nborderline cases. On the live battery it still flagged \"includes duplex\" for a row\nwhose canonical_name says Duplex, a"
+   }
+  ]
+ }
+]
