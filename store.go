@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -77,8 +78,49 @@ func loadIndex(project string) *Index {
 	if err := dec.Decode(idx); err != nil {
 		return &Index{Files: make(map[string]FileMetadata), Project: project}
 	}
+	normalizeIndexPaths(idx)
 	return idx
 }
+
+// normalizeIndexPaths rewrites stored file paths onto THIS machine's projects
+// dir. Indexes are built on GPU workers, where the same transcripts live under
+// /tmp/s<n>/.claude/projects, so a path stored there resolves to nothing back
+// here. Two things broke silently because of it: context retrieval (-C/-A/-B)
+// re-reads Entry.FilePath and found no file, so it returned the match with no
+// surrounding lines; and the incremental-index metadata is keyed by path, so it
+// never matched and every cron pass rebuilt every file from scratch.
+//
+// Done at LOAD so existing indexes repair themselves without a rebuild. The
+// next saveIndex writes the corrected paths back.
+func normalizeIndexPaths(idx *Index) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return
+	}
+	base := filepath.Join(home, ".claude", "projects")
+	const marker = "/.claude/projects/"
+	fix := func(p string) string {
+		if i := strings.Index(p, marker); i >= 0 {
+			return filepath.Join(base, p[i+len(marker):])
+		}
+		return p
+	}
+	for i := range idx.Entries {
+		idx.Entries[i].FilePath = fix(idx.Entries[i].FilePath)
+	}
+	if len(idx.Files) > 0 {
+		fixed := make(map[string]FileMetadata, len(idx.Files))
+		for k, m := range idx.Files {
+			m.FilePath = fix(m.FilePath)
+			fixed[fix(k)] = m
+		}
+		idx.Files = fixed
+	}
+}
+
+// saveIndexRaw writes an index verbatim. Only tests need it: they must be able
+// to plant a foreign path that loadIndex is then expected to repair.
+func saveIndexRaw(idx *Index) error { return saveIndex(idx) }
 
 func saveIndex(idx *Index) error {
 	dir := indexDir()

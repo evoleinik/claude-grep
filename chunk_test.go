@@ -136,3 +136,54 @@ func TestIncrementalIndexingOnlyEmbedsNewMessages(t *testing.T) {
 		t.Error("a shrunken file must NOT resume — it was rewritten, not appended")
 	}
 }
+
+// Indexes are built on GPU workers where transcripts live under /tmp/s<n>/...,
+// so stored paths must be rewritten onto this machine or context retrieval
+// reads a file that is not there and incremental metadata never matches.
+func TestNormalizeIndexPathsRewritesForeignPaths(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	want := filepath.Join(home, ".claude", "projects", "proj", "sess.jsonl")
+	foreign := "/tmp/s6/.claude/projects/proj/sess.jsonl"
+
+	idx := &Index{
+		Entries: []IndexEntry{{FilePath: foreign}},
+		Files:   map[string]FileMetadata{foreign: {FilePath: foreign, Messages: 7}},
+	}
+	normalizeIndexPaths(idx)
+
+	if idx.Entries[0].FilePath != want {
+		t.Errorf("entry path not rewritten:\n got  %s\n want %s", idx.Entries[0].FilePath, want)
+	}
+	m, ok := idx.Files[want]
+	if !ok {
+		t.Fatalf("Files key not rewritten; keys are %v", idx.Files)
+	}
+	if m.Messages != 7 || m.FilePath != want {
+		t.Errorf("metadata lost in the rewrite: %+v", m)
+	}
+	// Through loadIndex, the real path. Calling normalizeIndexPaths directly
+	// proves the function works but NOT that anything calls it — removing the
+	// call from loadIndex left the direct test green.
+	if err := os.MkdirAll(indexDir(), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := saveIndexRaw(&Index{Project: "p", Files: map[string]FileMetadata{
+		foreign: {FilePath: foreign, Messages: 7}}, Entries: []IndexEntry{{FilePath: foreign}}}); err != nil {
+		t.Fatal(err)
+	}
+	got := loadIndex("p")
+	if got.Entries[0].FilePath != want {
+		t.Errorf("loadIndex did not normalize: %s", got.Entries[0].FilePath)
+	}
+	if _, ok := got.Files[want]; !ok {
+		t.Errorf("loadIndex did not normalize the Files key: %v", got.Files)
+	}
+
+	// A path with no projects marker is left alone rather than mangled.
+	other := &Index{Entries: []IndexEntry{{FilePath: "/somewhere/else.jsonl"}}}
+	normalizeIndexPaths(other)
+	if other.Entries[0].FilePath != "/somewhere/else.jsonl" {
+		t.Errorf("unrelated path was rewritten: %s", other.Entries[0].FilePath)
+	}
+}
