@@ -324,7 +324,8 @@ Keep it fresh with cron (a lockfile prevents concurrent runs):
   every message).
 - **Disk:** ~4.5 KB per message (768 float32 dims); 4000 vectors ≈ 17 MB.
 - **ollama must be running** for indexing and semantic search; otherwise both exit with a
-  clear error.
+  clear error. It is expected at `http://localhost:11434`; set
+  `CLAUDE_GREP_OLLAMA_URL=http://host:port` to use a remote one.
 
 ## Build from source
 
@@ -332,7 +333,13 @@ Keep it fresh with cron (a lockfile prevents concurrent runs):
 go build -o claude-grep .
 go test ./...
 go vet ./...
+scripts/coverage.sh        # tests + total coverage, exit 1 under the 80% floor (CI runs this)
 ```
+
+The `TestE2E*` tests build the real binary and run it in a sandbox: a temporary `$HOME`,
+fixture transcripts and a fake embedder. They need `git` on the path and never touch your
+history or a real ollama. Their coverage counts toward the total, which is how `main()`
+and the subcommands are covered.
 
 Benchmark the recovery ladder against the recorded baseline:
 

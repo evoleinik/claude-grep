@@ -6,29 +6,39 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Codecov upload authenticates with GitHub OIDC, no secret
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
 
       - name: Build
         run: go build ./...
 
-      - name: Test
-        run: go test -v ./...
+      - name: Vet
+        run: go vet ./...
 
-      - name: Coverage
-        run: go test -coverprofile=coverage.out ./...
+      # Runs every test once, writes coverage.out, and fails under the 80% floor.
+      - name: Test with coverage
+        run: scripts/coverage.sh 80
 
-      # Tokenless upload works for public repos.
-      # For private repos, add CODECOV_TOKEN as a repository secret.
+      # fail_ci_if_error stays true. With false, every upload from 2026-03 to
+      # 2026-10 was rejected ("Token required") while this job stayed green,
+      # so the README badge and the Codecov page showed no number at all.
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
+          use_oidc: true
           files: coverage.out
-          fail_ci_if_error: false
+          disable_search: true
+          fail_ci_if_error: true

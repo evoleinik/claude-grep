@@ -20,7 +20,23 @@ claude-grep --index --status       # index stats
 go build -o claude-grep .
 go install .
 go vet ./...
+scripts/coverage.sh     # all tests + total coverage; exit 1 under 80%. CI runs this
 ```
+
+### Tests
+
+- `*_test.go` beside each file are unit tests. `e2e*_test.go` build the real binary and
+  drive it in a sandbox (`newSandbox`): temp `$HOME`, fixture transcripts, fake ollama.
+  A new flag, subcommand or exit path gets an e2e case, because `main()` and the `run*`
+  entry points call `os.Exit` and cannot be reached from a unit test.
+- Fixture transcripts get an hour-old mtime (`sandbox.session`). The search skips the
+  newest file when it is under 60s old, so a just-written fixture silently vanishes.
+- The bench drops any project whose name contains `claude-grep`. Bench fixtures use
+  their own project name, never one derived from the temp dir.
+- Coverage of the child binary reaches the profile because `go test -cover` sets
+  `GOCOVERDIR` for the test process; the harness builds the child with `-cover`.
+- CI uploads to Codecov over OIDC with `fail_ci_if_error: true`. It was `false`, and
+  every upload was rejected for seven months while CI stayed green.
 
 ### Architecture
 
