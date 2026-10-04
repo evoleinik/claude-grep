@@ -427,9 +427,10 @@ func reorderArgs() {
 		return
 	}
 
-	// Flags that consume the next arg as a value
-	valueTakers := map[string]bool{
-		"-n": true, "-d": true, "-H": true, "-C": true, "-B": true, "-A": true,
+	// Flags that consume the next arg as a value, in either dash form
+	valueTakers := map[string]bool{}
+	for _, f := range []string{"n", "d", "H", "C", "B", "A", "shard", "shards", "bench", "bench-docs"} {
+		valueTakers["-"+f], valueTakers["--"+f] = true, true
 	}
 
 	var flags, positional []string

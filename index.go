@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	ollamaURL     = "http://localhost:11434/api/embed"
 	embedModel    = "embeddinggemma"
 	maxEmbedChars = 2048
 	previewLen    = 200
@@ -49,6 +48,15 @@ const (
 	// whole-message vectors would silently coexist in one ranking.
 	indexVersion = "c512t" // t = tool output indexed
 )
+
+// ollamaBase is the ollama server root. CLAUDE_GREP_OLLAMA_URL points it at a
+// remote host or a non-default port; the default is a local ollama.
+func ollamaBase() string {
+	if v := strings.TrimRight(os.Getenv("CLAUDE_GREP_OLLAMA_URL"), "/"); v != "" {
+		return v
+	}
+	return "http://localhost:11434"
+}
 
 // indexStamp identifies what produced the vectors. Model AND chunking, because
 // either one changing makes existing vectors incomparable.
@@ -139,6 +147,7 @@ func runIndex(reindexAll bool) {
 	// Check ollama is running
 	if !ollamaReachable() {
 		fmt.Fprintln(os.Stderr, "error: ollama not running — start with: ollama serve")
+		releaseLock() // os.Exit skips the deferred release
 		os.Exit(2)
 	}
 
@@ -148,6 +157,7 @@ func runIndex(reindexAll bool) {
 	entries, err := os.ReadDir(projectsDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: cannot read %s: %v\n", projectsDir, err)
+		releaseLock()
 		os.Exit(2)
 	}
 
@@ -333,7 +343,7 @@ func embedRaw(text string) ([]float32, error) {
 		return nil, err
 	}
 
-	resp, err := http.Post(ollamaURL, "application/json", bytes.NewReader(body))
+	resp, err := http.Post(ollamaBase()+"/api/embed", "application/json", bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("ollama request failed: %w", err)
 	}
@@ -362,7 +372,7 @@ func embedRaw(text string) ([]float32, error) {
 
 func ollamaReachable() bool {
 	client := http.Client{Timeout: 2 * time.Second}
-	resp, err := client.Get("http://localhost:11434/")
+	resp, err := client.Get(ollamaBase() + "/")
 	if err != nil {
 		return false
 	}
