@@ -1,0 +1,73 @@
+# Embedding-model bakeoff on one L4: which model ranks the right session first.
+#
+# Runs bench/model-bakeoff.py over the 17 labeled queries plus DISTRACTORS
+# random sessions, chunked and tool-inclusive like the production index
+# (indexVersion c512t). Vectors are cached in the output bucket, so re-scoring a
+# model later costs no GPU time.
+#
+# Stage the transcripts first (targets + distractors only, never all of
+# ~/.claude/projects), then:
+#   sky launch -c cgm sky/bakeoff-models.yaml --env DISTRACTORS=100 -i 20 --down -y   # pilot
+#   sky exec cgm sky/bakeoff-models.yaml                                              # full
+#   gcloud storage cat gs://airshelf-cg-index-out/bakeoff-models/latest.txt
+name: claude-grep-bakeoff-models
+
+resources:
+  cloud: gcp
+  accelerators: L4:1
+  cpus: 16+          # the harness parses JSONL and fans out requests on the CPU side
+  use_spot: false
+  disk_size: 200
+
+workdir: .
+
+file_mounts:
+  /transcripts: /mnt/dockerdata/scratch/claude-1000/cg-bakeoff-transcripts
+  /out:
+    name: airshelf-cg-index-out
+    store: gcs
+    mode: MOUNT
+
+envs:
+  MODELS: "embeddinggemma,qwen3-embedding:0.6b,qwen3-embedding:4b,qwen3-embedding:8b,mxbai-embed-large,bge-m3"
+  DISTRACTORS: "800"
+  CAP: "25"
+
+setup: |
+  set -euo pipefail
+  python3 -m pip install --quiet numpy || pip install --quiet numpy
+  python3 -c "import numpy; print('numpy', numpy.__version__)"
+  curl -fsSL https://ollama.com/install.sh | sh
+  sudo mkdir -p /etc/systemd/system/ollama.service.d
+  printf '[Service]\nEnvironment="OLLAMA_NUM_PARALLEL=16"\nEnvironment="OLLAMA_MAX_LOADED_MODELS=1"\n' \
+    | sudo tee /etc/systemd/system/ollama.service.d/override.conf >/dev/null
+  sudo systemctl daemon-reload && sudo systemctl restart ollama
+  for i in $(seq 1 60); do curl -sf localhost:11434/api/tags >/dev/null && sleep 3 && break; sleep 2; done
+  for m in ${MODELS//,/ }; do
+    ollama pull "$m"
+    # Pull succeeded is not will answer: probe each model with one real embed.
+    curl -sf -m 120 localhost:11434/api/embed -d "{\"model\":\"$m\",\"input\":\"probe\"}" \
+      | grep -q '"embeddings"' || { echo "PROBE FAILED: $m"; exit 1; }
+    echo "model verified: $m"
+  done
+
+run: |
+  set -euo pipefail
+  nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
+  mkdir -p ~/.claude ~/.cache /out/bakeoff-models/cache
+  ln -sfn /transcripts ~/.claude/projects
+  ln -sfn /out/bakeoff-models/cache ~/.cache/claude-grep-bakeoff
+  N=$(ls /transcripts/*/*.jsonl | wc -l)
+  [ "$N" -ge 117 ] || { echo "REFUSING: only $N staged sessions"; exit 1; }
+  TAG="$(date -u +%Y%m%dT%H%M)-d${DISTRACTORS}"
+  python3 bench/model-bakeoff.py --distractors "$DISTRACTORS" --cap-distractor-msgs "$CAP" \
+    --chunk-chars 512 --include-tools --workers 16 --models "$MODELS" 2>&1 \
+    | tee "/tmp/$TAG.txt"
+  # Refuse a result missing any model row.
+  for m in ${MODELS//,/ }; do
+    grep -qE "^${m//./\\.} +[0-9]+ +[0-9]+ +[0-9]+ +[0-9.]+" "/tmp/$TAG.txt" \
+      || { echo "REFUSING: no score row for $m"; exit 1; }
+  done
+  cp "/tmp/$TAG.txt" "/out/bakeoff-models/$TAG.txt"
+  cp "/tmp/$TAG.txt" /out/bakeoff-models/latest.txt
+  echo "DONE $TAG"

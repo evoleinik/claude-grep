@@ -15,6 +15,7 @@ path changes, change it here too.
 Usage:  python3 bench/model-bakeoff.py [--distractors 250] [--models a,b]
 """
 import argparse, glob, hashlib, json, math, os, pathlib, random, re, sys, time
+from array import array
 from concurrent.futures import ThreadPoolExecutor
 import urllib.request
 
@@ -23,6 +24,10 @@ MAX_EMBED_CHARS = 2048          # index.go
 TOP_N           = 100           # vector.go, opts.MaxResults
 CACHE = pathlib.Path.home() / ".cache" / "claude-grep-bakeoff"
 
+# Qwen3-Embedding takes an instruction on the query side only (model card format).
+QWEN_QUERY = ("Instruct: Given a question about past work, retrieve the conversation "
+              "passage that answers it\nQuery:")
+
 # name -> (query_prefix, doc_prefix, similarity floor)
 # Floors are per-model; the scales are NOT comparable (see vector.go simFloor).
 MODELS = {
@@ -30,16 +35,27 @@ MODELS = {
     "nomic-embed-text+pfx":    ("search_query: ", "search_document: ", 0.55),
     "embeddinggemma":          ("task: search result | query: ", "title: none | text: ", 0.35),
     "mxbai-embed-large":       ("Represent this sentence for searching relevant passages: ", "", 0.62),
+    # Added 2026-11-04 for the GPU bakeoff. Floors are 0.0 because nobody has
+    # calibrated them yet: the comparison ranks the top 100 chunks, and a floor
+    # only matters once a model is chosen. Calibrate one before shipping it.
+    "qwen3-embedding:0.6b":    (QWEN_QUERY, "", 0.0),
+    "qwen3-embedding:4b":      (QWEN_QUERY, "", 0.0),
+    "qwen3-embedding:8b":      (QWEN_QUERY, "", 0.0),
+    "bge-m3":                  ("", "", 0.0),
 }
 
 def ollama_model(name): return name.split("+")[0]
 
-def embed_batch(model, texts, workers=4):
+WORKERS = 4  # --workers; match the server's OLLAMA_NUM_PARALLEL on a GPU
+
+def embed_batch(model, texts, workers=None):
+    workers = workers or WORKERS
     def one(t):
         req = urllib.request.Request(OLLAMA,
             json.dumps({"model": ollama_model(model), "input": t}).encode(),
             {"Content-Type": "application/json"})
-        return json.loads(urllib.request.urlopen(req, timeout=600).read())["embeddings"][0]
+        v = json.loads(urllib.request.urlopen(req, timeout=600).read())["embeddings"][0]
+        return array("f", v)  # 4 bytes a float instead of a 24-byte Python object
     with ThreadPoolExecutor(max_workers=workers) as ex:
         return list(ex.map(one, texts))
 
@@ -135,22 +151,45 @@ def cached_vectors(model, docs):
     qp, dp, _ = MODELS[model]
     CACHE.mkdir(parents=True, exist_ok=True)
     sig = hashlib.sha256(("\x00".join(t for _, t in docs) + model).encode()).hexdigest()[:16]
-    cf = CACHE / f"{model.replace('/','_')}-{sig}.json"
+    name = model.replace('/', '_').replace(':', '_')
+    try:  # a JSON cache of 100k x 4096 floats needs ~10 GB of Python objects
+        import numpy as np
+    except ImportError:
+        np = None
+    cf = CACHE / f"{name}-{sig}.{'npy' if np else 'json'}"
     if cf.exists():
-        return json.loads(cf.read_text()), True
+        return (np.load(cf) if np else json.loads(cf.read_text())), True
     t0 = time.time()
     vecs = embed_batch(model, [dp + t for _, t in docs])
-    cf.write_text(json.dumps(vecs))
-    print(f"    embedded {len(docs)} docs in {time.time()-t0:.0f}s", file=sys.stderr)
+    if np:
+        vecs = np.asarray(vecs, dtype=np.float32)
+        np.save(cf, vecs)
+    else:
+        cf.write_text(json.dumps([list(v) for v in vecs]))
+    print(f"    embedded {len(docs)} docs in {time.time()-t0:.0f}s "
+          f"({len(docs)/max(time.time()-t0, 1e-9):.0f}/s)", file=sys.stderr)
     return vecs, False
 
 def score(model, corpus, docs, vecs):
     qp, dp, floor = MODELS[model]
     qvecs = embed_batch(model, [qp + r["query"] for r in corpus])
+    sims = None
+    try:  # pure-Python cosine over ~100k 4096-dim vectors takes hours; numpy takes seconds
+        import numpy as np
+        m = np.asarray(vecs, dtype=np.float32)
+        m /= np.linalg.norm(m, axis=1, keepdims=True) + 1e-12
+        q = np.asarray(qvecs, dtype=np.float32)
+        q /= np.linalg.norm(q, axis=1, keepdims=True) + 1e-12
+        sims = (q @ m.T).tolist()
+    except ImportError:
+        pass
     ranks = []
-    for row, qv in zip(corpus, qvecs):
+    for qi, (row, qv) in enumerate(zip(corpus, qvecs)):
         target = row["_target"]
-        scored = [(cos(qv, v), docs[i][0]) for i, v in enumerate(vecs)]
+        if sims is not None:
+            scored = [(s, docs[i][0]) for i, s in enumerate(sims[qi])]
+        else:
+            scored = [(cos(qv, v), docs[i][0]) for i, v in enumerate(vecs)]
         scored = [s for s in scored if s[0] > floor]
         scored.sort(key=lambda s: -s[0])
         seen, rank, hit = set(), 0, 0
@@ -172,7 +211,10 @@ def main():
     ap.add_argument("--chunk-chars", type=int, default=0,
                     help="split messages into ~N-char chunks (0 = whole message, the current behaviour)")
     ap.add_argument("--corpus", default=str(pathlib.Path(__file__).parent / "queries-labeled.json"))
+    ap.add_argument("--workers", type=int, default=4, help="parallel embed requests")
     a = ap.parse_args()
+    global WORKERS
+    WORKERS = a.workers
 
     corpus = [r for r in json.load(open(a.corpus)) if r.get("expect_session") or r.get("expect_project")]
     files, targets = build_subset(corpus, a.distractors)
