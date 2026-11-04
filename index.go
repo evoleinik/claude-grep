@@ -172,10 +172,15 @@ func runIndex(reindexAll bool) {
 		projectPath := filepath.Join(projectsDir, project)
 
 		idx := loadIndex(project)
+		// Save a project only when this run changed it. Saving every project
+		// rewrote all 935 live gobs (4.35 GB) every 30 minutes, about 209 GB a
+		// day of SSD writes, even on runs that indexed nothing (2026-11-04).
+		dirty := false
 		// A vector is only comparable to others from the same model, and the dims
 		// differ across models, so a model change invalidates the whole project.
 		if reindexAll || idx.EmbedModel != indexStamp {
 			idx = &Index{Files: make(map[string]FileMetadata), Project: project}
+			dirty = true
 		}
 		idx.EmbedModel = indexStamp
 
@@ -209,6 +214,7 @@ func runIndex(reindexAll bool) {
 					startAt = meta.Messages
 				} else {
 					idx.Entries = removeEntriesForFile(idx.Entries, fpath)
+					dirty = true
 				}
 			}
 
@@ -229,11 +235,13 @@ func runIndex(reindexAll bool) {
 				// changed under us. Rebuild rather than guess.
 				idx.Entries = removeEntriesForFile(idx.Entries, fpath)
 				startAt = 0
+				dirty = true
 			}
 			newMsgs := messages[startAt:]
 			if len(newMsgs) == 0 {
 				idx.Files[fpath] = FileMetadata{FilePath: fpath, LastModified: info.ModTime(),
 					Messages: len(messages), Size: info.Size()}
+				dirty = true
 				totalSkipped++
 				continue
 			}
@@ -279,9 +287,13 @@ func runIndex(reindexAll bool) {
 				Messages:     len(messages),
 				Size:         info.Size(),
 			}
+			dirty = true
 			totalNew++
 		}
 
+		if !dirty {
+			continue
+		}
 		if err := saveIndex(idx); err != nil {
 			fmt.Fprintf(os.Stderr, "error saving index for %s: %v\n", project, err)
 		}

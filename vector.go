@@ -98,6 +98,16 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 				continue
 			}
 		}
+		// A message is written before its file's mtime, so a project whose newest
+		// transcript predates the cutoff holds nothing inside the window. Skip it
+		// before paying for the gob decode: a default 7-day search read 4.35 GB to
+		// use 0.85 GB of it (2026-11-04).
+		// Zero means no transcript to judge by (archived, or empty): keep it.
+		if !cutoff.IsZero() {
+			if n := newestTranscript(filepath.Join(projectsBase, project)); !n.IsZero() && n.Before(cutoff) {
+				continue
+			}
+		}
 		todo = append(todo, project)
 	}
 
@@ -269,6 +279,22 @@ func semanticSearch(query, searchPath string, opts SearchOpts) ([]Match, error) 
 	}
 
 	return matches, nil
+}
+
+// newestTranscript returns the latest mtime of any JSONL under dir, or the zero
+// time when there is none, including when dir is gone (an archived project).
+func newestTranscript(dir string) time.Time {
+	var newest time.Time
+	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".jsonl") {
+			return nil
+		}
+		if info.ModTime().After(newest) {
+			newest = info.ModTime()
+		}
+		return nil
+	})
+	return newest
 }
 
 // rankBySessionAggregate reorders chunks so that sessions appear in order of

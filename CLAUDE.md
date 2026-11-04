@@ -62,6 +62,14 @@ scripts/coverage.sh     # all tests + total coverage; exit 1 under 80%. CI runs 
   against 0.708 prefixed. Changing `embedModel` invalidates every vector: the gob
   carries `EmbedModel`, a mismatch forces a rebuild, and search says so rather than
   silently returning nothing
+- Do not cap ollama's `num_thread`. Measured 2026-11-04: 4 threads saves about 1% of box
+  CPU, and any request whose options differ from the loaded model's reloads the runner
+  (1.2 to 1.7 s per switch, measured 2026-11-05)
+- A dated semantic search skips projects whose newest JSONL predates the cutoff, before
+  decoding the gob (a 7-day search read 4.35 GB to use 0.85 GB). A message is written
+  before its file's mtime, so the result set is unchanged
+- `runIndex` saves a project only when it changed (`dirty`). Saving all of them rewrote
+  4.35 GB every 30 minutes
 - Semantic threshold `simFloor` is MODEL-SPECIFIC and must be re-measured on every
   model change (nomic ~0.55, mxbai ~0.62, embeddinggemma 0.35). Carrying one over
   guts recall or floods it with noise

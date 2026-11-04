@@ -273,10 +273,11 @@ Go `regexp`. Files are pre-filtered with literal substring matching before any J
 parse (alternation patterns like `(a|b|c)` are decomposed into individual literals and
 OR-checked). 8 goroutines process files concurrently.
 
-**Semantic mode** embeds the query via ollama (`nomic-embed-text`, 768 dims) and computes
-cosine similarity against the pre-built index (threshold 0.55). Skips file re-reads when
-no context is requested (~60× faster). The index lives as gob files in
-`~/.claude/search-index/`.
+**Semantic mode** embeds the query via ollama (`embeddinggemma`, 768 dims) and computes cosine similarity against the pre-built index (threshold 0.35). A
+dated search (`-d N`, default 7) skips every project whose newest transcript is older than
+the window, before reading its index file. Skips file re-reads when no context is
+requested (~60× faster). The index lives as one gob file per project in
+`~/.claude/search-index/`, and an index run rewrites only the projects it changed.
 
 **BM25 compression** uses Okapi BM25 (k1=1.2, b=0.75) to extract the most query-relevant
 chunks from each match: split into sentences → tokenize with bigrams, stop-word
