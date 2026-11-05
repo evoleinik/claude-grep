@@ -163,3 +163,20 @@ pilot pool is small, so it cannot rule out a model that degrades more slowly at
 Keep embeddinggemma. Do not run the 800-distractor pool unless a model is
 worse here by one query or less, which only qwen3-embedding:4b is, and 4B is
 not affordable on box CPU.
+
+## Re-measured 2026-11-05 (Claude, asked "is it worth it?")
+
+Same query, `-a -s`, isolated HOME so usage.jsonl is untouched, box load 7 to 20:
+
+    old binary   2.81  2.87  3.01 s   (first run 4.9 s)
+    new binary   1.17  1.20  1.20 s   (first run after old 2.5 to 2.9 s)
+
+B cuts a default search from about 2.9 s to 1.2 s. The first run after switching
+binaries pays 1.2 to 1.7 s extra, because a different `num_thread` reloads the
+ollama runner. That is A's failure mode, measured. No other code on box calls
+embeddinggemma today, so it only bites while old and new binaries alternate.
+
+Revised recommendation: ship B and C. Drop A. A saves about 1% of box and adds a
+reload penalty for any future caller that sends different options. B is the one
+gain a user feels, on every session's first search. C removes 209 GB a day of
+writes with a test behind it.
