@@ -117,7 +117,8 @@ to confirm. Leave the quality drop for a separate GPU bakeoff if it matters.
 ## Answers
 
 - Q2, Eugene, 2026-11-04: "let's try gpu now skypilot". The bakeoff runs now.
-- Q1: not answered yet.
+- Q1, Eugene, 2026-11-05, after the re-measure below: "Drop the thread cap, install
+  the window skip and the save fix on box, and push."
 
 ## GPU bakeoff — 2026-11-04 (Claude)
 
@@ -180,3 +181,10 @@ Revised recommendation: ship B and C. Drop A. A saves about 1% of box and adds a
 reload penalty for any future caller that sends different options. B is the one
 gain a user feels, on every session's first search. C removes 209 GB a day of
 writes with a test behind it.
+
+## Decision — 2026-11-05
+
+B and C shipped in `ce9210b` and run on box. A was dropped: about 1% of box CPU,
+and a mismatched `num_thread` reloads the ollama runner. The model stays
+embeddinggemma. The recall drop from index growth stays open, with no model fix
+in reach.
